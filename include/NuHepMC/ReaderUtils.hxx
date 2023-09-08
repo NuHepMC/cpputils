@@ -18,6 +18,7 @@
 #include "NuHepMC/Exceptions.hxx"
 #include "NuHepMC/Traits.hxx"
 #include "NuHepMC/Types.hxx"
+#include "NuHepMC/Common.hxx"
 
 #include <map>
 #include <memory>
@@ -53,12 +54,13 @@ auto CheckedAttributeValue(T const &obj, std::string const &name) {
     throw mae;
   }
 
-  if (!obj->template attribute<NuHepMC::attr_traits<AT>::type>(name)) {
+  if (!obj->template attribute<typename NuHepMC::attr_traits<AT>::type>(name)) {
     throw AttributeTypeException()
         << name << ": " << obj->attribute_as_string(name);
   }
 
-  return obj->template attribute<NuHepMC::attr_traits<AT>::type>(name)->value();
+  return obj->template attribute<typename NuHepMC::attr_traits<AT>::type>(name)
+      ->value();
 }
 
 template <typename AT, typename T>
@@ -72,21 +74,22 @@ auto CheckedAttributeValue(T const &obj, std::string const &name,
     return defval;
   }
 
-  if (!obj->template attribute<NuHepMC::attr_traits<AT>::type>(name)) {
+  if (!obj->template attribute<typename NuHepMC::attr_traits<AT>::type>(name)) {
     throw AttributeTypeException()
         << name << ": " << obj->attribute_as_string(name);
   }
 
-  return obj->template attribute<NuHepMC::attr_traits<AT>::type>(name)->value();
+  return obj->template attribute<typename NuHepMC::attr_traits<AT>::type>(name)
+      ->value();
 }
 
 namespace GR2 {
 inline std::tuple<int, int, int>
 ReadVersion(std::shared_ptr<HepMC3::GenRunInfo> &run_info) {
-  return std::tuple<int, int, int>{
+  return std::make_tuple(
       CheckedAttributeValue<int>(run_info, "NuHepMC.Version.Major"),
       CheckedAttributeValue<int>(run_info, "NuHepMC.Version.Minor"),
-      CheckedAttributeValue<int>(run_info, "NuHepMC.Version.Patch")};
+      CheckedAttributeValue<int>(run_info, "NuHepMC.Version.Patch"));
 }
 } // namespace GR2
 
@@ -152,8 +155,7 @@ bool SignalsConvention(std::shared_ptr<HepMC3::GenRunInfo> const &run_info,
 
 namespace GC2 {
 long ReadExposureNEvents(std::shared_ptr<HepMC3::GenRunInfo> &run_info) {
-  return CheckedAttributeValue<int>(
-      run_info, "NuHepMC.Exposure.NEvents");
+  return CheckedAttributeValue<int>(run_info, "NuHepMC.Exposure.NEvents");
 }
 } // namespace GC2
 
@@ -170,8 +172,8 @@ ReadCrossSectionUnits(std::shared_ptr<HepMC3::GenRunInfo> &run_info) {
 
 namespace GC5 {
 long ReadFluxAveragedTotalXSec(std::shared_ptr<HepMC3::GenRunInfo> &run_info) {
-  return CheckedAttributeValue<double>(
-      run_info, "NuHepMC.FluxAveragedTotalCrossSection");
+  return CheckedAttributeValue<double>(run_info,
+                                       "NuHepMC.FluxAveragedTotalCrossSection");
 }
 } // namespace GC5
 
