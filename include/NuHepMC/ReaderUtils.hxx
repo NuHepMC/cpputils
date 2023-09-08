@@ -16,7 +16,7 @@
 
 #include "NuHepMC/Constants.hxx"
 #include "NuHepMC/Exceptions.hxx"
-#include "NuHepMC/Traits.hxx"
+#include "NuHepMC/Traits.hxx"m
 #include "NuHepMC/Types.hxx"
 
 #include <map>
@@ -143,6 +143,13 @@ ReadConventions(std::shared_ptr<HepMC3::GenRunInfo> &run_info) {
     conventions.insert(c);
   }
   return conventions;
+}
+bool SignalsConvention(std::shared_ptr<HepMC3::GenRunInfo> const &run_info,
+                       std::string const &Convention) {
+  auto conventions =
+     ReadConventions(run_info);
+
+  return conventions.count(Convention);
 }
 } // namespace GC1
 
