@@ -16,7 +16,7 @@
 
 #include "NuHepMC/Constants.hxx"
 #include "NuHepMC/Exceptions.hxx"
-#include "NuHepMC/Traits.hxx"m
+#include "NuHepMC/Traits.hxx"
 #include "NuHepMC/Types.hxx"
 
 #include <map>
