@@ -4,8 +4,6 @@
 
 #include "HepMC3/GenRunInfo.h"
 
-#include "HepMC3/Attribute.h"
-
 #include "HepMC3/WriterAscii.h"
 #ifdef HEPMC3_USE_COMPRESSION
 #include "HepMC3/WriterGZ.h"
@@ -14,9 +12,11 @@
 #include "HepMC3/Writerprotobuf.h"
 #endif
 
+#include "NuHepMC/Common.hxx"
 #include "NuHepMC/Constants.hxx"
 #include "NuHepMC/Exceptions.hxx"
 #include "NuHepMC/NuHepMCVersion.hxx"
+#include "NuHepMC/Traits.hxx"
 #include "NuHepMC/Types.hxx"
 
 #include <map>
@@ -27,38 +27,6 @@
 namespace NuHepMC {
 
 NEW_NuHepMC_EXCEPT(UnsupportedFilenameExtension);
-NEW_NuHepMC_EXCEPT(UnknownFilenameExtension);
-
-// Lazy way of choosing the right attribute type via TMP
-template <typename T> struct attr_traits {};
-
-template <> struct attr_traits<int> {
-  typedef HepMC3::IntAttribute type;
-};
-
-template <> struct attr_traits<std::vector<int>> {
-  typedef HepMC3::VectorIntAttribute type;
-};
-
-template <> struct attr_traits<double> {
-  typedef HepMC3::DoubleAttribute type;
-};
-
-template <> struct attr_traits<std::vector<double>> {
-  typedef HepMC3::VectorDoubleAttribute type;
-};
-
-template <> struct attr_traits<std::string> {
-  typedef HepMC3::StringAttribute type;
-};
-
-template <size_t N> struct attr_traits<char[N]> {
-  typedef HepMC3::StringAttribute type;
-};
-
-template <> struct attr_traits<std::vector<std::string>> {
-  typedef HepMC3::VectorStringAttribute type;
-};
 
 template <typename T>
 void add_attribute(std::shared_ptr<HepMC3::GenRunInfo> &run_info,
@@ -154,54 +122,24 @@ inline void SetExposureNEvents(std::shared_ptr<HepMC3::GenRunInfo> &run_info,
 } // namespace GC2
 
 namespace GC4 {
+inline void SetCrossSectionUnits(std::shared_ptr<HepMC3::GenRunInfo> &run_info,
+                                 std::string const &xs_units,
+                                 std::string const &target_scale) {
+  add_attribute(run_info, "NuHepMC.Units.CrossSection.Unit", xs_units);
+  add_attribute(run_info, "NuHepMC.Units.CrossSection.TargetScale",
+                target_scale);
+}
+} // namespace GC4
+
+namespace GC5 {
 inline void
 SetFluxAveragedTotalXSec(std::shared_ptr<HepMC3::GenRunInfo> &run_info,
                          double fatx) {
   add_attribute(run_info, "NuHepMC.FluxAveragedTotalCrossSection", fatx);
 }
-} // namespace GC4
+} // namespace GC5
 
 namespace Writer {
-
-enum DiskFormat {
-  kHepMC3 = 1,
-  kProtobuf = 2,
-};
-enum CompressionFormat {
-  kZ = 10,
-  kLZMA = 20,
-  kBZip2 = 30,
-};
-
-std::pair<std::string, std::string> split_extension(std::string const &name) {
-  size_t fext = name.find_last_of('.');
-  std::string ext = name.substr(fext + 1, std::string::npos);
-  std::string name_woe = name.substr(0, fext);
-
-  return std::make_pair(name_woe, ext);
-}
-
-int ParseExtension(std::string const &name) {
-
-  auto split_name = split_extension(name);
-  std::string name_woe = split_name.first, ext = split_name.second;
-
-  if ((ext == "hepmc3") || (ext == "hepmc")) {
-    return kHepMC3;
-  } else if ((ext == "proto") || (ext == "pb")) {
-    return kProtobuf;
-  } else if (ext == "gz") {
-    return kZ;
-  } else if (ext == "lzma") {
-    return kLZMA;
-  } else if (ext == "bz2") {
-    return kBZip2;
-  }
-  throw NuHepMC::UnknownFilenameExtension()
-      << "Parsed extension: \"" << ext << "\" from filename: \"" << name
-      << "\", could not automatically determine HepMC3::Writer concrete "
-         "type";
-}
 
 template <bxz::Compression C>
 HepMC3::Writer *make_writergz(std::string const &name,
