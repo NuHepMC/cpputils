@@ -83,12 +83,10 @@ auto CheckedAttributeValue(T const &obj, std::string const &name,
 namespace GR2 {
 inline std::tuple<int, int, int>
 ReadVersion(std::shared_ptr<HepMC3::GenRunInfo> &run_info) {
-  return std::tuple<int, int, int>{CheckedAttributeValue<HepMC3::IntAttribute>(
-                                       run_info, "NuHepMC.Version.Major"),
-                                   CheckedAttributeValue<HepMC3::IntAttribute>(
-                                       run_info, "NuHepMC.Version.Minor"),
-                                   CheckedAttributeValue<HepMC3::IntAttribute>(
-                                       run_info, "NuHepMC.Version.Patch")};
+  return std::tuple<int, int, int>{
+      CheckedAttributeValue<int>(run_info, "NuHepMC.Version.Major"),
+      CheckedAttributeValue<int>(run_info, "NuHepMC.Version.Minor"),
+      CheckedAttributeValue<int>(run_info, "NuHepMC.Version.Patch")};
 }
 } // namespace GR2
 
@@ -96,16 +94,16 @@ inline StatusCodeDescriptors
 ReadIdDefinitions(std::shared_ptr<HepMC3::GenRunInfo> &run_info,
                   std::pair<std::string, std::string> const &AttributeStubs) {
 
-  auto IDs = CheckedAttributeValue<HepMC3::VectorIntAttribute>(
+  auto IDs = CheckedAttributeValue<std::vector<int>>(
       run_info, "NuHepMC." + AttributeStubs.first);
 
   StatusCodeDescriptors status_codes;
   for (auto const &id : IDs) {
     status_codes[id] = std::pair<std::string, std::string>{
-        CheckedAttributeValue<HepMC3::StringAttribute>(
+        CheckedAttributeValue<std::string>(
             run_info, "NuHepMC." + AttributeStubs.second + "[" +
                           std::to_string(id) + "].Name"),
-        CheckedAttributeValue<HepMC3::StringAttribute>(
+        CheckedAttributeValue<std::string>(
             run_info, "NuHepMC." + AttributeStubs.second + "[" +
                           std::to_string(id) + "].Description")};
   }
@@ -138,7 +136,7 @@ namespace GC1 {
 std::set<std::string>
 ReadConventions(std::shared_ptr<HepMC3::GenRunInfo> &run_info) {
   std::set<std::string> conventions;
-  for (auto &c : CheckedAttributeValue<HepMC3::VectorStringAttribute>(
+  for (auto &c : CheckedAttributeValue<std::vector<std::string>>(
            run_info, "NuHepMC.Conventions", std::vector<std::string>{})) {
     conventions.insert(c);
   }
@@ -146,8 +144,7 @@ ReadConventions(std::shared_ptr<HepMC3::GenRunInfo> &run_info) {
 }
 bool SignalsConvention(std::shared_ptr<HepMC3::GenRunInfo> const &run_info,
                        std::string const &Convention) {
-  auto conventions =
-     ReadConventions(run_info);
+  auto conventions = ReadConventions(run_info);
 
   return conventions.count(Convention);
 }
@@ -155,7 +152,7 @@ bool SignalsConvention(std::shared_ptr<HepMC3::GenRunInfo> const &run_info,
 
 namespace GC2 {
 long ReadExposureNEvents(std::shared_ptr<HepMC3::GenRunInfo> &run_info) {
-  return CheckedAttributeValue<HepMC3::IntAttribute>(
+  return CheckedAttributeValue<int>(
       run_info, "NuHepMC.Exposure.NEvents");
 }
 } // namespace GC2
@@ -164,16 +161,16 @@ namespace GC4 {
 std::pair<std::string, std::string> void
 ReadCrossSectionUnits(std::shared_ptr<HepMC3::GenRunInfo> &run_info) {
   return std::make_pair(
-      CheckedAttributeValue<HepMC3::StringAttribute>(
+      CheckedAttributeValue<std::string>(
           run_info, "NuHepMC.Units.CrossSection.Unit", "pb");
-      CheckedAttributeValue<HepMC3::StringAttribute>(
+      CheckedAttributeValue<std::string>(
           run_info, "NuHepMC.Units.CrossSection.TargetScale", "PerTargetAtom"));
 }
 } // namespace GC4
 
 namespace GC5 {
 long ReadFluxAveragedTotalXSec(std::shared_ptr<HepMC3::GenRunInfo> &run_info) {
-  return CheckedAttributeValue<HepMC3::DoubleAttribute>(
+  return CheckedAttributeValue<double>(
       run_info, "NuHepMC.FluxAveragedTotalCrossSection");
 }
 } // namespace GC5
