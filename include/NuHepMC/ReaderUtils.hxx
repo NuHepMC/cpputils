@@ -1,5 +1,7 @@
 #pragma once
 
+#include "NuHepMC/HepMC3Features.hxx"
+
 #include "HepMC3/GenEvent.h"
 #include "HepMC3/GenRunInfo.h"
 #include "HepMC3/GenVertex.h"
@@ -18,7 +20,6 @@
 #include "NuHepMC/Exceptions.hxx"
 #include "NuHepMC/Traits.hxx"
 #include "NuHepMC/Types.hxx"
-#include "NuHepMC/Common.hxx"
 
 #include <map>
 #include <memory>
@@ -94,7 +95,7 @@ ReadVersion(std::shared_ptr<HepMC3::GenRunInfo> &run_info) {
 } // namespace GR2
 
 inline StatusCodeDescriptors
-ReadIdDefinitions(std::shared_ptr<HepMC3::GenRunInfo> &run_info,
+ReadIdDefinitions(std::shared_ptr<HepMC3::GenRunInfo> const &run_info,
                   std::pair<std::string, std::string> const &AttributeStubs) {
 
   auto IDs = CheckedAttributeValue<std::vector<int>>(
@@ -115,21 +116,21 @@ ReadIdDefinitions(std::shared_ptr<HepMC3::GenRunInfo> &run_info,
 
 namespace GR4 {
 inline StatusCodeDescriptors
-ReadProcessIdDefinitions(std::shared_ptr<HepMC3::GenRunInfo> &run_info) {
+ReadProcessIdDefinitions(std::shared_ptr<HepMC3::GenRunInfo> const &run_info) {
   return ReadIdDefinitions(run_info, {"ProcessIDs", "ProcessInfo"});
 }
 } // namespace GR4
 
 namespace GR5 {
-inline StatusCodeDescriptors
-ReadVertexStatusIdDefinitions(std::shared_ptr<HepMC3::GenRunInfo> &run_info) {
+inline StatusCodeDescriptors ReadVertexStatusIdDefinitions(
+    std::shared_ptr<HepMC3::GenRunInfo> const &run_info) {
   return ReadIdDefinitions(run_info, {"VertexStatusIDs", "VertexStatusInfo"});
 }
 } // namespace GR5
 
 namespace GR6 {
-inline StatusCodeDescriptors
-ReadParticleStatusIdDefinitions(std::shared_ptr<HepMC3::GenRunInfo> &run_info) {
+inline StatusCodeDescriptors ReadParticleStatusIdDefinitions(
+    std::shared_ptr<HepMC3::GenRunInfo> const &run_info) {
   return ReadIdDefinitions(run_info,
                            {"ParticleStatusIDs", "ParticleStatusInfo"});
 }
@@ -137,7 +138,7 @@ ReadParticleStatusIdDefinitions(std::shared_ptr<HepMC3::GenRunInfo> &run_info) {
 
 namespace GC1 {
 std::set<std::string>
-ReadConventions(std::shared_ptr<HepMC3::GenRunInfo> &run_info) {
+ReadConventions(std::shared_ptr<HepMC3::GenRunInfo> const &run_info) {
   std::set<std::string> conventions;
   for (auto &c : CheckedAttributeValue<std::vector<std::string>>(
            run_info, "NuHepMC.Conventions", std::vector<std::string>{})) {
@@ -154,107 +155,28 @@ bool SignalsConvention(std::shared_ptr<HepMC3::GenRunInfo> const &run_info,
 } // namespace GC1
 
 namespace GC2 {
-long ReadExposureNEvents(std::shared_ptr<HepMC3::GenRunInfo> &run_info) {
+long ReadExposureNEvents(std::shared_ptr<HepMC3::GenRunInfo> const &run_info) {
   return CheckedAttributeValue<int>(run_info, "NuHepMC.Exposure.NEvents");
 }
 } // namespace GC2
 
 namespace GC4 {
-std::pair<std::string, std::string> void
-ReadCrossSectionUnits(std::shared_ptr<HepMC3::GenRunInfo> &run_info) {
+std::pair<std::string, std::string>
+ReadCrossSectionUnits(std::shared_ptr<HepMC3::GenRunInfo> const &run_info) {
   return std::make_pair(
       CheckedAttributeValue<std::string>(
-          run_info, "NuHepMC.Units.CrossSection.Unit", "pb");
+          run_info, "NuHepMC.Units.CrossSection.Unit", "pb"),
       CheckedAttributeValue<std::string>(
           run_info, "NuHepMC.Units.CrossSection.TargetScale", "PerTargetAtom"));
 }
 } // namespace GC4
 
 namespace GC5 {
-long ReadFluxAveragedTotalXSec(std::shared_ptr<HepMC3::GenRunInfo> &run_info) {
+long ReadFluxAveragedTotalXSec(
+    std::shared_ptr<HepMC3::GenRunInfo> const &run_info) {
   return CheckedAttributeValue<double>(run_info,
                                        "NuHepMC.FluxAveragedTotalCrossSection");
 }
 } // namespace GC5
-
-namespace Reader {
-template <bxz::Compression C>
-HepMC3::Reader *make_readergz(std::string const &name,
-                              std::shared_ptr<HepMC3::GenRunInfo> &run_info) {
-
-  auto ext = ParseExtension(split_extension(name).first);
-
-  if (ext == kHepMC3) {
-    return new HepMC3::ReaderGZ<HepMC3::ReaderAscii, C>(name.c_str(), run_info);
-  } else if (ext == kProtobuf) {
-#if HEPMC3_ProtobufIO_SUPPORT != 1
-    throw NuHepMC::UnsupportedFilenameExtension()
-        << "HepMC3 built without ProtobufIO support but tried to instantiate a "
-           "reader for output file: "
-        << name;
-#endif
-    return new HepMC3::ReaderGZ<HepMC3::Readerprotobuf, C>(name.c_str(),
-                                                           run_info);
-  }
-  throw NuHepMC::UnknownFilenameExtension()
-      << "Parsed compressed extension: \""
-      << split_extension(split_extension(name).first).second
-      << "\" from filename: \"" << name
-      << "\", could not automatically determine HepMC3::Reader concrete "
-         "type";
-}
-
-HepMC3::Reader *make_reader(std::string const &name,
-                            std::shared_ptr<HepMC3::GenRunInfo> &run_info) {
-
-  int ext = ParseExtension(name);
-
-  if (ext == kHepMC3) {
-    return new HepMC3::ReaderAscii(name.c_str(), run_info);
-  } else if (ext == kProtobuf) {
-#if HEPMC3_ProtobufIO_SUPPORT != 1
-    throw NuHepMC::UnsupportedFilenameExtension()
-        << "HepMC3 built without ProtobufIO support but tried to instantiate a "
-           "reader for output file: "
-        << name;
-#endif
-    return new HepMC3::Readerprotobuf(name.c_str(), run_info);
-  } else if (((ext / 10) * 10) == kZ) {
-#if HEPMC3_Z_SUPPORT != 1
-    throw NuHepMC::UnsupportedFilenameExtension()
-        << "HepMC3 built without ZLib support but tried to instantiate a "
-           "reader for output file: "
-        << name;
-#else
-    return make_readergz<bxz::Compression::z>(name, run_info);
-#endif
-
-  } else if (((ext / 10) * 10) == kLZMA) {
-#if HEPMC3_LZMA_SUPPORT != 1
-    throw NuHepMC::UnsupportedFilenameExtension()
-        << "HepMC3 built without LibLZMA support but tried to instantiate a "
-           "reader for output file: "
-        << name;
-#else
-    return make_readergz<bxz::Compression::lzma>(name, run_info);
-#endif
-
-  } else if (((ext / 10) * 10) == kBZip2) {
-#if HEPMC3_BZ2_SUPPORT != 1
-    throw NuHepMC::UnsupportedFilenameExtension()
-        << "HepMC3 built without BZip2 support but tried to instantiate a "
-           "reader for output file: "
-        << name;
-#else
-    return make_readergz<bxz::Compression::bz2>(name, run_info);
-#endif
-  }
-  throw NuHepMC::UnknownFilenameExtension()
-      << "Parsed extension: \"" << split_extension(name).second
-      << "\" from filename: \"" << name
-      << "\", could not automatically determine HepMC3::Reader concrete "
-         "type";
-}
-} // namespace Reader
 
 } // namespace NuHepMC

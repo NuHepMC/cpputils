@@ -4,20 +4,12 @@
 
 #include "HepMC3/GenRunInfo.h"
 
-#include "HepMC3/WriterAscii.h"
-#ifdef HEPMC3_USE_COMPRESSION
-#include "HepMC3/WriterGZ.h"
-#endif
-#ifdef HEPMC3_ProtobufIO_SUPPORT
-#include "HepMC3/Writerprotobuf.h"
-#endif
-
-#include "NuHepMC/Common.hxx"
 #include "NuHepMC/Constants.hxx"
 #include "NuHepMC/Exceptions.hxx"
 #include "NuHepMC/NuHepMCVersion.hxx"
 #include "NuHepMC/Traits.hxx"
 #include "NuHepMC/Types.hxx"
+#include "NuHepMC/Common.hxx"
 
 #include <map>
 #include <memory>
@@ -26,21 +18,7 @@
 
 namespace NuHepMC {
 
-NEW_NuHepMC_EXCEPT(UnsupportedFilenameExtension);
-
-template <typename T>
-void add_attribute(std::shared_ptr<HepMC3::GenRunInfo> &run_info,
-                   std::string const &name, T const &val) {
-  run_info->add_attribute(
-      name, std::make_shared<typename NuHepMC::attr_traits<T>::type>(val));
-}
-
-template <typename T>
-void add_attribute(HepMC3::GenEvent &ge, std::string const &name,
-                   T const &val) {
-  ge.add_attribute(
-      name, std::make_shared<typename NuHepMC::attr_traits<T>::type>(val));
-}
+NEW_NuHepMC_EXCEPT(InvalidBeamEnergyDescription);
 
 namespace GR2 {
 inline void WriteVersion(std::shared_ptr<HepMC3::GenRunInfo> &run_info) {
@@ -107,6 +85,43 @@ inline void SetWeightNames(std::shared_ptr<HepMC3::GenRunInfo> &run_info,
 }
 } // namespace GR7
 
+namespace GR8 {
+template <typename T>
+inline void
+WriteNonStandardParticleNumbers(std::shared_ptr<HepMC3::GenRunInfo> &run_info,
+                                T const &nonstandard_pdg_definitions) {
+  static_assert(std::is_same_v<T, std::map<int, std::string>> ||
+                    std::is_same_v<T, std::map<int, std::string>>,
+                "WriteNonStandardParticleNumbers called with invalid type, "
+                "should be std::map<int,std::string> or "
+                "std::map<int,std::pair<std::string,std::string>>");
+
+  if constexpr (std::is_same_v<T, std::map<int, std::string>>) {
+    std::vector<int> Nums;
+    for (auto const &p : nonstandard_pdg_definitions) {
+      Nums.push_back(p.first);
+    }
+    add_attribute(run_info, "NuHepMC.AdditionalParticleNumbers", Nums);
+
+    for (auto const &p : nonstandard_pdg_definitions) {
+      add_attribute(run_info,
+                    "NuHepMC.AdditionalParticleNumber[" +
+                        std::to_string(p.first) + "].Name",
+                    p.second.first);
+    }
+
+    if (std::is_same_v<T, std::map<int, std::string>>) {
+      for (auto const &p : nonstandard_pdg_definitions) {
+        add_attribute(run_info,
+                      "NuHepMC.AdditionalParticleNumber[" +
+                          std::to_string(p.first) + "].Description",
+                      p.second.second);
+      }
+    }
+  }
+}
+} // namespace GR8
+
 namespace GC1 {
 inline void SetConventions(std::shared_ptr<HepMC3::GenRunInfo> &run_info,
                            std::vector<std::string> const &conventions) {
@@ -120,6 +135,17 @@ inline void SetExposureNEvents(std::shared_ptr<HepMC3::GenRunInfo> &run_info,
   add_attribute(run_info, "NuHepMC.Exposure.NEvents", NEvents);
 }
 } // namespace GC2
+
+namespace GC3 {
+inline void SetExposurePOT(std::shared_ptr<HepMC3::GenRunInfo> &run_info,
+                           double POT) {
+  add_attribute(run_info, "NuHepMC.Exposure.POT", POT);
+}
+inline void SetExposureLivetime(std::shared_ptr<HepMC3::GenRunInfo> &run_info,
+                                double Livetime) {
+  add_attribute(run_info, "NuHepMC.Exposure.Livetime", Livetime);
+}
+} // namespace GC3
 
 namespace GC4 {
 inline void SetCrossSectionUnits(std::shared_ptr<HepMC3::GenRunInfo> &run_info,
@@ -139,85 +165,104 @@ SetFluxAveragedTotalXSec(std::shared_ptr<HepMC3::GenRunInfo> &run_info,
 }
 } // namespace GC5
 
-namespace Writer {
+namespace GC6 {
+inline void AddCitationMetadata(std::shared_ptr<HepMC3::GenRunInfo> &run_info,
+                                std::string const &component,
+                                std::string const &type,
+                                std::vector<std::string> const &values) {
+  add_attribute(run_info, "NuHepMC.Citations." + component + "." + type,
+                values);
+}
+inline void AddGeneratorCitation(std::shared_ptr<HepMC3::GenRunInfo> &run_info,
+                                 std::string const &type,
+                                 std::vector<std::string> const &values) {
+  AddCitationMetadata(run_info, "Generator", type, values);
+}
+inline void AddProcessCitation(std::shared_ptr<HepMC3::GenRunInfo> &run_info,
+                               int const &ProcID, std::string const &type,
+                               std::vector<std::string> const &values) {
+  AddCitationMetadata(run_info,
+                      std::string("Process[") + std::to_string(ProcID) + "]",
+                      type, values);
+}
+} // namespace GC6
 
-template <bxz::Compression C>
-HepMC3::Writer *make_writergz(std::string const &name,
-                              std::shared_ptr<HepMC3::GenRunInfo> &run_info) {
+namespace GC7 {
 
-  auto ext = ParseExtension(split_extension(name).first);
-
-  if (ext == kHepMC3) {
-    return new HepMC3::WriterGZ<HepMC3::WriterAscii, C>(name.c_str(), run_info);
-  } else if (ext == kProtobuf) {
-#if HEPMC3_ProtobufIO_SUPPORT != 1
-    throw NuHepMC::UnsupportedFilenameExtension()
-        << "HepMC3 built without ProtobufIO support but tried to instantiate a "
-           "writer for output file: "
-        << name;
-#endif
-    return new HepMC3::WriterGZ<HepMC3::Writerprotobuf, C>(name.c_str(),
-                                                           run_info);
+inline void WriteBeamEnergyUnits(std::shared_ptr<HepMC3::GenRunInfo> &run_info,
+                                 std::string const &EnergyUnit,
+                                 std::string const &RateUnit = "") {
+  add_attribute(run_info, "NuHepMC.Beam.EnergyUnit", EnergyUnit);
+  if (RateUnit.length()) {
+    add_attribute(run_info, "NuHepMC.Beam.RateUnit", RateUnit);
   }
-  throw NuHepMC::UnknownFilenameExtension()
-      << "Parsed compressed extension: \""
-      << split_extension(split_extension(name).first).second
-      << "\" from filename: \"" << name
-      << "\", could not automatically determine HepMC3::Writer concrete "
-         "type";
 }
 
-HepMC3::Writer *make_writer(std::string const &name,
-                            std::shared_ptr<HepMC3::GenRunInfo> &run_info) {
-
-  int ext = ParseExtension(name);
-
-  if (ext == kHepMC3) {
-    return new HepMC3::WriterAscii(name.c_str(), run_info);
-  } else if (ext == kProtobuf) {
-#if HEPMC3_ProtobufIO_SUPPORT != 1
-    throw NuHepMC::UnsupportedFilenameExtension()
-        << "HepMC3 built without ProtobufIO support but tried to instantiate a "
-           "writer for output file: "
-        << name;
-#endif
-    return new HepMC3::Writerprotobuf(name.c_str(), run_info);
-  } else if (((ext / 10) * 10) == kZ) {
-#if HEPMC3_Z_SUPPORT != 1
-    throw NuHepMC::UnsupportedFilenameExtension()
-        << "HepMC3 built without ZLib support but tried to instantiate a "
-           "writer for output file: "
-        << name;
-#else
-    return make_writergz<bxz::Compression::z>(name, run_info);
-#endif
-
-  } else if (((ext / 10) * 10) == kLZMA) {
-#if HEPMC3_LZMA_SUPPORT != 1
-    throw NuHepMC::UnsupportedFilenameExtension()
-        << "HepMC3 built without LibLZMA support but tried to instantiate a "
-           "writer for output file: "
-        << name;
-#else
-    return make_writergz<bxz::Compression::lzma>(name, run_info);
-#endif
-
-  } else if (((ext / 10) * 10) == kBZip2) {
-#if HEPMC3_BZ2_SUPPORT != 1
-    throw NuHepMC::UnsupportedFilenameExtension()
-        << "HepMC3 built without BZip2 support but tried to instantiate a "
-           "writer for output file: "
-        << name;
-#else
-    return make_writergz<bxz::Compression::bz2>(name, run_info);
-#endif
-  }
-  throw NuHepMC::UnknownFilenameExtension()
-      << "Parsed extension: \"" << split_extension(name).second
-      << "\" from filename: \"" << name
-      << "\", could not automatically determine HepMC3::Writer concrete "
-         "type";
+inline void
+SetHistogramBeamType(std::shared_ptr<HepMC3::GenRunInfo> &run_info) {
+  add_attribute(run_info, "NuHepMC.Beam.Type", "Histogram");
 }
-} // namespace Writer
+
+inline void
+SetMonoEnergeticBeamType(std::shared_ptr<HepMC3::GenRunInfo> &run_info) {
+  add_attribute(run_info, "NuHepMC.Beam.Type", "MonoEnergetic");
+}
+
+inline void
+WriteBeamEnergyHistogram(std::shared_ptr<HepMC3::GenRunInfo> &run_info,
+                         int BeamParticleNumber,
+                         std::vector<double> const &bin_edges,
+                         std::vector<double> const &bin_content) {
+
+  if (!bin_edges.size() || !((bin_content.size() + 1) == bin_edges.size())) {
+    throw InvalidBeamEnergyDescription()
+        << "WriteBeamEnergyHistogram pass " << bin_edges.size()
+        << " bin edges and " << bin_content.size() << " bin contents.";
+  }
+
+  add_attribute(run_info,
+                "NuHepMC.Beam[" + std::to_string(BeamParticleNumber) +
+                    "].BinEdges",
+                bin_edges);
+  add_attribute(run_info,
+                "NuHepMC.Beam[" + std::to_string(BeamParticleNumber) +
+                    "].BinContent",
+                bin_content);
+}
+inline void
+WriteBeamEnergyMonoenergetic(std::shared_ptr<HepMC3::GenRunInfo> &run_info,
+                             int BeamParticleNumber, double const &energy) {
+
+  add_attribute(run_info,
+                "NuHepMC.Beam[" + std::to_string(BeamParticleNumber) +
+                    "].Energy",
+                energy);
+}
+} // namespace GC7
+
+namespace ER2 {
+inline void SetProcessID(HepMC3::GenEvent &evt, int ProcID) {
+  add_attribute(evt, "ProcID", ProcID);
+}
+} // namespace ER2
+
+namespace ER4 {
+inline void SetLabPosition(HepMC3::GenEvent &evt,
+                           std::vector<double> const &LabPos) {
+  add_attribute(evt, "LabPos", LabPos);
+}
+} // namespace ER4
+
+namespace EC2 {
+inline void SetTotalCrossSection(HepMC3::GenEvent &evt, double CrossSec) {
+  add_attribute(evt, "TotXS", CrossSec);
+}
+} // namespace EC2
+
+namespace EC3 {
+inline void SetProcessCrossSection(HepMC3::GenEvent &evt, double CrossSec) {
+  add_attribute(evt, "ProcXS", CrossSec);
+}
+} // namespace EC3
 
 } // namespace NuHepMC

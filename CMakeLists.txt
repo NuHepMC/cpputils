@@ -88,6 +88,12 @@ target_include_directories(nuhepmc_cpputils INTERFACE
   $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/include> 
   $<INSTALL_INTERFACE:include>)
 
+add_library(nuhepmc_cpputils_static INTERFACE)
+target_include_directories(nuhepmc_cpputils_static INTERFACE 
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/include>
+  $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/include> 
+  $<INSTALL_INTERFACE:include>)
+
 SET(NuHepMC_HEPMC3_USE_COMPRESSION)
 SET(NuHepMC_HEPMC3_Z_SUPPORT)
 SET(NuHepMC_HEPMC3_ProtobufIO_SUPPORT)
@@ -95,7 +101,7 @@ SET(NuHepMC_HEPMC3_ProtobufIO_SUPPORT)
 if(BUILTIN_HEPMC3)
   include(CPM)
 
-  find_package(Protobuf 2.4 REQUIRED)
+  find_package(Protobuf 2.4)
 
   set(BUILTIN_HEPMC3_ENABLE_PROTOBUFIO OFF)
   if(Protobuf_FOUND)
@@ -119,17 +125,24 @@ if(BUILTIN_HEPMC3)
         "HEPMC3_INSTALL_EXAMPLES OFF"
         "HEPMC3_ENABLE_TEST OFF"
         "HEPMC3_INSTALL_INTERFACES OFF"
-        "HEPMC3_BUILD_STATIC_LIBS OFF"
+        "HEPMC3_BUILD_STATIC_LIBS ON"
   )
 
 endif()
 
 if(TARGET HepMC3::All)
   target_link_libraries(nuhepmc_cpputils INTERFACE HepMC3::All)
+  target_link_libraries(nuhepmc_cpputils_static INTERFACE HepMC3::All_static)
+
+  if(Protobuf_FOUND)
+    target_link_libraries(nuhepmc_cpputils INTERFACE protobuf::libprotobuf)
+    target_link_libraries(nuhepmc_cpputils_static INTERFACE protobuf::libprotobuf)
+  endif()
 
   find_package(ZLIB)
   if(ZLIB_FOUND)
     target_link_libraries(nuhepmc_cpputils INTERFACE ZLIB::ZLIB)
+    target_link_libraries(nuhepmc_cpputils_static INTERFACE ZLIB::ZLIB)
     SET(NuHepMC_HEPMC3_USE_COMPRESSION "#define HEPMC3_USE_COMPRESSION 1")
     SET(NuHepMC_HEPMC3_Z_SUPPORT "#define HEPMC3_Z_SUPPORT 1")
   endif()
@@ -137,6 +150,7 @@ if(TARGET HepMC3::All)
   find_package(LibLZMA)
   if(LibLZMA_FOUND)
     target_link_libraries(nuhepmc_cpputils INTERFACE LibLZMA::LibLZMA)
+    target_link_libraries(nuhepmc_cpputils_static INTERFACE LibLZMA::LibLZMA)
     SET(NuHepMC_HEPMC3_USE_COMPRESSION "#define HEPMC3_USE_COMPRESSION 1")
     SET(NuHepMC_HEPMC3_LZMA_SUPPORT "#define HEPMC3_LZMA_SUPPORT 1")
   endif()
@@ -144,6 +158,7 @@ if(TARGET HepMC3::All)
   find_package(BZip2)
   if(BZip2_FOUND)
     target_link_libraries(nuhepmc_cpputils INTERFACE BZip2::BZip2)
+    target_link_libraries(nuhepmc_cpputils_static INTERFACE BZip2::BZip2)
     SET(NuHepMC_HEPMC3_USE_COMPRESSION "#define HEPMC3_USE_COMPRESSION 1")
     SET(NuHepMC_HEPMC3_BZ2_SUPPORT "#define HEPMC3_BZ2_SUPPORT 1")
   endif()
@@ -155,6 +170,7 @@ else()
 endif()
 
 add_library(NuHepMC::CPPUtils ALIAS nuhepmc_cpputils)
+add_library(NuHepMC::CPPUtils_static ALIAS nuhepmc_cpputils_static)
 
 configure_file(${CMAKE_CURRENT_LIST_DIR}/cmake/Templates/HepMC3Features.hxx.in
   "${PROJECT_BINARY_DIR}/include/NuHepMC/HepMC3Features.hxx" @ONLY)
