@@ -92,8 +92,8 @@ void AddProcessCitation(std::shared_ptr<HepMC3::GenRunInfo> &run_info,
 namespace GC7 {
 
 void WriteBeamUnits(std::shared_ptr<HepMC3::GenRunInfo> &run_info,
-                          std::string const &EnergyUnit,
-                          std::string const &RateUnit = "");
+                    std::string const &EnergyUnit,
+                    std::string const &RateUnit = "");
 
 void SetHistogramBeamType(std::shared_ptr<HepMC3::GenRunInfo> &run_info);
 
@@ -119,11 +119,11 @@ void WriteBeamEnergyDistributions(
 
 namespace ER3 {
 void SetProcessID(HepMC3::GenEvent &evt, int ProcID);
-} // namespace ER2
+} // namespace ER3
 
 namespace ER5 {
 void SetLabPosition(HepMC3::GenEvent &evt, std::vector<double> const &LabPos);
-} // namespace ER4
+} // namespace ER5
 
 namespace EC2 {
 void SetTotalCrossSection(HepMC3::GenEvent &evt, double CrossSec);
@@ -132,5 +132,9 @@ void SetTotalCrossSection(HepMC3::GenEvent &evt, double CrossSec);
 namespace EC3 {
 void SetProcessCrossSection(HepMC3::GenEvent &evt, double CrossSec);
 } // namespace EC3
+
+namespace PC2 {
+void SetRemnantParticleNumber(HepMC3::GenParticlePtr &ptr, int particle_number);
+} // namespace PC2
 
 } // namespace NuHepMC

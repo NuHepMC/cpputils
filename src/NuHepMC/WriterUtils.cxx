@@ -175,8 +175,8 @@ void AddProcessCitation(std::shared_ptr<HepMC3::GenRunInfo> &run_info,
 namespace GC7 {
 
 void WriteBeamUnits(std::shared_ptr<HepMC3::GenRunInfo> &run_info,
-                          std::string const &EnergyUnit,
-                          std::string const &RateUnit) {
+                    std::string const &EnergyUnit,
+                    std::string const &RateUnit) {
   add_attribute(run_info, "NuHepMC.Beam.EnergyUnit", EnergyUnit);
   if (RateUnit.length()) {
     add_attribute(run_info, "NuHepMC.Beam.RateUnit", RateUnit);
@@ -238,8 +238,7 @@ void WriteBeamEnergyDistribution(std::shared_ptr<HepMC3::GenRunInfo> &run_info,
   }
   case EDistType::kMonoEnergetic: {
     SetMonoEnergeticBeamType(run_info);
-    WriteBeamUnits(run_info, distribution.energy_unit,
-                         distribution.rate_unit);
+    WriteBeamUnits(run_info, distribution.energy_unit, distribution.rate_unit);
     if (std::isnormal(distribution.MonoEnergeticEnergy)) {
       WriteBeamEnergyMonoenergetic(run_info, BeamParticleNumber,
                                    distribution.MonoEnergeticEnergy);
@@ -247,8 +246,7 @@ void WriteBeamEnergyDistribution(std::shared_ptr<HepMC3::GenRunInfo> &run_info,
   }
   case EDistType::kHistogram: {
     SetHistogramBeamType(run_info);
-    WriteBeamUnits(run_info, distribution.energy_unit,
-                         distribution.rate_unit);
+    WriteBeamUnits(run_info, distribution.energy_unit, distribution.rate_unit);
     WriteBeamEnergyHistogram(run_info, BeamParticleNumber,
                              distribution.bin_edges, distribution.bin_content);
   }
@@ -289,5 +287,17 @@ void SetProcessCrossSection(HepMC3::GenEvent &evt, double CrossSec) {
   add_attribute(evt, "ProcXS", CrossSec);
 }
 } // namespace EC3
+
+namespace PC2 {
+NEW_NuHepMC_EXCEPT(NoParentEvent);
+void SetRemnantParticleNumber(HepMC3::GenParticlePtr &ptr,
+                              int particle_number) {
+  if (!ptr->parent_event()) {
+    throw NoParentEvent() << "SetRemnantParticleNumber called on a particle "
+                             "with no parent event set.";
+  }
+  add_attribute(ptr, "remnant_particle_number", particle_number);
+}
+} // namespace PC2
 
 } // namespace NuHepMC
