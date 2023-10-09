@@ -1,6 +1,8 @@
 #pragma once
 
 #include <stdexcept>
+#include <string>
+#include <sstream>
 
 namespace NuHepMC {
 struct except : public std::exception {

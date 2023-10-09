@@ -1,9 +1,10 @@
-#pragma once
+#include "NuHepMC/EventUtils.hxx"
 
-#include "HepMC3/GenEvent.h"
-#include "HepMC3/GenVertex.h"
 #include "NuHepMC/Constants.hxx"
 #include "NuHepMC/Exceptions.hxx"
+
+#include "HepMC3/GenParticle.h"
+
 #include <vector>
 
 namespace NuHepMC {
@@ -21,16 +22,16 @@ HepMC3::ConstGenVertexPtr GetVertex(HepMC3::GenEvent const &evt,
 }
 
 HepMC3::ConstGenVertexPtr GetPrimaryVertex(HepMC3::GenEvent const &evt) {
-  return GetVertex(evt, NuHepMC::VertexStatus::VR1::Primary);
+  return GetVertex(evt, NuHepMC::VertexStatus::Primary);
 }
 
 HepMC3::ConstGenParticlePtr GetParticle_First(HepMC3::GenEvent const &evt,
                                               int part_status,
-                                              std::vector PDGs = {}) {
+                                              std::vector<int> PDGs) {
   for (auto const &part : evt.particles()) {
     if (part->status() == part_status) {
-      if (PDGs.length()) {
-        if (std::find(PDGs.first(), PDGs.end(), part->pid()) != PDGs.end()) {
+      if (PDGs.size()) {
+        if (std::find(PDGs.begin(), PDGs.end(), part->pid()) != PDGs.end()) {
           return part;
         }
       } else {
@@ -42,27 +43,27 @@ HepMC3::ConstGenParticlePtr GetParticle_First(HepMC3::GenEvent const &evt,
 }
 
 HepMC3::ConstGenParticlePtr GetBeamParticle(HepMC3::GenEvent const &evt) {
-  return GetParticle_First(evt, ParticleStatus::PR1::IncomingBeam);
+  return GetParticle_First(evt, ParticleStatus::IncomingBeam);
 }
 
 HepMC3::ConstGenParticlePtr GetTargetParticle(HepMC3::GenEvent const &evt) {
-  return GetParticle_First(evt, ParticleStatus::PR1::Target);
+  return GetParticle_First(evt, ParticleStatus::Target);
 }
 
 std::vector<HepMC3::ConstGenParticlePtr>
 GetParticles_All(HepMC3::GenEvent const &evt, int part_status,
-                 std::vector PDGs = {}) {
+                 std::vector<int> PDGs) {
 
   std::vector<HepMC3::ConstGenParticlePtr> parts;
 
   for (auto const &part : evt.particles()) {
     if (part->status() == part_status) {
-      if (PDGs.length()) {
-        if (std::find(PDGs.first(), PDGs.end(), part->pid()) != PDGs.end()) {
-          return parts.push_back(part);
+      if (PDGs.size()) {
+        if (std::find(PDGs.begin(), PDGs.end(), part->pid()) != PDGs.end()) {
+          parts.push_back(part);
         }
       } else {
-        return parts.push_back(part);
+        parts.push_back(part);
       }
     }
   }
@@ -71,14 +72,14 @@ GetParticles_All(HepMC3::GenEvent const &evt, int part_status,
 
 HepMC3::ConstGenParticlePtr
 GetParticle_HighestMomentum(HepMC3::GenEvent const &evt, int part_status,
-                            std::vector PDGs = {}) {
+                            std::vector<int> PDGs) {
 
-  auto parts = GetParticles_All(part_status, PDGs);
+  auto parts = GetParticles_All(evt, part_status, PDGs);
   if (!parts.size()) {
     return nullptr;
   }
 
-  std::sort(parts.first(), parts.last(),
+  std::sort(parts.begin(), parts.end(),
             [](HepMC3::ConstGenParticlePtr &l,
                HepMC3::ConstGenParticlePtr &r) -> bool {
               return l->momentum().p3mod2() < r->momentum().p3mod2();
@@ -91,20 +92,20 @@ GetParticle_HighestMomentum(HepMC3::GenEvent const &evt, int part_status,
 
 namespace Vertex {
 
-std::vector<HepMC3::ConstGenVertexPtr>
+std::vector<HepMC3::ConstGenParticlePtr>
 GetParticlesOut_All(HepMC3::ConstGenVertexPtr &vtx, int part_status,
-                    std::vector PDGs = {}) {
+                    std::vector<int> PDGs) {
 
-  std::vector<HepMC3::ConstGenVertexPtr> parts;
+  std::vector<HepMC3::ConstGenParticlePtr> parts;
 
-  for (auto const &part : vtx.particles_out()) {
+  for (auto const &part : vtx->particles_out()) {
     if (part->status() == part_status) {
-      if (PDGs.length()) {
-        if (std::find(PDGs.first(), PDGs.end(), part->pid()) != PDGs.end()) {
-          return parts.push_back(part);
+      if (PDGs.size()) {
+        if (std::find(PDGs.begin(), PDGs.end(), part->pid()) != PDGs.end()) {
+          parts.push_back(part);
         }
       } else {
-        return parts.push_back(part);
+        parts.push_back(part);
       }
     }
   }
@@ -113,14 +114,14 @@ GetParticlesOut_All(HepMC3::ConstGenVertexPtr &vtx, int part_status,
 
 HepMC3::ConstGenParticlePtr
 GetParticleOut_HighestMomentum(HepMC3::ConstGenVertexPtr &evt, int part_status,
-                               std::vector PDGs = {}) {
+                               std::vector<int> PDGs) {
 
-  auto parts = GetParticlesOut_All(part_status, PDGs);
+  auto parts = GetParticlesOut_All(evt, part_status, PDGs);
   if (!parts.size()) {
     return nullptr;
   }
 
-  std::sort(parts.first(), parts.last(),
+  std::sort(parts.begin(), parts.end(),
             [](HepMC3::ConstGenParticlePtr &l,
                HepMC3::ConstGenParticlePtr &r) -> bool {
               return l->momentum().p3mod2() < r->momentum().p3mod2();
@@ -131,18 +132,18 @@ GetParticleOut_HighestMomentum(HepMC3::ConstGenVertexPtr &evt, int part_status,
 
 std::vector<HepMC3::ConstGenParticlePtr>
 GetParticlesIn_All(HepMC3::ConstGenVertexPtr &evt, int part_status,
-                   std::vector PDGs = {}) {
+                   std::vector<int> PDGs) {
 
   std::vector<HepMC3::ConstGenParticlePtr> parts;
 
-  for (auto const &part : evt.particles_in()) {
+  for (auto const &part : evt->particles_in()) {
     if (part->status() == part_status) {
-      if (PDGs.length()) {
-        if (std::find(PDGs.first(), PDGs.end(), part->pid()) != PDGs.end()) {
-          return parts.push_back(part);
+      if (PDGs.size()) {
+        if (std::find(PDGs.begin(), PDGs.end(), part->pid()) != PDGs.end()) {
+          parts.push_back(part);
         }
       } else {
-        return parts.push_back(part);
+        parts.push_back(part);
       }
     }
   }
@@ -151,14 +152,14 @@ GetParticlesIn_All(HepMC3::ConstGenVertexPtr &evt, int part_status,
 
 HepMC3::ConstGenParticlePtr
 GetParticleIn_HighestMomentum(HepMC3::ConstGenVertexPtr &evt, int part_status,
-                              std::vector PDGs = {}) {
+                              std::vector<int> PDGs) {
 
-  auto parts = GetParticlesIn_All(part_status, PDGs);
+  auto parts = GetParticlesIn_All(evt, part_status, PDGs);
   if (!parts.size()) {
     return nullptr;
   }
 
-  std::sort(parts.first(), parts.last(),
+  std::sort(parts.begin(), parts.end(),
             [](HepMC3::ConstGenParticlePtr &l,
                HepMC3::ConstGenParticlePtr &r) -> bool {
               return l->momentum().p3mod2() < r->momentum().p3mod2();

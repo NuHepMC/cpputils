@@ -1,5 +1,3 @@
-#pragma once
-
 #include "NuHepMC/Exceptions.hxx"
 #include "NuHepMC/HepMC3Features.hxx"
 
@@ -30,8 +28,7 @@ enum CompressionFormat {
   kBZip2 = 30,
 };
 
-inline std::pair<std::string, std::string>
-split_extension(std::string const &name) {
+std::pair<std::string, std::string> split_extension(std::string const &name) {
   size_t fext = name.find_last_of('.');
   std::string ext = name.substr(fext + 1, std::string::npos);
   std::string name_woe = name.substr(0, fext);
@@ -39,7 +36,7 @@ split_extension(std::string const &name) {
   return std::make_pair(name_woe, ext);
 }
 
-inline int ParseExtension(std::string const &name) {
+int ParseExtension(std::string const &name) {
 
   auto split_name = split_extension(name);
   std::string name_woe = split_name.first, ext = split_name.second;
@@ -62,9 +59,8 @@ inline int ParseExtension(std::string const &name) {
 }
 
 template <bxz::Compression C>
-inline HepMC3::Writer *
-make_writergz(std::string const &name,
-              std::shared_ptr<HepMC3::GenRunInfo> &run_info) {
+HepMC3::Writer *make_writergz(std::string const &name,
+                              std::shared_ptr<HepMC3::GenRunInfo> &run_info) {
 
   auto ext = ParseExtension(split_extension(name).first);
 
@@ -89,9 +85,8 @@ make_writergz(std::string const &name,
          "type";
 }
 
-inline HepMC3::Writer *
-make_writer(std::string const &name,
-            std::shared_ptr<HepMC3::GenRunInfo> &run_info) {
+HepMC3::Writer *make_writer(std::string const &name,
+                            std::shared_ptr<HepMC3::GenRunInfo> &run_info) {
 
   int ext = ParseExtension(name);
 

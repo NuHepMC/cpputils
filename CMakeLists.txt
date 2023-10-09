@@ -38,6 +38,7 @@ SET(NuHepMC_VERSION_PATCH  0)
 set(CMAKE_CXX_STANDARD 17)
 
 option(BUILTIN_HEPMC3 "Whether to use build our own version of HepMC3" FALSE)
+option(NuHepMC_BUILD_STATIC_LIBS "Whether to build static versions of the libraries" FALSE)
 
 #Changes default install path to be a subdirectory of the build dir.
 #Can set build dir at configure time with -DCMAKE_INSTALL_PREFIX=/install/path
@@ -82,21 +83,23 @@ ENDIF("${isSystemDir}" STREQUAL "-1")
 
 ######################### Dependencies
 
-add_library(nuhepmc_cpputils INTERFACE)
-target_include_directories(nuhepmc_cpputils INTERFACE 
-  $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/include>
+add_library(nuhepmc_options INTERFACE)
+target_include_directories(nuhepmc_options INTERFACE 
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/src>
   $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/include> 
   $<INSTALL_INTERFACE:include>)
 
-add_library(nuhepmc_cpputils_static INTERFACE)
-target_include_directories(nuhepmc_cpputils_static INTERFACE 
-  $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/include>
+add_library(nuhepmc_options_static INTERFACE)
+target_include_directories(nuhepmc_options_static INTERFACE 
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/src>
   $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/include> 
   $<INSTALL_INTERFACE:include>)
 
 SET(NuHepMC_HEPMC3_USE_COMPRESSION)
 SET(NuHepMC_HEPMC3_Z_SUPPORT)
 SET(NuHepMC_HEPMC3_ProtobufIO_SUPPORT)
+
+SET(NuHepMC_HEPMC3_MIN_VERSION 3.2.6)
 
 if(BUILTIN_HEPMC3)
   include(CPM)
@@ -111,9 +114,9 @@ if(BUILTIN_HEPMC3)
 
   CPMAddPackage(
       NAME HepMC3
-      VERSION 3.2.6
+      VERSION ${NuHepMC_HEPMC3_MIN_VERSION}
       GIT_REPOSITORY "https://gitlab.cern.ch/hepmc/HepMC3.git"
-      GIT_TAG 3.2.6
+      GIT_TAG ${NuHepMC_HEPMC3_MIN_VERSION}
       OPTIONS
         "HEPMC3_CXX_STANDARD ${CMAKE_CXX_STANDARD}"
         "HEPMC3_ENABLE_SEARCH OFF"
@@ -127,50 +130,52 @@ if(BUILTIN_HEPMC3)
         "HEPMC3_INSTALL_INTERFACES OFF"
         "HEPMC3_BUILD_STATIC_LIBS ON"
   )
-
+else()
+  find_package(HepMC3 ${NuHepMC_HEPMC3_MIN_VERSION} REQUIRED)
 endif()
 
 if(TARGET HepMC3::All)
-  target_link_libraries(nuhepmc_cpputils INTERFACE HepMC3::All)
-  target_link_libraries(nuhepmc_cpputils_static INTERFACE HepMC3::All_static)
+  target_link_libraries(nuhepmc_options INTERFACE HepMC3::All)
+
+  if(NuHepMC_BUILD_STATIC_LIBS)
+    if(NOT TARGET HepMC3::All_static)
+      message(FATAL_ERROR "HepMC3::All_static target does not exist but NuHepMC_BUILD_STATIC_LIBS=${NuHepMC_BUILD_STATIC_LIBS}")
+    endif()
+    target_link_libraries(nuhepmc_options_static INTERFACE HepMC3::All_static)
+  endif()
 
   if(Protobuf_FOUND)
-    target_link_libraries(nuhepmc_cpputils INTERFACE protobuf::libprotobuf)
-    target_link_libraries(nuhepmc_cpputils_static INTERFACE protobuf::libprotobuf)
+    target_link_libraries(nuhepmc_options INTERFACE protobuf::libprotobuf)
+    target_link_libraries(nuhepmc_options_static INTERFACE protobuf::libprotobuf)
   endif()
 
   find_package(ZLIB)
   if(ZLIB_FOUND)
-    target_link_libraries(nuhepmc_cpputils INTERFACE ZLIB::ZLIB)
-    target_link_libraries(nuhepmc_cpputils_static INTERFACE ZLIB::ZLIB)
+    target_link_libraries(nuhepmc_options INTERFACE ZLIB::ZLIB)
+    target_link_libraries(nuhepmc_options_static INTERFACE ZLIB::ZLIB)
     SET(NuHepMC_HEPMC3_USE_COMPRESSION "#define HEPMC3_USE_COMPRESSION 1")
     SET(NuHepMC_HEPMC3_Z_SUPPORT "#define HEPMC3_Z_SUPPORT 1")
   endif()
 
   find_package(LibLZMA)
   if(LibLZMA_FOUND)
-    target_link_libraries(nuhepmc_cpputils INTERFACE LibLZMA::LibLZMA)
-    target_link_libraries(nuhepmc_cpputils_static INTERFACE LibLZMA::LibLZMA)
+    target_link_libraries(nuhepmc_options INTERFACE LibLZMA::LibLZMA)
+    target_link_libraries(nuhepmc_options_static INTERFACE LibLZMA::LibLZMA)
     SET(NuHepMC_HEPMC3_USE_COMPRESSION "#define HEPMC3_USE_COMPRESSION 1")
     SET(NuHepMC_HEPMC3_LZMA_SUPPORT "#define HEPMC3_LZMA_SUPPORT 1")
   endif()
 
   find_package(BZip2)
   if(BZip2_FOUND)
-    target_link_libraries(nuhepmc_cpputils INTERFACE BZip2::BZip2)
-    target_link_libraries(nuhepmc_cpputils_static INTERFACE BZip2::BZip2)
+    target_link_libraries(nuhepmc_options INTERFACE BZip2::BZip2)
+    target_link_libraries(nuhepmc_options_static INTERFACE BZip2::BZip2)
     SET(NuHepMC_HEPMC3_USE_COMPRESSION "#define HEPMC3_USE_COMPRESSION 1")
     SET(NuHepMC_HEPMC3_BZ2_SUPPORT "#define HEPMC3_BZ2_SUPPORT 1")
   endif()
 
 else()
-  if(BUILTIN_HEPMC3)
-    message(FATAL_ERROR "BUILTIN_HEPMC3 enabled but HepMC3::All was not defined after CPM call completed.")
-  endif()
+  message(FATAL_ERROR "HepMC3::All target is not defined. HepMC3_FOUND=${HepMC3}")
 endif()
-
-add_library(NuHepMC::CPPUtils ALIAS nuhepmc_cpputils)
-add_library(NuHepMC::CPPUtils_static ALIAS nuhepmc_cpputils_static)
 
 configure_file(${CMAKE_CURRENT_LIST_DIR}/cmake/Templates/HepMC3Features.hxx.in
   "${PROJECT_BINARY_DIR}/include/NuHepMC/HepMC3Features.hxx" @ONLY)
@@ -184,4 +189,4 @@ install(FILES
   "${PROJECT_BINARY_DIR}/include/NuHepMC/NuHepMCVersion.hxx" DESTINATION
   include/NuHepMC)
 
-install(DIRECTORY include/NuHepMC DESTINATION include)
+add_subdirectory(src/NuHepMC)
