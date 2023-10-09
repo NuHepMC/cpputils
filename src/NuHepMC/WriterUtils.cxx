@@ -174,7 +174,7 @@ void AddProcessCitation(std::shared_ptr<HepMC3::GenRunInfo> &run_info,
 
 namespace GC7 {
 
-void WriteBeamEnergyUnits(std::shared_ptr<HepMC3::GenRunInfo> &run_info,
+void WriteBeamUnits(std::shared_ptr<HepMC3::GenRunInfo> &run_info,
                           std::string const &EnergyUnit,
                           std::string const &RateUnit) {
   add_attribute(run_info, "NuHepMC.Beam.EnergyUnit", EnergyUnit);
@@ -238,7 +238,7 @@ void WriteBeamEnergyDistribution(std::shared_ptr<HepMC3::GenRunInfo> &run_info,
   }
   case EDistType::kMonoEnergetic: {
     SetMonoEnergeticBeamType(run_info);
-    WriteBeamEnergyUnits(run_info, distribution.energy_unit,
+    WriteBeamUnits(run_info, distribution.energy_unit,
                          distribution.rate_unit);
     if (std::isnormal(distribution.MonoEnergeticEnergy)) {
       WriteBeamEnergyMonoenergetic(run_info, BeamParticleNumber,
@@ -247,7 +247,7 @@ void WriteBeamEnergyDistribution(std::shared_ptr<HepMC3::GenRunInfo> &run_info,
   }
   case EDistType::kHistogram: {
     SetHistogramBeamType(run_info);
-    WriteBeamEnergyUnits(run_info, distribution.energy_unit,
+    WriteBeamUnits(run_info, distribution.energy_unit,
                          distribution.rate_unit);
     WriteBeamEnergyHistogram(run_info, BeamParticleNumber,
                              distribution.bin_edges, distribution.bin_content);

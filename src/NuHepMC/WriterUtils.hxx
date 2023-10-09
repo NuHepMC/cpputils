@@ -91,7 +91,7 @@ void AddProcessCitation(std::shared_ptr<HepMC3::GenRunInfo> &run_info,
 
 namespace GC7 {
 
-void WriteBeamEnergyUnits(std::shared_ptr<HepMC3::GenRunInfo> &run_info,
+void WriteBeamUnits(std::shared_ptr<HepMC3::GenRunInfo> &run_info,
                           std::string const &EnergyUnit,
                           std::string const &RateUnit = "");
 
