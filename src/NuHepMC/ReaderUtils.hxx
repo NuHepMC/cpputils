@@ -9,6 +9,8 @@
 #include "NuHepMC/Exceptions.hxx"
 #include "NuHepMC/Traits.hxx"
 #include "NuHepMC/Types.hxx"
+#include "NuHepMC/AttributeUtils.hxx"
+#include "NuHepMC/Constants.hxx"
 
 #include <map>
 #include <memory>

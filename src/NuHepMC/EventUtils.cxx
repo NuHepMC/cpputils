@@ -1,6 +1,5 @@
 #include "NuHepMC/EventUtils.hxx"
 
-#include "NuHepMC/Constants.hxx"
 #include "NuHepMC/Exceptions.hxx"
 
 #include "HepMC3/GenParticle.h"

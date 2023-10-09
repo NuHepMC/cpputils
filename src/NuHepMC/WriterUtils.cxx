@@ -1,7 +1,5 @@
 #include "NuHepMC/WriterUtils.hxx"
 
-#include "NuHepMC/AttributeUtils.hxx"
-#include "NuHepMC/Constants.hxx"
 #include "NuHepMC/Exceptions.hxx"
 #include "NuHepMC/NuHepMCVersion.hxx"
 #include "NuHepMC/ReaderUtils.hxx"

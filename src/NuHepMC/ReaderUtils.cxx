@@ -1,6 +1,4 @@
 #include "NuHepMC/ReaderUtils.hxx"
-#include "NuHepMC/AttributeUtils.hxx"
-#include "NuHepMC/Constants.hxx"
 
 #include "HepMC3/GenParticle.h"
 

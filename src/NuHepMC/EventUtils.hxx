@@ -3,6 +3,8 @@
 #include "HepMC3/GenEvent.h"
 #include "HepMC3/GenVertex.h"
 
+#include "NuHepMC/Constants.hxx"
+
 #include <vector>
 
 namespace NuHepMC {
