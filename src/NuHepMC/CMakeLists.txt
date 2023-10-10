@@ -7,13 +7,15 @@ set(HEADERS
   Traits.hxx
   Types.hxx
   UnitsUtils.hxx
-  WriterUtils.hxx)
+  WriterUtils.hxx
+  CrossSectionUtils.hxx)
 
 set(IMPLEMENTATION 
   EventUtils.cxx
   make_writer.cxx
   ReaderUtils.cxx
-  WriterUtils.cxx)
+  WriterUtils.cxx
+  CrossSectionUtils.cxx)
 
 add_library(nuhepmc_cpputils SHARED ${IMPLEMENTATION})
 target_link_libraries(nuhepmc_cpputils PUBLIC nuhepmc_options)

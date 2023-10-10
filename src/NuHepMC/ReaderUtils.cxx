@@ -96,16 +96,17 @@ bool SignalsConvention(std::shared_ptr<HepMC3::GenRunInfo> const &run_info,
 
 namespace GC2 {
 long ReadExposureNEvents(std::shared_ptr<HepMC3::GenRunInfo> const &run_info) {
-  return CheckedAttributeValue<int>(run_info, "NuHepMC.Exposure.NEvents");
+  return CheckedAttributeValue<long>(run_info, "NuHepMC.Exposure.NEvents");
 }
 } // namespace GC2
 
 namespace GC3 {
-long ReadExposurePOT(std::shared_ptr<HepMC3::GenRunInfo> const &run_info) {
-  return CheckedAttributeValue<int>(run_info, "NuHepMC.Exposure.POT");
+double ReadExposurePOT(std::shared_ptr<HepMC3::GenRunInfo> const &run_info) {
+  return CheckedAttributeValue<double>(run_info, "NuHepMC.Exposure.POT");
 }
-long ReadExposureLivetime(std::shared_ptr<HepMC3::GenRunInfo> const &run_info) {
-  return CheckedAttributeValue<int>(run_info, "NuHepMC.Exposure.Livetime");
+double
+ReadExposureLivetime(std::shared_ptr<HepMC3::GenRunInfo> const &run_info) {
+  return CheckedAttributeValue<double>(run_info, "NuHepMC.Exposure.Livetime");
 }
 } // namespace GC3
 
@@ -121,8 +122,8 @@ ReadCrossSectionUnits(std::shared_ptr<HepMC3::GenRunInfo> const &run_info) {
 } // namespace GC4
 
 namespace GC5 {
-long ReadFluxAveragedTotalXSec(
-    std::shared_ptr<HepMC3::GenRunInfo> const &run_info) {
+double
+ReadFluxAveragedTotalXSec(std::shared_ptr<HepMC3::GenRunInfo> const &run_info) {
   return CheckedAttributeValue<double>(run_info,
                                        "NuHepMC.FluxAveragedTotalCrossSection");
 }
@@ -135,7 +136,7 @@ ReadAllCitations(std::shared_ptr<HepMC3::GenRunInfo> const &run_info) {
   CitationData all_citations;
 
   static std::regex const key_re(
-      R"(NuHepMC.Citations.([:alnum:])\.([:alnum:]))");
+      R"(NuHepMC\.Citations\.([0-9a-zA-Z])\.([0-9a-zA-Z]))");
 
   for (auto attn : run_info->attribute_names()) {
 
@@ -148,7 +149,7 @@ ReadAllCitations(std::shared_ptr<HepMC3::GenRunInfo> const &run_info) {
     if (!matches.ready() || (matches.size() != 3)) {
       std::cerr << "[ERROR]: When parsing Citation metadata key: " << attn
                 << " expected pattern to match "
-                   "NuHepMC.Citations.([:alnum:])\\.([:alnum:]) with 2 "
+                   "NuHepMC\\.Citations\\.([0-9a-zA-Z])\\.([0-9a-zA-Z]) with 2 "
                    "sub_matches, but found: "
                 << (matches.size() - 1) << std::endl;
     }
@@ -169,7 +170,7 @@ std::map<int, EnergyDistribution> ReadAllMonoEnergeticDistributions(
   std::map<int, EnergyDistribution> mono_energetic_beams;
 
   static std::regex const key_re(
-      R"(NuHepMC.Beam\[[:digit:]\].MonoEnergetic.Energy)");
+      R"(NuHepMC\.Beam\[([0-9]+)\]\.MonoEnergetic\.Energy)");
 
   for (auto attn : run_info->attribute_names()) {
 
@@ -198,7 +199,7 @@ std::map<int, EnergyDistribution> ReadAllHistogramDistributions(
   std::map<int, EnergyDistribution> hist_energetic_beams;
 
   static std::regex const key_re(
-      R"(NuHepMC.Beam\[[:digit:]\].Histogram.BinEdges)");
+      R"(NuHepMC\.Beam\[([0-9]+)\]\.Histogram\.BinEdges)");
 
   for (auto attn : run_info->attribute_names()) {
 
@@ -270,17 +271,17 @@ std::map<int, EnergyDistribution> ReadAllEnergyDistributions(
 }
 } // namespace GC7
 
-namespace ER2 {
+namespace ER3 {
 int ReadProcessID(HepMC3::GenEvent &evt) {
   return CheckedAttributeValue<int>(&evt, "signal_process_id");
 }
-} // namespace ER2
+} // namespace ER3
 
-namespace ER4 {
+namespace ER5 {
 std::vector<double> ReadLabPosition(HepMC3::GenEvent &evt) {
   return CheckedAttributeValue<std::vector<double>>(&evt, "LabPos");
 }
-} // namespace ER4
+} // namespace ER5
 
 namespace EC2 {
 double ReadTotalCrossSection(HepMC3::GenEvent &evt) {

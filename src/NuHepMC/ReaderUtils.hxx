@@ -57,8 +57,8 @@ long ReadExposureNEvents(std::shared_ptr<HepMC3::GenRunInfo> const &run_info);
 } // namespace GC2
 
 namespace GC3 {
-long ReadExposurePOT(std::shared_ptr<HepMC3::GenRunInfo> const &run_info);
-long ReadExposureLivetime(std::shared_ptr<HepMC3::GenRunInfo> const &run_info);
+double ReadExposurePOT(std::shared_ptr<HepMC3::GenRunInfo> const &run_info);
+double ReadExposureLivetime(std::shared_ptr<HepMC3::GenRunInfo> const &run_info);
 } // namespace GC3
 
 namespace GC4 {
@@ -67,7 +67,7 @@ ReadCrossSectionUnits(std::shared_ptr<HepMC3::GenRunInfo> const &run_info);
 } // namespace GC4
 
 namespace GC5 {
-long ReadFluxAveragedTotalXSec(
+double ReadFluxAveragedTotalXSec(
     std::shared_ptr<HepMC3::GenRunInfo> const &run_info);
 } // namespace GC5
 

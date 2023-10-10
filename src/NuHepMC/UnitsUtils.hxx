@@ -2,26 +2,23 @@
 
 namespace NuHepMC {
 
-namespace Units {
 namespace CrossSection {
-namespace Type {
+namespace Units {
 
-const int CustomType = 1;
+enum class XSUnits { CustomType, pb, cm2, cm2_ten38 };
 
-const int pb = 2;
-const int cm2 = 3;
-const int cm2_ten38 = 4;
-
-const int PerTargetMolecule = 2;
-const int PerTargetAtom = 3;
-const int PerTargetNucleon = 4;
-} // namespace Type
+enum class XSTargetScale {
+  PerTargetMolecule,
+  PerTargetAtom,
+  PerTargetNucleon,
+  PerTargetMolecularNucleon
+};
 
 const double pb = 1;
 const double cm2 = 1E36;
 const double cm2_ten38 = 1E-2;
 
-} // namespace CrossSection
 } // namespace Units
+} // namespace CrossSection
 
 } // namespace NuHepMC

@@ -32,6 +32,7 @@ HepMC3::ConstGenParticlePtr
 GetParticle_HighestMomentum(HepMC3::GenEvent const &evt, int part_status,
                             std::vector<int> PDGs = {});
 
+double ToMeVFactor(HepMC3::GenEvent const &evt);
 } // namespace Event
 
 namespace Vertex {

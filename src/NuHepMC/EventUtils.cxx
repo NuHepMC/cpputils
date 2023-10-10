@@ -87,6 +87,10 @@ GetParticle_HighestMomentum(HepMC3::GenEvent const &evt, int part_status,
   return parts.back();
 }
 
+double ToMeVFactor(HepMC3::GenEvent const &evt){
+  return (evt.momentum_unit() == HepMC3::Units::MEV) ? 1 : 1E3;
+}
+
 } // namespace Event
 
 namespace Vertex {
