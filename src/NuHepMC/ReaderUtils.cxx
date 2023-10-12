@@ -92,6 +92,15 @@ bool SignalsConvention(std::shared_ptr<HepMC3::GenRunInfo> const &run_info,
                        std::string const &Convention) {
   return ReadConventions(run_info).count(Convention);
 }
+bool SignalsConventions(std::shared_ptr<HepMC3::GenRunInfo> const &run_info,
+                        std::vector<std::string> Conventions) {
+  bool all = true;
+  auto convs = ReadConventions(run_info);
+  for (auto const &c : Conventions) {
+    all = all && convs.count(c);
+  }
+  return all;
+}
 } // namespace GC1
 
 namespace GC2 {
@@ -118,6 +127,35 @@ ReadCrossSectionUnits(std::shared_ptr<HepMC3::GenRunInfo> const &run_info) {
           run_info, "NuHepMC.Units.CrossSection.Unit", "pb"),
       CheckedAttributeValue<std::string>(
           run_info, "NuHepMC.Units.CrossSection.TargetScale", "PerTargetAtom"));
+}
+std::pair<CrossSection::Units::XSUnits, CrossSection::Units::XSTargetScale>
+ParseCrossSectionUnits(std::shared_ptr<HepMC3::GenRunInfo> const &run_info) {
+  auto csu = ReadCrossSectionUnits(run_info);
+
+  CrossSection::Units::XSUnits xs = CrossSection::Units::XSUnits::CustomType;
+
+  if (csu.first == "pb") {
+    xs = CrossSection::Units::XSUnits::pb;
+  } else if (csu.first == "cm2") {
+    xs = CrossSection::Units::XSUnits::cm2;
+  } else if (csu.first == "1e-38 cm2") {
+    xs = CrossSection::Units::XSUnits::cm2_ten38;
+  }
+
+  CrossSection::Units::XSTargetScale ts =
+      CrossSection::Units::XSTargetScale::CustomType;
+
+  if (csu.second == "PerTargetMolecule") {
+    ts = CrossSection::Units::XSTargetScale::PerTargetMolecule;
+  } else if (csu.second == "PerTargetAtom") {
+    ts = CrossSection::Units::XSTargetScale::PerTargetAtom;
+  } else if (csu.second == "PerTargetNucleon") {
+    ts = CrossSection::Units::XSTargetScale::PerTargetNucleon;
+  } else if (csu.second == "PerTargetMolecularNucleon") {
+    ts = CrossSection::Units::XSTargetScale::PerTargetMolecularNucleon;
+  }
+
+  return {xs, ts};
 }
 } // namespace GC4
 
@@ -273,6 +311,11 @@ std::map<int, EnergyDistribution> ReadAllEnergyDistributions(
 
 namespace ER3 {
 int ReadProcessID(HepMC3::GenEvent &evt) {
+
+  //for compat
+  if(HasAttribute(&evt, "ProcID")){
+    return CheckedAttributeValue<int>(&evt, "ProcID");
+  }
   return CheckedAttributeValue<int>(&evt, "signal_process_id");
 }
 } // namespace ER3

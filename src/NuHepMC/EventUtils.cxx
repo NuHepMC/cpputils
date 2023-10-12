@@ -46,7 +46,12 @@ HepMC3::ConstGenParticlePtr GetBeamParticle(HepMC3::GenEvent const &evt) {
 }
 
 HepMC3::ConstGenParticlePtr GetTargetParticle(HepMC3::GenEvent const &evt) {
-  return GetParticle_First(evt, ParticleStatus::Target);
+  auto pt_nhmctgt = GetParticle_First(evt, ParticleStatus::Target);
+  if(pt_nhmctgt){
+    return pt_nhmctgt;
+  }
+  //for legacy apps
+  return GetParticle_First(evt, 11);
 }
 
 std::vector<HepMC3::ConstGenParticlePtr>

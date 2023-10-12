@@ -6,11 +6,12 @@
 
 #include "HepMC3/Attribute.h"
 
+#include "NuHepMC/AttributeUtils.hxx"
+#include "NuHepMC/Constants.hxx"
 #include "NuHepMC/Exceptions.hxx"
 #include "NuHepMC/Traits.hxx"
 #include "NuHepMC/Types.hxx"
-#include "NuHepMC/AttributeUtils.hxx"
-#include "NuHepMC/Constants.hxx"
+#include "NuHepMC/UnitsUtils.hxx"
 
 #include <map>
 #include <memory>
@@ -50,6 +51,8 @@ std::set<std::string>
 ReadConventions(std::shared_ptr<HepMC3::GenRunInfo> const &run_info);
 bool SignalsConvention(std::shared_ptr<HepMC3::GenRunInfo> const &run_info,
                        std::string const &Convention);
+bool SignalsConventions(std::shared_ptr<HepMC3::GenRunInfo> const &run_info,
+                        std::vector<std::string> Conventions);
 } // namespace GC1
 
 namespace GC2 {
@@ -58,17 +61,21 @@ long ReadExposureNEvents(std::shared_ptr<HepMC3::GenRunInfo> const &run_info);
 
 namespace GC3 {
 double ReadExposurePOT(std::shared_ptr<HepMC3::GenRunInfo> const &run_info);
-double ReadExposureLivetime(std::shared_ptr<HepMC3::GenRunInfo> const &run_info);
+double
+ReadExposureLivetime(std::shared_ptr<HepMC3::GenRunInfo> const &run_info);
 } // namespace GC3
 
 namespace GC4 {
 std::pair<std::string, std::string>
 ReadCrossSectionUnits(std::shared_ptr<HepMC3::GenRunInfo> const &run_info);
+
+std::pair<CrossSection::Units::XSUnits, CrossSection::Units::XSTargetScale>
+ParseCrossSectionUnits(std::shared_ptr<HepMC3::GenRunInfo> const &run_info);
 } // namespace GC4
 
 namespace GC5 {
-double ReadFluxAveragedTotalXSec(
-    std::shared_ptr<HepMC3::GenRunInfo> const &run_info);
+double
+ReadFluxAveragedTotalXSec(std::shared_ptr<HepMC3::GenRunInfo> const &run_info);
 } // namespace GC5
 
 namespace GC6 {

@@ -190,3 +190,4 @@ install(FILES
   include/NuHepMC)
 
 add_subdirectory(src/NuHepMC)
+add_subdirectory(app)
