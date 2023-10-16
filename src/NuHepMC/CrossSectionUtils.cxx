@@ -17,6 +17,7 @@ NEW_NuHepMC_EXCEPT(IndeterminableEnergyBinning);
 NEW_NuHepMC_EXCEPT(UnknownEnergyDistribution);
 NEW_NuHepMC_EXCEPT(CouldNotOpenInputFile);
 NEW_NuHepMC_EXCEPT(EC2NotSignalled);
+NEW_NuHepMC_EXCEPT(EC4NotSignalled);
 NEW_NuHepMC_EXCEPT(GC5NotSignalled);
 NEW_NuHepMC_EXCEPT(GC7NotSignalled);
 NEW_NuHepMC_EXCEPT(NoMethodToCalculateFATX);
@@ -392,6 +393,53 @@ GetXSUnitsRescaleFactor(std::pair<Units::XSUnits, Units::XSTargetScale> from,
   return sf;
 }
 
+double CalculateFluxAveragedTotalCrossSectionEC4(std::string const &Filename) {
+  auto rdr = HepMC3::deduce_reader(Filename);
+  if (!rdr) {
+    throw CouldNotOpenInputFile()
+        << "Failed to instantiate HepMC3::Reader from " << Filename;
+  }
+  double to_MeV = 1;
+  HepMC3::GenEvent evt;
+
+  double xsec, ntrials;
+
+  KBAccumulator calc_xsec;
+
+  size_t NEvents = 0;
+  while (!rdr->failed()) {
+    rdr->read_event(evt);
+
+    if (!NEvents) { // first event
+      if (!NuHepMC::GC1::SignalsConvention(evt.run_info(), "E.C.4")) {
+        throw EC4NotSignalled()
+            << " when running CalculateFluxAveragedTotalCrossSection("
+            << Filename << ")";
+      }
+
+      to_MeV = Event::ToMeVFactor(evt);
+    }
+
+    if (!rdr->failed()) {
+      NEvents++;
+    } else {
+      break;
+    }
+
+    calc_xsec += evt.weights()[0];
+
+    auto tmp = evt.cross_section();
+    xsec = tmp -> xsec();
+    ntrials = tmp -> get_attempted_events();
+
+  }
+
+  if(std::abs(xsec-calc_xsec.sum/ntrials) > 1e-8)
+      std::cerr << "[WARN] Calculated xsec different than stored\n";
+
+  return xsec;
+}
+
 double GetFATX(std::string const &Filename, Units::XSUnits ut,
                Units::XSTargetScale ts) {
 
@@ -428,6 +476,11 @@ double GetFATX(std::string const &Filename, Units::XSUnits ut,
   if (GC1::SignalsConventions(evt.run_info(), {"E.C.2",})) {
     return CalculateFluxAveragedTotalCrossSection(
                Filename)[beam_part_id][tgt_part_id] *
+           units_rescale;
+  }
+
+  if (GC1::SignalsConventions(evt.run_info(), {"E.C.4",})) {
+    return CalculateFluxAveragedTotalCrossSectionEC4(Filename) *
            units_rescale;
   }
 

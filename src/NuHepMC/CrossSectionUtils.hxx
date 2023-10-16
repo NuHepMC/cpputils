@@ -52,6 +52,8 @@ std::map<int, std::map<int, double>> CalculateFluxAveragedTotalCrossSection(
 std::tuple<double, std::string, std::string>
 GetGC5FluxAveragedTotalCrossSection(std::string const &Filename);
 
+double CalculateFluxAveragedTotalCrossSectionEC4(std::string const &Filename);
+
 double
 GetXSUnitsRescaleFactor(std::pair<Units::XSUnits, Units::XSTargetScale> from,
                         std::pair<Units::XSUnits, Units::XSTargetScale> to,

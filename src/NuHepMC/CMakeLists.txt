@@ -8,17 +8,19 @@ set(HEADERS
   Types.hxx
   UnitsUtils.hxx
   WriterUtils.hxx
-  CrossSectionUtils.hxx)
+  CrossSectionUtils.hxx
+  DistributionUtils.hxx)
 
 set(IMPLEMENTATION 
   EventUtils.cxx
   make_writer.cxx
   ReaderUtils.cxx
   WriterUtils.cxx
-  CrossSectionUtils.cxx)
+  CrossSectionUtils.cxx
+  DistributionUtils.cxx)
 
 add_library(nuhepmc_cpputils SHARED ${IMPLEMENTATION})
-target_link_libraries(nuhepmc_cpputils PUBLIC nuhepmc_options)
+target_link_libraries(nuhepmc_cpputils PUBLIC nuhepmc_options fmt::fmt)
 add_library(NuHepMC::CPPUtils ALIAS nuhepmc_cpputils)
 install(TARGETS nuhepmc_cpputils DESTINATION lib/)
 

@@ -101,9 +101,18 @@ SET(NuHepMC_HEPMC3_ProtobufIO_SUPPORT)
 
 SET(NuHepMC_HEPMC3_MIN_VERSION 3.2.6)
 
-if(BUILTIN_HEPMC3)
-  include(CPM)
+include(CPM)
 
+CPMFindPackage(
+    NAME fmt
+    GIT_TAG 7.1.3
+    GITHUB_REPOSITORY fmtlib/fmt
+    OPTIONS
+      "BUILD_SHARED_LIBS ON"
+)
+add_library(fmt::fmt ALIAS fmt)
+
+if(BUILTIN_HEPMC3)
   find_package(Protobuf 2.4)
 
   set(BUILTIN_HEPMC3_ENABLE_PROTOBUFIO OFF)
