@@ -59,6 +59,9 @@ GetXSUnitsRescaleFactor(std::pair<Units::XSUnits, Units::XSTargetScale> from,
                         std::pair<Units::XSUnits, Units::XSTargetScale> to,
                         HepMC3::GenEvent &evt);
 
+std::tuple<double, std::string, std::string>
+GetEC4FluxAveragedTotalCrossSection(std::string const &Filename);
+
 double GetFATX(std::string const &Filename,
                Units::XSUnits ut = Units::XSUnits::pb,
                Units::XSTargetScale ts = Units::XSTargetScale::PerTargetAtom);

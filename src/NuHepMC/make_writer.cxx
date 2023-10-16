@@ -48,7 +48,7 @@ int ParseExtension(std::string const &name) {
 
 template <bxz::Compression C>
 HepMC3::Writer *make_writergz(std::string const &name,
-                              std::shared_ptr<HepMC3::GenRunInfo> &run_info) {
+                              std::shared_ptr<HepMC3::GenRunInfo> run_info) {
 
   auto ext = ParseExtension(split_extension(name).first);
 
@@ -74,7 +74,7 @@ HepMC3::Writer *make_writergz(std::string const &name,
 }
 
 HepMC3::Writer *make_writer(std::string const &name,
-                            std::shared_ptr<HepMC3::GenRunInfo> &run_info) {
+                            std::shared_ptr<HepMC3::GenRunInfo> run_info) {
 
   int ext = ParseExtension(name);
 

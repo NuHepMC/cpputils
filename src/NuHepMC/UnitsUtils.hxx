@@ -1,11 +1,15 @@
 #pragma once
 
+#include "NuHepMC/Exceptions.hxx"
+
 #include <ostream>
 
 namespace NuHepMC {
 
 namespace CrossSection {
 namespace Units {
+
+NEW_NuHepMC_EXCEPT(InvalidUnitType);
 
 enum class XSUnits { CustomType, pb, cm2, cm2_ten38 };
 
@@ -41,6 +45,9 @@ inline std::ostream &operator<<(std::ostream &os,
   case NuHepMC::CrossSection::Units::XSUnits::cm2_ten38: {
     return os << "1e-38 cm2";
   }
+  default: {
+    throw NuHepMC::CrossSection::Units::InvalidUnitType();
+  }
   }
 }
 
@@ -61,6 +68,9 @@ operator<<(std::ostream &os, NuHepMC::CrossSection::Units::XSTargetScale ts) {
   }
   case NuHepMC::CrossSection::Units::XSTargetScale::PerTargetMolecularNucleon: {
     return os << "PerTargetMolecularNucleon";
+  }
+  default: {
+    throw NuHepMC::CrossSection::Units::InvalidUnitType();
   }
   }
 }

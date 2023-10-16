@@ -29,6 +29,6 @@ int ParseExtension(std::string const &name);
 namespace Writer {
 
 HepMC3::Writer *make_writer(std::string const &name,
-                            std::shared_ptr<HepMC3::GenRunInfo> &run_info);
+                            std::shared_ptr<HepMC3::GenRunInfo> run_info = nullptr);
 } // namespace Writer
 } // namespace NuHepMC
