@@ -12,6 +12,23 @@ namespace NuHepMC {
 
 namespace CrossSection {
 
+struct SplineBuilder {
+
+  std::vector<double> EnergyBinning_MeV;
+  std::vector<std::vector<double>> XSSamples;
+
+  Units::XSUnits units;
+  Units::XSTargetScale targ_scale;
+
+  SplineBuilder(std::vector<double> const &binning_MeV,
+                Units::XSUnits ut = Units::XSUnits::pb,
+                Units::XSTargetScale ts = Units::XSTargetScale::PerTargetAtom);
+
+  void AddSample(double Enu_MeV, double XS);
+
+  Spline ToSpline() const;
+};
+
 NEW_NuHepMC_EXCEPT(InvalidEnergyBinning);
 NEW_NuHepMC_EXCEPT(IndeterminableEnergyBinning);
 NEW_NuHepMC_EXCEPT(UnknownEnergyDistribution);
@@ -385,35 +402,35 @@ GetXSUnitsRescaleFactor(std::pair<Units::XSUnits, Units::XSTargetScale> from,
   if (from.second != to.second) {
     auto tgt_part_id = NuHepMC::Event::GetTargetParticle(evt)->pid();
     std::map<Units::XSTargetScale, double> tsunit_factors = {
-        {Units::XSTargetScale::PerTargetAtom, 1.0/((tgt_part_id / 10) % 1000)},
+        {Units::XSTargetScale::PerTargetAtom,
+         1.0 / ((tgt_part_id / 10) % 1000)},
         {Units::XSTargetScale::PerTargetNucleon, 1.0},
         {Units::XSTargetScale::PerTargetMolecularNucleon, 1.0},
     };
-    
+
     sf *= tsunit_factors.at(from.second) / tsunit_factors.at(to.second);
   }
 
   return sf;
 }
 
-<<<<<<< Updated upstream
-double CalculateFluxAveragedTotalCrossSectionEC4(std::string const &Filename) {
-=======
 std::tuple<double, std::string, std::string>
-GetEC4FluxAveragedTotalCrossSection(std::string const &Filename) {
->>>>>>> Stashed changes
+CalculateFluxAveragedTotalCrossSectionEC4(std::string const &Filename) {
+
   auto rdr = HepMC3::deduce_reader(Filename);
   if (!rdr) {
     throw CouldNotOpenInputFile()
         << "Failed to instantiate HepMC3::Reader from " << Filename;
   }
-<<<<<<< Updated upstream
+
   double to_MeV = 1;
   HepMC3::GenEvent evt;
 
   double xsec, ntrials;
 
   KBAccumulator calc_xsec;
+
+  std::pair<std::string, std::string> gc4_units;
 
   size_t NEvents = 0;
   while (!rdr->failed()) {
@@ -427,17 +444,7 @@ GetEC4FluxAveragedTotalCrossSection(std::string const &Filename) {
       }
 
       to_MeV = Event::ToMeVFactor(evt);
-=======
-  double best_estimate = 0;
-  HepMC3::GenEvent evt;
-  size_t NEvents = 0;
-  std::pair<std::string, std::string> gc4_units;
-  while (!rdr->failed()) {
-    rdr->read_event(evt);
-
-    if (!NEvents) {
       gc4_units = NuHepMC::GC4::ReadCrossSectionUnits(evt.run_info());
->>>>>>> Stashed changes
     }
 
     if (!rdr->failed()) {
@@ -446,29 +453,19 @@ GetEC4FluxAveragedTotalCrossSection(std::string const &Filename) {
       break;
     }
 
-<<<<<<< Updated upstream
     calc_xsec += evt.weights()[0];
 
     auto tmp = evt.cross_section();
-    xsec = tmp -> xsec();
-    ntrials = tmp -> get_attempted_events();
-
+    xsec = tmp->xsec();
+    ntrials = tmp->get_attempted_events();
   }
 
-  if(std::abs(xsec-calc_xsec.sum/ntrials) > 1e-8)
-      std::cerr << "[WARN] Calculated xsec different than stored\n";
-
-  return xsec;
-=======
-    auto xs = evt.cross_section();
-    if (xs) {
-      best_estimate = xs->xsecs()[0];
-    }
+  if (std::fabs(xsec - (calc_xsec.sum / ntrials)) > 1e-8) {
+    std::cerr << "[WARN] Calculated xsec different than stored\n";
   }
 
-  return std::tuple<double, std::string, std::string>{
-      best_estimate, gc4_units.first, gc4_units.second};
->>>>>>> Stashed changes
+  return std::tuple<double, std::string, std::string>{xsec, gc4_units.first,
+                                                      gc4_units.second};
 }
 
 double GetFATX(std::string const &Filename, Units::XSUnits ut,
@@ -526,18 +523,13 @@ double GetFATX(std::string const &Filename, Units::XSUnits ut,
                                                   "E.C.4",
                                               })) {
 
-    auto xs = std::get<0>(GetEC4FluxAveragedTotalCrossSection(Filename)) *
+    auto xs = std::get<0>(CalculateFluxAveragedTotalCrossSectionEC4(Filename)) *
               units_rescale;
     std::cout << "-- FATX from EC4 = " << xs << "(" << (xs / units_rescale)
               << "*" << units_rescale << ", u: [" << units.first << ","
               << units.second << "] -> [" << ut << ", " << ts << "])"
               << std::endl;
     return xs;
-  }
-
-  if (GC1::SignalsConventions(evt.run_info(), {"E.C.4",})) {
-    return CalculateFluxAveragedTotalCrossSectionEC4(Filename) *
-           units_rescale;
   }
 
   throw NoMethodToCalculateFATX();

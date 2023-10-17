@@ -37,8 +37,8 @@ SET(NuHepMC_VERSION_PATCH  0)
 
 set(CMAKE_CXX_STANDARD 17)
 
-option(BUILTIN_HEPMC3 "Whether to use build our own version of HepMC3" FALSE)
-option(NuHepMC_BUILD_STATIC_LIBS "Whether to build static versions of the libraries" FALSE)
+option(BUILTIN_HEPMC3 "Whether to use build our own version of HepMC3" ON)
+option(NuHepMC_BUILD_STATIC_LIBS "Whether to build static versions of the libraries" OFF)
 
 #Changes default install path to be a subdirectory of the build dir.
 #Can set build dir at configure time with -DCMAKE_INSTALL_PREFIX=/install/path
@@ -80,7 +80,6 @@ IF("${isSystemDir}" STREQUAL "-1")
    SET(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}")
 ENDIF("${isSystemDir}" STREQUAL "-1")
 
-
 ######################### Dependencies
 
 add_library(nuhepmc_options INTERFACE)
@@ -105,12 +104,9 @@ include(CPM)
 
 CPMFindPackage(
     NAME fmt
-    GIT_TAG 7.1.3
+    GIT_TAG 10.1.1
     GITHUB_REPOSITORY fmtlib/fmt
-    OPTIONS
-      "BUILD_SHARED_LIBS ON"
 )
-add_library(fmt::fmt ALIAS fmt)
 
 if(BUILTIN_HEPMC3)
   find_package(Protobuf 2.4)
@@ -125,7 +121,7 @@ if(BUILTIN_HEPMC3)
       NAME HepMC3
       VERSION ${NuHepMC_HEPMC3_MIN_VERSION}
       GIT_REPOSITORY "https://gitlab.cern.ch/hepmc/HepMC3.git"
-      GIT_TAG ${NuHepMC_HEPMC3_MIN_VERSION}
+      GIT_TAG 4d0b429c
       OPTIONS
         "HEPMC3_CXX_STANDARD ${CMAKE_CXX_STANDARD}"
         "HEPMC3_ENABLE_SEARCH OFF"
@@ -199,4 +195,3 @@ install(FILES
   include/NuHepMC)
 
 add_subdirectory(src/NuHepMC)
-add_subdirectory(app)
