@@ -8,6 +8,7 @@ set(HEADERS
   Types.hxx
   UnitsUtils.hxx
   WriterUtils.hxx
+  Exceptions.hxx
   CrossSectionUtils.hxx)
 
 set(IMPLEMENTATION 

@@ -117,6 +117,8 @@ if(BUILTIN_HEPMC3)
     SET(NuHepMC_HEPMC3_ProtobufIO_SUPPORT "#define HEPMC3_ProtobufIO_SUPPORT 1")
   endif()
 
+  find_package (Python)
+
   CPMAddPackage(
       NAME HepMC3
       VERSION ${NuHepMC_HEPMC3_MIN_VERSION}
@@ -128,11 +130,12 @@ if(BUILTIN_HEPMC3)
         "HEPMC3_ENABLE_ROOTIO OFF"
         "HEPMC3_ENABLE_PROTOBUFIO ${BUILTIN_HEPMC3_ENABLE_PROTOBUFIO}"
         "HEPMC3_ENABLE_PYTHON ON"
+        "HEPMC3_Python_SITEARCH${Python_VERSION_MAJOR}${Python_VERSION_MINOR} ${CMAKE_INSTALL_PREFIX}/python/${Python_VERSION_MAJOR}.${Python_VERSION_MINOR}"
         "HEPMC3_BUILD_DOCS OFF"
         "HEPMC3_BUILD_EXAMPLES OFF"
         "HEPMC3_INSTALL_EXAMPLES OFF"
         "HEPMC3_ENABLE_TEST OFF"
-        "HEPMC3_INSTALL_INTERFACES OFF"
+        "HEPMC3_INSTALL_INTERFACES ON"
         "HEPMC3_BUILD_STATIC_LIBS ON"
   )
 else()
@@ -193,5 +196,13 @@ configure_file(${CMAKE_CURRENT_LIST_DIR}/cmake/Templates/NuHepMCVersion.hxx.in
 install(FILES
   "${PROJECT_BINARY_DIR}/include/NuHepMC/NuHepMCVersion.hxx" DESTINATION
   include/NuHepMC)
+
+configure_file(${CMAKE_CURRENT_LIST_DIR}/cmake/Templates/NuHepMC-config.in
+  "${PROJECT_BINARY_DIR}/NuHepMC-config" @ONLY)
+install(PROGRAMS
+  "${PROJECT_BINARY_DIR}/NuHepMC-config" DESTINATION bin)
+
+install(FILES
+  src/ana_skeleton.cxx DESTINATION share/NuHepMC/templates)
 
 add_subdirectory(src/NuHepMC)

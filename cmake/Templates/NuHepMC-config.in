@@ -1,0 +1,176 @@
+#!/bin/bash
+
+if [ ${BASH_VERSINFO[0]} -le 2 ]; then
+  echo "[ERROR]: You must source this setup script (not run it in a sub-shell). Use like $ source setup.sh"
+  exit 1
+fi
+
+if ! type add_to_PATH &> /dev/null; then
+
+### Adapted from https://unix.stackexchange.com/questions/4965/keep-duplicates-out-of-path-on-source
+function add_to_PATH () {
+  for d; do
+
+    d=$(cd -- "$d" && { pwd -P || pwd; }) 2>/dev/null  # canonicalize symbolic links
+    if [ -z "$d" ]; then continue; fi  # skip nonexistent directory
+
+    if [ "$d" == "/usr/bin" ] || [ "$d" == "/usr/bin64" ] || [ "$d" == "/usr/local/bin" ] || [ "$d" == "/usr/local/bin64" ]; then
+      case ":$PATH:" in
+        *":$d:"*) :;;
+        *) export PATH=$PATH:$d;;
+      esac
+    else
+      case ":$PATH:" in
+        *":$d:"*) :;;
+        *) export PATH=$d:$PATH;;
+      esac
+    fi
+  done
+}
+
+fi
+
+if ! type add_to_LD_LIBRARY_PATH &> /dev/null; then
+
+function add_to_LD_LIBRARY_PATH () {
+  for d; do
+
+    d=$(cd -- "$d" && { pwd -P || pwd; }) 2>/dev/null  # canonicalize symbolic links
+    if [ -z "$d" ]; then continue; fi  # skip nonexistent directory
+
+    if [ "$d" == "/usr/lib" ] || [ "$d" == "/usr/lib64" ] || [ "$d" == "/usr/local/lib" ] || [ "$d" == "/usr/local/lib64" ]; then
+      case ":$LD_LIBRARY_PATH:" in
+        *":$d:"*) :;;
+        *) export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$d;;
+      esac
+    else
+      case ":$LD_LIBRARY_PATH:" in
+        *":$d:"*) :;;
+        *) export LD_LIBRARY_PATH=$d:$LD_LIBRARY_PATH;;
+      esac
+    fi
+  done
+}
+
+fi
+
+if ! type add_to_PYTHONPATH &> /dev/null; then
+
+ function add_to_PYTHONPATH () {
+   for d; do
+
+     d=$(cd -- "$d" && { pwd -P || pwd; }) 2>/dev/null  # canonicalize symbolic links
+     if [ -z "$d" ]; then continue; fi  # skip nonexistent directory
+
+     if [ "$d" == "/usr/lib" ] || [ "$d" == "/usr/lib64" ] || [ "$d" == "/usr/local/lib" ] || [ "$d" == "/usr/local/lib64" ]; then
+       case ":$PYTHONPATH:" in
+         *":$d:"*) :;;
+         *) export PYTHONPATH=$PYTHONPATH:$d;;
+       esac
+     else
+       case ":$PYTHONPATH:" in
+         *":$d:"*) :;;
+         *) export PYTHONPATH=$d:$PYTHONPATH;;
+       esac
+     fi
+   done
+ }
+
+ fi
+
+if ! type is_in_PATH &> /dev/null; then
+
+function is_in_PATH () {
+  case ":$PATH:" in
+  *:${1}:*) return 0 ;;
+  *) return 1 ;;
+  esac
+}
+
+fi
+
+function nuhepmc_help {
+  echo -e "[RUNLIKE]: ${0} [options]"
+  echo -e "Where options can be:"
+  echo -e "\t--env                       : eval the output of this script to"
+  echo -e "\t                              setup NuHepMC environment."
+  echo -e "\t--skele <mynewana.cxx>      : write an analysis skeleton file to"
+  echo -e "\t                              <mynewana.cxx>. Buildable with "
+  echo -e "\t                              --build."
+  echo -e "\t--build <ana.cxx> [<flags>] : Attempt to build and link a simple "
+  echo -e "\t                              analysis script to NuHepMC cpputils. "
+  echo -e "\t                              All trailing options will be "
+  echo -e "\t                              forwarded to the compiler."
+}
+
+if [ ${#} -eq 0 ] || [ "${1}" == "help" ]; then
+  nuhepmc_help
+  exit 0
+fi
+
+NuHepMC_ROOT=@CMAKE_INSTALL_PREFIX@
+
+
+
+while [[ ${#} -gt 0 ]]; do
+
+  KEYARG=${1}
+
+  case $KEYARG in
+
+    --help|-h|-?)
+      nuhepmc_help
+      exit 0
+    ;;
+
+    --env)
+      export NuHepMC_ROOT
+      add_to_PATH ${NuHepMC_ROOT}/bin
+      add_to_LD_LIBRARY_PATH ${NuHepMC_ROOT}/lib
+      add_to_LD_LIBRARY_PATH ${NuHepMC_ROOT}/lib64
+      add_to_PYTHONPATH ${NuHepMC_ROOT}/python/@Python_VERSION_MAJOR@.@Python_VERSION_MINOR@
+
+      echo "export NuHepMC_ROOT=${NuHepMC_ROOT}"
+      echo "export PATH=${PATH}"
+      echo "export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}"
+      echo "export PYTHONPATH=${PYTHONPATH}"
+    ;;
+
+    --skele)
+      OUTFILE=${2}
+
+      if [ -e ${2} ]; then
+        echo "[ERROR]: Not overwriting existing file: ${2}. Remove it first."
+        exit 1
+      fi
+
+      cp ${NuHepMC_ROOT}/share/NuHepMC/templates/ana_skeleton.cxx ${2}
+    ;;
+
+    --build)
+      INFILE=${2}
+      shift; shift
+
+      FORWARDED_ARGS=()
+      while [[ ${#} -gt 0 ]]; do
+        FORWARDED_ARGS+=("${1}")
+      done
+
+      PBUF=
+      if [ -e ${NuHepMC_ROOT}/lib64/libHepMC3protobufIO.so ]; then
+        PBUF=-lHepMC3protobufIO
+      fi
+
+      set -e
+      set -x
+      g++ ${INFILE} -o ${INFILE%\.*} ${FORWARDED_ARGS} \
+        -I${NuHepMC_ROOT}/include \
+        -L${NuHepMC_ROOT}/lib -L${NuHepMC_ROOT}/lib64 \
+          -lnuhepmc_cpputils ${PBUF} -lHepMC3
+      set +x
+    ;;
+
+  esac
+
+  shift
+done
