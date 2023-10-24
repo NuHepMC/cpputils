@@ -154,6 +154,7 @@ while [[ ${#} -gt 0 ]]; do
       FORWARDED_ARGS=()
       while [[ ${#} -gt 0 ]]; do
         FORWARDED_ARGS+=("${1}")
+        shift
       done
 
       PBUF=
@@ -163,7 +164,7 @@ while [[ ${#} -gt 0 ]]; do
 
       set -e
       set -x
-      g++ ${INFILE} -o ${INFILE%\.*} ${FORWARDED_ARGS} \
+      g++ ${INFILE} -o ${INFILE%\.*} ${FORWARDED_ARGS[@]} \
         -I${NuHepMC_ROOT}/include \
         -L${NuHepMC_ROOT}/lib -L${NuHepMC_ROOT}/lib64 \
           -lnuhepmc_cpputils ${PBUF} -lHepMC3

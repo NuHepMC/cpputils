@@ -37,7 +37,7 @@ SET(NuHepMC_VERSION_PATCH  0)
 
 set(CMAKE_CXX_STANDARD 17)
 
-option(BUILTIN_HEPMC3 "Whether to use build our own version of HepMC3" ON)
+option(BUILTIN_HEPMC3 "Whether to use build our own version of HepMC3" OFF)
 option(NuHepMC_BUILD_STATIC_LIBS "Whether to build static versions of the libraries" OFF)
 
 #Changes default install path to be a subdirectory of the build dir.
@@ -117,13 +117,13 @@ if(BUILTIN_HEPMC3)
     SET(NuHepMC_HEPMC3_ProtobufIO_SUPPORT "#define HEPMC3_ProtobufIO_SUPPORT 1")
   endif()
 
-  find_package (Python)
+  find_package(Python)
 
   CPMAddPackage(
       NAME HepMC3
       VERSION ${NuHepMC_HEPMC3_MIN_VERSION}
-      GIT_REPOSITORY "https://gitlab.cern.ch/hepmc/HepMC3.git"
-      GIT_TAG 4d0b429c
+      GIT_REPOSITORY "https://github.com/NuHepMC/HepMC3.git"
+      GIT_TAG patches/NuHepMC
       OPTIONS
         "HEPMC3_CXX_STANDARD ${CMAKE_CXX_STANDARD}"
         "HEPMC3_ENABLE_SEARCH OFF"
@@ -140,6 +140,12 @@ if(BUILTIN_HEPMC3)
   )
 else()
   find_package(HepMC3 ${NuHepMC_HEPMC3_MIN_VERSION} REQUIRED)
+  if(TARGET HepMC3::rootIO)
+    find_package(ROOT REQUIRED)
+  endif()
+  if(TARGET HepMC3::protobufIO)
+    find_package(Protobuf 2.4 REQUIRED)
+  endif()
 endif()
 
 if(TARGET HepMC3::All)

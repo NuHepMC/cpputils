@@ -1,3 +1,7 @@
+// // Leave this at the top to enable features detected at build time in headers in 
+// // HepMC3
+#include "NuHepMC/HepMC3Features.hxx"
+
 #include "NuHepMC/CrossSectionUtils.hxx"
 
 #include "NuHepMC/EventUtils.hxx"
