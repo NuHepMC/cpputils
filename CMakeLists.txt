@@ -123,7 +123,7 @@ if(BUILTIN_HEPMC3)
       NAME HepMC3
       VERSION ${NuHepMC_HEPMC3_MIN_VERSION}
       GIT_REPOSITORY "https://github.com/NuHepMC/HepMC3.git"
-      GIT_TAG master
+      GIT_TAG patches/NuHepMC
       OPTIONS
         "HEPMC3_CXX_STANDARD ${CMAKE_CXX_STANDARD}"
         "HEPMC3_ENABLE_SEARCH OFF"
