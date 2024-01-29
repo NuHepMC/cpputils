@@ -1,4 +1,5 @@
-// // Leave this at the top to enable features detected at build time in headers in 
+// // Leave this at the top to enable features detected at build time in headers
+// in
 // // HepMC3
 #include "NuHepMC/HepMC3Features.hxx"
 
@@ -427,7 +428,6 @@ CalculateFluxAveragedTotalCrossSectionEC4(std::string const &Filename) {
         << "Failed to instantiate HepMC3::Reader from " << Filename;
   }
 
-  double to_MeV = 1;
   HepMC3::GenEvent evt;
 
   double xsec, ntrials;
@@ -447,7 +447,6 @@ CalculateFluxAveragedTotalCrossSectionEC4(std::string const &Filename) {
             << Filename << ")";
       }
 
-      to_MeV = Event::ToMeVFactor(evt);
       gc4_units = NuHepMC::GC4::ReadCrossSectionUnits(evt.run_info());
     }
 

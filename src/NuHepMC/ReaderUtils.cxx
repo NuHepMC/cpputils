@@ -8,11 +8,18 @@ namespace NuHepMC {
 
 namespace GR2 {
 std::tuple<int, int, int>
-ReadVersion(std::shared_ptr<HepMC3::GenRunInfo> &run_info) {
+ReadVersion(std::shared_ptr<HepMC3::GenRunInfo> const &run_info) {
   return std::make_tuple(
       CheckedAttributeValue<int>(run_info, "NuHepMC.Version.Major"),
       CheckedAttributeValue<int>(run_info, "NuHepMC.Version.Minor"),
       CheckedAttributeValue<int>(run_info, "NuHepMC.Version.Patch"));
+}
+std::string
+ReadVersionString(std::shared_ptr<HepMC3::GenRunInfo> const &run_info) {
+  auto vt = ReadVersion(run_info);
+  return std::to_string(std::get<0>(vt)) + "." +
+         std::to_string(std::get<1>(vt)) + "." +
+         std::to_string(std::get<2>(vt));
 }
 } // namespace GR2
 
@@ -310,10 +317,10 @@ std::map<int, EnergyDistribution> ReadAllEnergyDistributions(
 } // namespace GC7
 
 namespace ER3 {
-int ReadProcessID(HepMC3::GenEvent &evt) {
+int ReadProcessID(HepMC3::GenEvent const &evt) {
 
-  //for compat
-  if(HasAttribute(&evt, "ProcID")){
+  // for compat
+  if (HasAttribute(&evt, "ProcID")) {
     return CheckedAttributeValue<int>(&evt, "ProcID");
   }
   return CheckedAttributeValue<int>(&evt, "signal_process_id");
@@ -321,25 +328,25 @@ int ReadProcessID(HepMC3::GenEvent &evt) {
 } // namespace ER3
 
 namespace ER5 {
-std::vector<double> ReadLabPosition(HepMC3::GenEvent &evt) {
+std::vector<double> ReadLabPosition(HepMC3::GenEvent const &evt) {
   return CheckedAttributeValue<std::vector<double>>(&evt, "LabPos");
 }
 } // namespace ER5
 
 namespace EC2 {
-double ReadTotalCrossSection(HepMC3::GenEvent &evt) {
+double ReadTotalCrossSection(HepMC3::GenEvent const &evt) {
   return CheckedAttributeValue<double>(&evt, "TotXS");
 }
 } // namespace EC2
 
 namespace EC3 {
-double ReadProcessCrossSection(HepMC3::GenEvent &evt) {
+double ReadProcessCrossSection(HepMC3::GenEvent const &evt) {
   return CheckedAttributeValue<double>(&evt, "ProcXS");
 }
 } // namespace EC3
 
 namespace EC4 {
-double ReadFluxAveragedTotalXSecCVBestEstimate(HepMC3::GenEvent &evt) {
+double ReadFluxAveragedTotalXSecCVBestEstimate(HepMC3::GenEvent const &evt) {
   return evt.cross_section()->xsecs()[evt.run_info()->weight_index("CV")];
 }
 } // namespace EC4

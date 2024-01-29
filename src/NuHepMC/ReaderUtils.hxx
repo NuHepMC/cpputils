@@ -23,7 +23,9 @@ namespace NuHepMC {
 
 namespace GR2 {
 std::tuple<int, int, int>
-ReadVersion(std::shared_ptr<HepMC3::GenRunInfo> &run_info);
+ReadVersion(std::shared_ptr<HepMC3::GenRunInfo> const &run_info);
+std::string
+ReadVersionString(std::shared_ptr<HepMC3::GenRunInfo> const &run_info);
 } // namespace GR2
 
 namespace GR4 {
@@ -92,23 +94,23 @@ ReadAllEnergyDistributions(std::shared_ptr<HepMC3::GenRunInfo> const &run_info);
 } // namespace GC7
 
 namespace ER3 {
-int ReadProcessID(HepMC3::GenEvent &evt);
+int ReadProcessID(HepMC3::GenEvent const &evt);
 } // namespace ER3
 
 namespace ER5 {
-std::vector<double> ReadLabPosition(HepMC3::GenEvent &evt);
+std::vector<double> ReadLabPosition(HepMC3::GenEvent const &evt);
 } // namespace ER5
 
 namespace EC2 {
-double ReadTotalCrossSection(HepMC3::GenEvent &evt);
+double ReadTotalCrossSection(HepMC3::GenEvent const &evt);
 } // namespace EC2
 
 namespace EC3 {
-double ReadProcessCrossSection(HepMC3::GenEvent &evt);
+double ReadProcessCrossSection(HepMC3::GenEvent const &evt);
 } // namespace EC3
 
 namespace EC4 {
-double ReadFluxAveragedTotalXSecCVBestEstimate(HepMC3::GenEvent &evt);
+double ReadFluxAveragedTotalXSecCVBestEstimate(HepMC3::GenEvent const &evt);
 } // namespace EC4
 
 } // namespace NuHepMC
