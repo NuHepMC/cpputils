@@ -6,7 +6,7 @@ namespace CrossSection {
 
 namespace Units {
 
-double GetRescaleFactor(HepMC3::GenEvent &evt, Units::Unit const &from,
+double GetRescaleFactor(HepMC3::GenEvent const &evt, Units::Unit const &from,
                         Units::Unit const &to) {
 
   if (from == automatic) {

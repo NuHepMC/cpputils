@@ -11,7 +11,7 @@ namespace NuHepMC {
 
 namespace Event {
 
-HepMC3::ConstGenVertexPtr GetVertex(HepMC3::GenEvent const &evt,
+HepMC3::ConstGenVertexPtr GetVertex_First(HepMC3::GenEvent const &evt,
                                     int vtx_status);
 
 HepMC3::ConstGenVertexPtr GetPrimaryVertex(HepMC3::GenEvent const &evt);

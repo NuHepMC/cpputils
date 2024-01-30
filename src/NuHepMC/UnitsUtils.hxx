@@ -13,6 +13,7 @@ namespace CrossSection {
 namespace Units {
 
 NEW_NuHepMC_EXCEPT(InvalidUnitType);
+NEW_NuHepMC_EXCEPT(InvalidUnits);
 
 enum class Scale { CustomType, pb, cm2, cm2_ten38, Automatic };
 
@@ -28,6 +29,11 @@ enum class TargetScale {
 struct Unit {
   Scale scale;
   TargetScale tgtscale;
+  bool operator==(Unit const &other) const {
+    return (scale == other.scale) && (tgtscale == other.tgtscale);
+  }
+
+  bool operator!=(Unit const &other) const { return !(*this == other); }
 };
 
 const Unit pb_PerAtom{Scale::pb, TargetScale::PerTargetAtom};
@@ -37,7 +43,8 @@ const double pb = 1;
 const double cm2 = 1E36;
 const double cm2_ten38 = 1E-2;
 
-double GetRescaleFactor(HepMC3::GenEvent &evt, Unit const &from = automatic,
+double GetRescaleFactor(HepMC3::GenEvent const &evt,
+                        Unit const &from = automatic,
                         Unit const &to = pb_PerAtom);
 
 } // namespace Units

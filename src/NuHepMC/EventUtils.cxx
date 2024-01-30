@@ -10,7 +10,7 @@ namespace NuHepMC {
 
 namespace Event {
 
-HepMC3::ConstGenVertexPtr GetVertex(HepMC3::GenEvent const &evt,
+HepMC3::ConstGenVertexPtr GetVertex_First(HepMC3::GenEvent const &evt,
                                     int vtx_status) {
   for (auto const &vtx : evt.vertices()) {
     if (vtx->status() == vtx_status) {
@@ -21,7 +21,7 @@ HepMC3::ConstGenVertexPtr GetVertex(HepMC3::GenEvent const &evt,
 }
 
 HepMC3::ConstGenVertexPtr GetPrimaryVertex(HepMC3::GenEvent const &evt) {
-  return GetVertex(evt, NuHepMC::VertexStatus::Primary);
+  return GetVertex_First(evt, NuHepMC::VertexStatus::Primary);
 }
 
 HepMC3::ConstGenParticlePtr GetBeamParticle(HepMC3::GenEvent const &evt) {

@@ -132,3 +132,30 @@ double NuHepMC::EC3::ReadProcessCrossSection(HepMC3::GenEvent const &evt);
 
 double NuHepMC::EC4::ReadFluxAveragedTotalXSecCVBestEstimate(HepMC3::GenEvent const &evt);
 ```
+
+### EventUtils
+
+```c++
+#include "NuHepMC/EventUtils.hxx"
+```
+
+Whole event utils
+```c++
+
+// For NuHepMC-defined vertex status codes, you can use definitions from NuHepMC/Constants
+HepMC3::ConstGenVertexPtr NuHepMC::Event::GetVertex_First(HepMC3::GenEvent const &evt, int vtx_status);
+HepMC3::ConstGenVertexPtr NuHepMC::Event::GetPrimaryVertex(HepMC3::GenEvent const &evt);
+
+HepMC3::ConstGenParticlePtr NuHepMC::Event::GetBeamParticle(HepMC3::GenEvent const &evt);
+HepMC3::ConstGenParticlePtr NuHepMC::Event::GetTargetParticle(HepMC3::GenEvent const &evt);
+
+// For NuHepMC-defined particle status codes, you can use definitions from NuHepMC/Constants
+std::vector<HepMC3::ConstGenParticlePtr> NuHepMC::Event::GetParticles_All(HepMC3::GenEvent const &evt, int part_status, std::vector<int> PDGs = {});
+
+std::vector<HepMC3::ConstGenParticlePtr> NuHepMC::Event::GetParticles_AllRealFinalState(HepMC3::GenEvent const &evt, std::vector<int> PDGs = {});
+HepMC3::ConstGenParticlePtr NuHepMC::Event::GetParticle_First(HepMC3::GenEvent const &evt, int part_status, std::vector<int> PDGs = {});
+HepMC3::ConstGenParticlePtr NuHepMC::Event::GetParticle_HighestMomentum(HepMC3::GenEvent const &evt, int part_status, std::vector<int> PDGs = {});
+
+// Reads the energy/momentum units of a given event and calculates the scale factor required to express particle quantities in MeV-scale units
+double NuHepMC::Event::ToMeVFactor(HepMC3::GenEvent const &evt);
+```

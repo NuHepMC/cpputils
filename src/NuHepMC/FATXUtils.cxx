@@ -29,13 +29,19 @@ public:
 struct BaseAccumulator : public Accumulator {
 
   KBAccumulator<double> sumw;
+  CrossSection::Units::Unit input_unit;
   size_t nevt;
 
-  BaseAccumulator() : sumw(), nevt{0} {}
+  BaseAccumulator()
+      : sumw(), input_unit{CrossSection::Units::automatic}, nevt{0} {}
 
   void process(HepMC3::GenEvent const &ev) {
     sumw(ev.weight("CV"));
     nevt++;
+
+    if (input_unit == CrossSection::Units::automatic) {
+      input_unit = NuHepMC::GC4::ParseCrossSectionUnits(ev.run_info());
+    }
   }
 
   double sumweights() { return sumw(); }
@@ -49,13 +55,23 @@ struct GC5Accumulator : public BaseAccumulator {
   GC5Accumulator() : BaseAccumulator(), GC5FATX{0xdeadbeef} {}
 
   void process(HepMC3::GenEvent const &ev) {
-    if (GC5FATX == 0xdeadbeef) {
-      GC5FATX = GC5::ReadFluxAveragedTotalXSec(ev.run_info());
-    }
     BaseAccumulator::process(ev);
+
+    if (GC5FATX == 0xdeadbeef) {
+      GC5FATX = GC5::ReadFluxAveragedTotalXSec(ev.run_info()) *
+                CrossSection::Units::GetRescaleFactor(
+                    ev, input_unit, CrossSection::Units::pb_PerAtom);
+    }
   }
 
-  double fatx() { return GC5FATX; }
+  double fatx(CrossSection::Units::Unit const &units) {
+    if (units != CrossSection::Units::pb_PerAtom) {
+      throw CrossSection::Units::InvalidUnits()
+          << "GC5Accumulator can only provide FATX in pb /Atom. If you require "
+             "other units you will have to convert them yourself.";
+    }
+    return GC5FATX;
+  }
 };
 
 struct EC2Accumulator : public BaseAccumulator {
@@ -65,12 +81,22 @@ struct EC2Accumulator : public BaseAccumulator {
   EC2Accumulator() : BaseAccumulator(), ReciprocalTotXS() {}
 
   void process(HepMC3::GenEvent const &ev) {
-
-    ReciprocalTotXS(ev.weight("CV") / EC2::ReadTotalCrossSection(ev));
     BaseAccumulator::process(ev);
+
+    ReciprocalTotXS(ev.weight("CV") *
+                    CrossSection::Units::GetRescaleFactor(
+                        ev, input_unit, CrossSection::Units::pb_PerAtom) /
+                    EC2::ReadTotalCrossSection(ev));
   }
 
-  double fatx() { return sumw() / ReciprocalTotXS(); }
+  double fatx(CrossSection::Units::Unit const &units) {
+    if (units != CrossSection::Units::pb_PerAtom) {
+      throw CrossSection::Units::InvalidUnits()
+          << "EC2Accumulator can only provide FATX in pb /Atom. If you require "
+             "other units you will have to convert them yourself.";
+    }
+    return sumw() / ReciprocalTotXS();
+  }
 };
 
 struct EC4Accumulator : public BaseAccumulator {
@@ -80,11 +106,21 @@ struct EC4Accumulator : public BaseAccumulator {
   EC4Accumulator() : BaseAccumulator(), EC4BestEstimate(0xdeadbeef) {}
 
   void process(HepMC3::GenEvent const &ev) {
-    EC4BestEstimate = ev.cross_section()->xsec();
     BaseAccumulator::process(ev);
+
+    EC4BestEstimate = ev.cross_section()->xsec() *
+                      CrossSection::Units::GetRescaleFactor(
+                          ev, input_unit, CrossSection::Units::pb_PerAtom);
   }
 
-  double fatx() { return EC4BestEstimate; }
+  double fatx(CrossSection::Units::Unit const &units) {
+    if (units != CrossSection::Units::pb_PerAtom) {
+      throw CrossSection::Units::InvalidUnits()
+          << "EC4Accumulator can only provide FATX in pb /Atom. If you require "
+             "other units you will have to convert them yourself.";
+    }
+    return EC4BestEstimate;
+  }
 };
 
 NEW_NuHepMC_EXCEPT(NoMethodToCalculateFATX);

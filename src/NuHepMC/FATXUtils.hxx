@@ -17,7 +17,8 @@ namespace FATX {
 /// continue to get better the more events you pass them
 struct Accumulator {
   virtual void process(HepMC3::GenEvent const &) = 0;
-  virtual double fatx() = 0;
+  virtual double fatx(CrossSection::Units::Unit const &units =
+                          CrossSection::Units::pb_PerAtom) = 0;
   virtual double sumweights() = 0;
   virtual size_t events() = 0;
 };
