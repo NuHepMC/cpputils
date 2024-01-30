@@ -11,7 +11,7 @@ namespace NuHepMC {
 namespace Event {
 
 HepMC3::ConstGenVertexPtr GetVertex_First(HepMC3::GenEvent const &evt,
-                                    int vtx_status) {
+                                          int vtx_status) {
   for (auto const &vtx : evt.vertices()) {
     if (vtx->status() == vtx_status) {
       return vtx;
@@ -55,6 +55,12 @@ GetParticles_All(HepMC3::GenEvent const &evt, int part_status,
     }
   }
   return parts;
+}
+
+std::vector<HepMC3::ConstGenParticlePtr>
+GetParticles_AllRealFinalState(HepMC3::GenEvent const &evt,
+                               std::vector<int> PDGs) {
+  return GetParticles_All(evt, ParticleStatus::UndecayedPhysical, PDGs);
 }
 
 HepMC3::ConstGenParticlePtr GetParticle_First(HepMC3::GenEvent const &evt,

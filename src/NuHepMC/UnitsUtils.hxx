@@ -44,7 +44,7 @@ const double cm2 = 1E36;
 const double cm2_ten38 = 1E-2;
 
 double GetRescaleFactor(HepMC3::GenEvent const &evt,
-                        Unit const &from = automatic,
+                        Unit from = automatic,
                         Unit const &to = pb_PerAtom);
 
 } // namespace Units

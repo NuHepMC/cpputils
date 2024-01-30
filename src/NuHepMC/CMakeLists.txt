@@ -16,6 +16,7 @@ set(IMPLEMENTATION
   make_writer.cxx
   ReaderUtils.cxx
   WriterUtils.cxx
+  UnitsUtils.cxx
   FATXUtils.cxx)
 
 add_library(nuhepmc_cpputils SHARED ${IMPLEMENTATION})

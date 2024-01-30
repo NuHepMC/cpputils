@@ -1,29 +1,34 @@
 #include "NuHepMC/UnitsUtils.hxx"
 
+#include "NuHepMC/ReaderUtils.hxx"
+#include "NuHepMC/EventUtils.hxx"
+
 namespace NuHepMC {
 
 namespace CrossSection {
 
 namespace Units {
 
-double GetRescaleFactor(HepMC3::GenEvent const &evt, Units::Unit const &from,
+NEW_NuHepMC_EXCEPT(NonStandardXSUnitsUsed);
+
+double GetRescaleFactor(HepMC3::GenEvent const &evt, Units::Unit from,
                         Units::Unit const &to) {
 
   if (from == automatic) {
-    from = ParseCrossSectionUnits(evt.run_info);
+    from = NuHepMC::GC4::ParseCrossSectionUnits(evt.run_info());
   }
 
   if ((from.scale == Units::Scale::CustomType) ||
       (from.tgtscale == Units::TargetScale::CustomType)) {
     auto units_str = NuHepMC::GC4::ReadCrossSectionUnits(evt.run_info());
     throw NonStandardXSUnitsUsed()
-        << units_str.scale << " " << units_str.tgtscale;
+        << units_str.first << " " << units_str.second;
   }
   if ((to.scale == Units::Scale::CustomType) ||
       (to.tgtscale == Units::TargetScale::CustomType)) {
     auto units_str = NuHepMC::GC4::ReadCrossSectionUnits(evt.run_info());
     throw NonStandardXSUnitsUsed()
-        << units_str.scale << " " << units_str.tgtscale;
+        << units_str.first << " " << units_str.second;
   }
 
   if ((from.tgtscale == Units::TargetScale::PerTargetMolecule) ||
@@ -110,6 +115,6 @@ std::ostream &operator<<(std::ostream &os,
 }
 
 std::ostream &operator<<(std::ostream &os,
-                         NuHepMC::CrossSection::Units::Units const &u) {
+                         NuHepMC::CrossSection::Units::Unit const &u) {
   return os << "[" << u.scale << ", " << u.tgtscale << "]";
 }
