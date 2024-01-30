@@ -33,7 +33,7 @@ struct BaseAccumulator : public Accumulator {
 
   BaseAccumulator() : sumw(), nevt{0} {}
 
-  void operator()(HepMC3::GenEvent const &ev) {
+  void process(HepMC3::GenEvent const &ev) {
     sumw(ev.weight("CV"));
     nevt++;
   }
@@ -48,7 +48,7 @@ struct GC5Accumulator : public BaseAccumulator {
 
   GC5Accumulator() : BaseAccumulator(), GC5FATX{0xdeadbeef} {}
 
-  void operator()(HepMC3::GenEvent const &ev) {
+  void process(HepMC3::GenEvent const &ev) {
     if (GC5FATX == 0xdeadbeef) {
       GC5FATX = GC5::ReadFluxAveragedTotalXSec(ev.run_info());
     }
@@ -64,7 +64,7 @@ struct EC2Accumulator : public BaseAccumulator {
 
   EC2Accumulator() : BaseAccumulator(), ReciprocalTotXS() {}
 
-  void operator()(HepMC3::GenEvent const &ev) {
+  void process(HepMC3::GenEvent const &ev) {
 
     ReciprocalTotXS(ev.weight("CV") / EC2::ReadTotalCrossSection(ev));
     BaseAccumulator::operator()(ev);
@@ -79,7 +79,7 @@ struct EC4Accumulator : public BaseAccumulator {
 
   EC4Accumulator() : BaseAccumulator(), EC4BestEstimate(0xdeadbeef) {}
 
-  void operator()(HepMC3::GenEvent const &ev) {
+  void process(HepMC3::GenEvent const &ev) {
     EC4BestEstimate = ev.cross_section()->xsec();
     BaseAccumulator::operator()(ev);
   }
