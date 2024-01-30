@@ -1,8 +1,33 @@
-# cpputils
+# NuHepMC::CPPUtils
 
-C++ Helper functions for NuHepMC reference implementation
+C++ Helper functions for working with [NuHepMC](https://arxiv.org/pdf/2310.13211.pdf) 
+standard [HepMC3](https://gitlab.cern.ch/hepmc/HepMC3) objects.
 
-## Building
+## Using this package in a CMake Project
+
+Firstly, use [CPM.cmake](https://github.com/cpm-cmake/CPM.cmake) in your project.
+
+Then include the following your CMakeLists.txt
+```cmake
+CPMAddPackage(
+  NAME NuHepMC_CPPUtils
+  GIT_TAG main
+  GIT_REPOSITORY "https://github.com/NuHepMC/cpputils.git"
+  OPTIONS "BUILTIN_HEPMC3 ON"
+)
+```
+
+If you already have a compatible copy of `HepMC3` that is visible to CMake, then you can 
+omit the `OPTIONS` argument.
+
+Then link your targets like so:
+```cmake
+target_link_libraries(<mytarget> PUBLIC NuHepMC::CPPUtils)
+```
+
+this will add include directories and linker flags for this library to your target.
+
+## Building Standalone
 
 ```bash
 cd /path/to/cpputils
@@ -11,19 +36,9 @@ cmake .. -DCMAKE_INSTALL_PREFIX=/where/you/want/to/install
 make install
 ```
 
-We currently recommend using builtin HepMC3 to avoid bugs in the latest release (as of 2023/11/02).
-Use the below instead.
-
-```bash
-cd /path/to/cpputils
-mkdir build; cd build
-cmake .. -DCMAKE_INSTALL_PREFIX=/where/you/want/to/install -DBUILTIN_HEPMC3=ON
-make install
-```
-
 ## Setting up the environment
 
-```
+```bash
 eval $(/path/to/cpputils/build/$(uname -s)/bin/NuHepMC-config --env)
 ```
 
@@ -41,3 +56,79 @@ And then run it like: `myana input.hepmc`.
 
 There is nothing clever going on here, just a helper for compiler flags to
 use as a starting point for a quick analysis.
+
+## C++ Utility Functions documentation
+
+This package contains helper functions for reading, analysing, and writing NuHepMC files.
+
+The hope is that they can be used to abstract away implementation details of the NuHepMC standard and make for more declarative code that works with NuHepMC events.
+
+* Reading: [`ReaderUtils`](#readerutils)
+* Analysing: [`EventUtils`](#eventutils), [`FATXUtils`](#fatxutils),
+* Writing: [`WriterUtils`](#writerutils), [`make_writer`](#make-writer)
+* Miscellaneous: [`AttributUtils`](#attributeutils), [`Constants`](#constants), [`UnitsUtils`](#unitsutils)
+
+### ReaderUtils
+
+```c++
+#include "NuHepMC/ReaderUtils.hxx"
+```
+
+The functions contained within are namespaced according to the specific NuHepMC Requirement, Convention, or Suggestion that they support.
+
+```c++
+
+std::tuple<int, int, int> NuHepMC::GR2::ReadVersion(std::shared_ptr<HepMC3::GenRunInfo const> run_info);
+std::string NuHepMC::GR2::ReadVersionString(std::shared_ptr<HepMC3::GenRunInfo const> run_info);
+
+//StatusCodeDescriptors are defined in NuHepMC/Types.hxx as 
+// using StatusCodeDescriptors =
+//  std::map<int, std::pair<std::string, std::string>>;
+// StatusCodeDescriptors[<id>].first is the human readoable name of the <id>
+// StatusCodeDescriptors[<id>].second is a longer form description
+
+StatusCodeDescriptors NuHepMC::GR4::ReadProcessIdDefinitions(std::shared_ptr<HepMC3::GenRunInfo const> run_info);
+
+StatusCodeDescriptors NuHepMC::GR5::ReadVertexStatusIdDefinitions(std::shared_ptr<HepMC3::GenRunInfo const> run_info);
+
+StatusCodeDescriptors NuHepMC::GR6::ReadParticleStatusIdDefinitions(std::shared_ptr<HepMC3::GenRunInfo const> run_info);
+
+StatusCodeDescriptors NuHepMC::GR8::ReadNonStandardParticleNumbers(std::shared_ptr<HepMC3::GenRunInfo const> run_info);
+
+std::set<std::string> NuHepMC::GC1::ReadConventions(std::shared_ptr<HepMC3::GenRunInfo const> run_info);
+bool NuHepMC::GC1::SignalsConvention(std::shared_ptr<HepMC3::GenRunInfo const> run_info,
+                       std::string const &Convention);
+bool NuHepMC::GC1::SignalsConventions(std::shared_ptr<HepMC3::GenRunInfo const> run_info,
+                        std::vector<std::string> Conventions);
+
+long NuHepMC::GC2::ReadExposureNEvents(std::shared_ptr<HepMC3::GenRunInfo const> run_info);
+
+double NuHepMC::GC3::ReadExposurePOT(std::shared_ptr<HepMC3::GenRunInfo const> run_info);
+double NuHepMC::GC3::ReadExposureLivetime(std::shared_ptr<HepMC3::GenRunInfo const> run_info);
+
+
+std::pair<std::string, std::string> NuHepMC::GC4::ReadCrossSectionUnits(std::shared_ptr<HepMC3::GenRunInfo const> run_info);
+
+// See NuHepMC/UnitsUtils.hxx for defined unit enums
+CrossSection::Units::Unit NuHepMC::GC4::ParseCrossSectionUnits(std::shared_ptr<HepMC3::GenRunInfo const> run_info);
+
+
+double NuHepMC::GC5::ReadFluxAveragedTotalXSec(std::shared_ptr<HepMC3::GenRunInfo const> run_info);
+
+CitationData NuHepMC::GC6::ReadAllCitations(std::shared_ptr<HepMC3::GenRunInfo const> run_info);
+
+// See NuHepMC/Types.hxx for the definition of the EnergyDistribution type
+// The integer key corresponds to the pid/PDG numbers for a beam particle 
+// species with a known energy distribution
+std::map<int, EnergyDistribution> NuHepMC::GC7::ReadAllEnergyDistributions(std::shared_ptr<HepMC3::GenRunInfo const> run_info);
+
+int NuHepMC::ER3::ReadProcessID(HepMC3::GenEvent const &evt);
+
+std::vector<double> NuHepMC::ER5::ReadLabPosition(HepMC3::GenEvent const &evt);
+
+double NuHepMC::EC2::ReadTotalCrossSection(HepMC3::GenEvent const &evt);
+
+double NuHepMC::EC3::ReadProcessCrossSection(HepMC3::GenEvent const &evt);
+
+double NuHepMC::EC4::ReadFluxAveragedTotalXSecCVBestEstimate(HepMC3::GenEvent const &evt);
+```

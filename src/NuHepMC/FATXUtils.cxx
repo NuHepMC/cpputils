@@ -52,7 +52,7 @@ struct GC5Accumulator : public BaseAccumulator {
     if (GC5FATX == 0xdeadbeef) {
       GC5FATX = GC5::ReadFluxAveragedTotalXSec(ev.run_info());
     }
-    BaseAccumulator::operator()(ev);
+    BaseAccumulator::process(ev);
   }
 
   double fatx() { return GC5FATX; }
@@ -67,7 +67,7 @@ struct EC2Accumulator : public BaseAccumulator {
   void process(HepMC3::GenEvent const &ev) {
 
     ReciprocalTotXS(ev.weight("CV") / EC2::ReadTotalCrossSection(ev));
-    BaseAccumulator::operator()(ev);
+    BaseAccumulator::process(ev);
   }
 
   double fatx() { return sumw() / ReciprocalTotXS(); }
@@ -81,7 +81,7 @@ struct EC4Accumulator : public BaseAccumulator {
 
   void process(HepMC3::GenEvent const &ev) {
     EC4BestEstimate = ev.cross_section()->xsec();
-    BaseAccumulator::operator()(ev);
+    BaseAccumulator::process(ev);
   }
 
   double fatx() { return EC4BestEstimate; }
