@@ -9,14 +9,14 @@ set(HEADERS
   UnitsUtils.hxx
   WriterUtils.hxx
   Exceptions.hxx
-  CrossSectionUtils.hxx)
+  FATXUtils.hxx)
 
 set(IMPLEMENTATION 
   EventUtils.cxx
   make_writer.cxx
   ReaderUtils.cxx
   WriterUtils.cxx
-  CrossSectionUtils.cxx)
+  FATXUtils.cxx)
 
 add_library(nuhepmc_cpputils SHARED ${IMPLEMENTATION})
 target_link_libraries(nuhepmc_cpputils PUBLIC nuhepmc_options)

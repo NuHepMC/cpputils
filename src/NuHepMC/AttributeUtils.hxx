@@ -15,7 +15,7 @@ namespace NuHepMC {
 NEW_NuHepMC_EXCEPT(CannotAddAttribute);
 
 template <typename T>
-void add_attribute(std::shared_ptr<HepMC3::GenRunInfo> &run_info,
+void add_attribute(std::shared_ptr<HepMC3::GenRunInfo> run_info,
                    std::string const &name, T const &val) {
   run_info->add_attribute(
       name, std::make_shared<typename NuHepMC::attr_traits<T>::type>(val));

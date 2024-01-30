@@ -16,10 +16,6 @@ HepMC3::ConstGenVertexPtr GetVertex(HepMC3::GenEvent const &evt,
 
 HepMC3::ConstGenVertexPtr GetPrimaryVertex(HepMC3::GenEvent const &evt);
 
-HepMC3::ConstGenParticlePtr GetParticle_First(HepMC3::GenEvent const &evt,
-                                              int part_status,
-                                              std::vector<int> PDGs = {});
-
 HepMC3::ConstGenParticlePtr GetBeamParticle(HepMC3::GenEvent const &evt);
 
 HepMC3::ConstGenParticlePtr GetTargetParticle(HepMC3::GenEvent const &evt);
@@ -28,6 +24,15 @@ std::vector<HepMC3::ConstGenParticlePtr>
 GetParticles_All(HepMC3::GenEvent const &evt, int part_status,
                  std::vector<int> PDGs = {});
 
+std::vector<HepMC3::ConstGenParticlePtr>
+GetParticles_AllRealFinalState(HepMC3::GenEvent const &evt,
+                               std::vector<int> PDGs = {}) {
+  return GetParticles_All(evt, ParticleStatus::UndecayedPhysical, PDGs);
+}
+
+HepMC3::ConstGenParticlePtr GetParticle_First(HepMC3::GenEvent const &evt,
+                                              int part_status,
+                                              std::vector<int> PDGs = {});
 HepMC3::ConstGenParticlePtr
 GetParticle_HighestMomentum(HepMC3::GenEvent const &evt, int part_status,
                             std::vector<int> PDGs = {});

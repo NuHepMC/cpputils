@@ -24,33 +24,16 @@ HepMC3::ConstGenVertexPtr GetPrimaryVertex(HepMC3::GenEvent const &evt) {
   return GetVertex(evt, NuHepMC::VertexStatus::Primary);
 }
 
-HepMC3::ConstGenParticlePtr GetParticle_First(HepMC3::GenEvent const &evt,
-                                              int part_status,
-                                              std::vector<int> PDGs) {
-  for (auto const &part : evt.particles()) {
-    if (part->status() == part_status) {
-      if (PDGs.size()) {
-        if (std::find(PDGs.begin(), PDGs.end(), part->pid()) != PDGs.end()) {
-          return part;
-        }
-      } else {
-        return part;
-      }
-    }
-  }
-  return nullptr;
-}
-
 HepMC3::ConstGenParticlePtr GetBeamParticle(HepMC3::GenEvent const &evt) {
   return GetParticle_First(evt, ParticleStatus::IncomingBeam);
 }
 
 HepMC3::ConstGenParticlePtr GetTargetParticle(HepMC3::GenEvent const &evt) {
   auto pt_nhmctgt = GetParticle_First(evt, ParticleStatus::Target);
-  if(pt_nhmctgt){
+  if (pt_nhmctgt) {
     return pt_nhmctgt;
   }
-  //for legacy apps
+  // for legacy apps
   return GetParticle_First(evt, 11);
 }
 
@@ -74,6 +57,23 @@ GetParticles_All(HepMC3::GenEvent const &evt, int part_status,
   return parts;
 }
 
+HepMC3::ConstGenParticlePtr GetParticle_First(HepMC3::GenEvent const &evt,
+                                              int part_status,
+                                              std::vector<int> PDGs) {
+  for (auto const &part : evt.particles()) {
+    if (part->status() == part_status) {
+      if (PDGs.size()) {
+        if (std::find(PDGs.begin(), PDGs.end(), part->pid()) != PDGs.end()) {
+          return part;
+        }
+      } else {
+        return part;
+      }
+    }
+  }
+  return nullptr;
+}
+
 HepMC3::ConstGenParticlePtr
 GetParticle_HighestMomentum(HepMC3::GenEvent const &evt, int part_status,
                             std::vector<int> PDGs) {
@@ -92,7 +92,7 @@ GetParticle_HighestMomentum(HepMC3::GenEvent const &evt, int part_status,
   return parts.back();
 }
 
-double ToMeVFactor(HepMC3::GenEvent const &evt){
+double ToMeVFactor(HepMC3::GenEvent const &evt) {
   return (evt.momentum_unit() == HepMC3::Units::MEV) ? 1 : 1E3;
 }
 

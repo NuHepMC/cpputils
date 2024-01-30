@@ -10,7 +10,7 @@ namespace NuHepMC {
 NEW_NuHepMC_EXCEPT(InvalidBeamEnergyDescription);
 
 namespace GR2 {
-void WriteVersion(std::shared_ptr<HepMC3::GenRunInfo> &run_info) {
+void WriteVersion(std::shared_ptr<HepMC3::GenRunInfo> run_info) {
   add_attribute(run_info, "NuHepMC.Version.Major", NuHepMC_VERSION_MAJOR);
   add_attribute(run_info, "NuHepMC.Version.Minor", NuHepMC_VERSION_MINOR);
   add_attribute(run_info, "NuHepMC.Version.Patch", NuHepMC_VERSION_PATCH);
@@ -18,7 +18,7 @@ void WriteVersion(std::shared_ptr<HepMC3::GenRunInfo> &run_info) {
 } // namespace GR2
 
 void WriteIDDefinitions(
-    std::shared_ptr<HepMC3::GenRunInfo> &run_info,
+    std::shared_ptr<HepMC3::GenRunInfo> run_info,
     StatusCodeDescriptors const &Definitions,
     std::pair<std::string, std::string> const &AttributeStubs) {
 
@@ -42,7 +42,7 @@ void WriteIDDefinitions(
 }
 
 namespace GR4 {
-void WriteProcessIDDefinitions(std::shared_ptr<HepMC3::GenRunInfo> &run_info,
+void WriteProcessIDDefinitions(std::shared_ptr<HepMC3::GenRunInfo> run_info,
                                StatusCodeDescriptors const &Definitions) {
   WriteIDDefinitions(run_info, Definitions, {"ProcessIDs", "ProcessInfo"});
 }
@@ -50,7 +50,7 @@ void WriteProcessIDDefinitions(std::shared_ptr<HepMC3::GenRunInfo> &run_info,
 
 namespace GR5 {
 void WriteVertexStatusIDDefinitions(
-    std::shared_ptr<HepMC3::GenRunInfo> &run_info,
+    std::shared_ptr<HepMC3::GenRunInfo> run_info,
     StatusCodeDescriptors const &Definitions) {
   WriteIDDefinitions(run_info, Definitions,
                      {"VertexStatusIDs", "VertexStatusInfo"});
@@ -59,7 +59,7 @@ void WriteVertexStatusIDDefinitions(
 
 namespace GR6 {
 void WriteParticleStatusIDDefinitions(
-    std::shared_ptr<HepMC3::GenRunInfo> &run_info,
+    std::shared_ptr<HepMC3::GenRunInfo> run_info,
     StatusCodeDescriptors const &Definitions) {
   WriteIDDefinitions(run_info, Definitions,
                      {"ParticleStatusIDs", "ParticleStatusInfo"});
@@ -67,7 +67,7 @@ void WriteParticleStatusIDDefinitions(
 } // namespace GR6
 
 namespace GR7 {
-void SetWeightNames(std::shared_ptr<HepMC3::GenRunInfo> &run_info,
+void SetWeightNames(std::shared_ptr<HepMC3::GenRunInfo> run_info,
                     std::vector<std::string> const &names) {
   run_info->set_weight_names(names);
 }
@@ -76,7 +76,7 @@ void SetWeightNames(std::shared_ptr<HepMC3::GenRunInfo> &run_info,
 namespace GR8 {
 template <typename T>
 void WriteNonStandardParticleNumbers(
-    std::shared_ptr<HepMC3::GenRunInfo> &run_info,
+    std::shared_ptr<HepMC3::GenRunInfo> run_info,
     T const &nonstandard_pdg_definitions) {
   static_assert(std::is_same_v<T, std::map<int, std::string>> ||
                     std::is_same_v<T, std::map<int, std::string>>,
@@ -111,31 +111,31 @@ void WriteNonStandardParticleNumbers(
 } // namespace GR8
 
 namespace GC1 {
-void SetConventions(std::shared_ptr<HepMC3::GenRunInfo> &run_info,
+void SetConventions(std::shared_ptr<HepMC3::GenRunInfo> run_info,
                     std::vector<std::string> const &conventions) {
   add_attribute(run_info, "NuHepMC.Conventions", conventions);
 }
 } // namespace GC1
 
 namespace GC2 {
-void SetExposureNEvents(std::shared_ptr<HepMC3::GenRunInfo> &run_info,
+void SetExposureNEvents(std::shared_ptr<HepMC3::GenRunInfo> run_info,
                         int NEvents) {
   add_attribute(run_info, "NuHepMC.Exposure.NEvents", NEvents);
 }
 } // namespace GC2
 
 namespace GC3 {
-void SetExposurePOT(std::shared_ptr<HepMC3::GenRunInfo> &run_info, double POT) {
+void SetExposurePOT(std::shared_ptr<HepMC3::GenRunInfo> run_info, double POT) {
   add_attribute(run_info, "NuHepMC.Exposure.POT", POT);
 }
-void SetExposureLivetime(std::shared_ptr<HepMC3::GenRunInfo> &run_info,
+void SetExposureLivetime(std::shared_ptr<HepMC3::GenRunInfo> run_info,
                          double Livetime) {
   add_attribute(run_info, "NuHepMC.Exposure.Livetime", Livetime);
 }
 } // namespace GC3
 
 namespace GC4 {
-void SetCrossSectionUnits(std::shared_ptr<HepMC3::GenRunInfo> &run_info,
+void SetCrossSectionUnits(std::shared_ptr<HepMC3::GenRunInfo> run_info,
                           std::string const &xs_units,
                           std::string const &target_scale) {
   add_attribute(run_info, "NuHepMC.Units.CrossSection.Unit", xs_units);
@@ -145,25 +145,25 @@ void SetCrossSectionUnits(std::shared_ptr<HepMC3::GenRunInfo> &run_info,
 } // namespace GC4
 
 namespace GC5 {
-void SetFluxAveragedTotalXSec(std::shared_ptr<HepMC3::GenRunInfo> &run_info,
+void SetFluxAveragedTotalXSec(std::shared_ptr<HepMC3::GenRunInfo> run_info,
                               double fatx) {
   add_attribute(run_info, "NuHepMC.FluxAveragedTotalCrossSection", fatx);
 }
 } // namespace GC5
 
 namespace GC6 {
-void AddCitationMetadata(std::shared_ptr<HepMC3::GenRunInfo> &run_info,
+void AddCitationMetadata(std::shared_ptr<HepMC3::GenRunInfo> run_info,
                          std::string const &component, std::string const &type,
                          std::vector<std::string> const &values) {
   add_attribute(run_info, "NuHepMC.Citations." + component + "." + type,
                 values);
 }
-void AddGeneratorCitation(std::shared_ptr<HepMC3::GenRunInfo> &run_info,
+void AddGeneratorCitation(std::shared_ptr<HepMC3::GenRunInfo> run_info,
                           std::string const &type,
                           std::vector<std::string> const &values) {
   AddCitationMetadata(run_info, "Generator", type, values);
 }
-void AddProcessCitation(std::shared_ptr<HepMC3::GenRunInfo> &run_info,
+void AddProcessCitation(std::shared_ptr<HepMC3::GenRunInfo> run_info,
                         int const &ProcID, std::string const &type,
                         std::vector<std::string> const &values) {
   AddCitationMetadata(run_info,
@@ -174,7 +174,7 @@ void AddProcessCitation(std::shared_ptr<HepMC3::GenRunInfo> &run_info,
 
 namespace GC7 {
 
-void WriteBeamUnits(std::shared_ptr<HepMC3::GenRunInfo> &run_info,
+void WriteBeamUnits(std::shared_ptr<HepMC3::GenRunInfo> run_info,
                     std::string const &EnergyUnit,
                     std::string const &RateUnit) {
   add_attribute(run_info, "NuHepMC.Beam.EnergyUnit", EnergyUnit);
@@ -183,15 +183,15 @@ void WriteBeamUnits(std::shared_ptr<HepMC3::GenRunInfo> &run_info,
   }
 }
 
-void SetHistogramBeamType(std::shared_ptr<HepMC3::GenRunInfo> &run_info) {
+void SetHistogramBeamType(std::shared_ptr<HepMC3::GenRunInfo> run_info) {
   add_attribute(run_info, "NuHepMC.Beam.Type", "Histogram");
 }
 
-void SetMonoEnergeticBeamType(std::shared_ptr<HepMC3::GenRunInfo> &run_info) {
+void SetMonoEnergeticBeamType(std::shared_ptr<HepMC3::GenRunInfo> run_info) {
   add_attribute(run_info, "NuHepMC.Beam.Type", "MonoEnergetic");
 }
 
-void WriteBeamEnergyHistogram(std::shared_ptr<HepMC3::GenRunInfo> &run_info,
+void WriteBeamEnergyHistogram(std::shared_ptr<HepMC3::GenRunInfo> run_info,
                               int BeamParticleNumber,
                               std::vector<double> const &bin_edges,
                               std::vector<double> const &bin_content,
@@ -217,7 +217,7 @@ void WriteBeamEnergyHistogram(std::shared_ptr<HepMC3::GenRunInfo> &run_info,
                     "].Histogram.ContentIsPerWidth",
                 ContentIsPerWidth);
 }
-void WriteBeamEnergyMonoenergetic(std::shared_ptr<HepMC3::GenRunInfo> &run_info,
+void WriteBeamEnergyMonoenergetic(std::shared_ptr<HepMC3::GenRunInfo> run_info,
                                   int BeamParticleNumber,
                                   double const &energy) {
 
@@ -227,7 +227,7 @@ void WriteBeamEnergyMonoenergetic(std::shared_ptr<HepMC3::GenRunInfo> &run_info,
                 energy);
 }
 
-void WriteBeamEnergyDistribution(std::shared_ptr<HepMC3::GenRunInfo> &run_info,
+void WriteBeamEnergyDistribution(std::shared_ptr<HepMC3::GenRunInfo> run_info,
                                  int BeamParticleNumber,
                                  EnergyDistribution distribution) {
 
@@ -254,7 +254,7 @@ void WriteBeamEnergyDistribution(std::shared_ptr<HepMC3::GenRunInfo> &run_info,
 }
 
 void WriteBeamEnergyDistributions(
-    std::shared_ptr<HepMC3::GenRunInfo> &run_info,
+    std::shared_ptr<HepMC3::GenRunInfo> run_info,
     std::map<int, EnergyDistribution> const &distributions) {
   for (auto const &distribution : distributions) {
     WriteBeamEnergyDistribution(run_info, distribution.first,

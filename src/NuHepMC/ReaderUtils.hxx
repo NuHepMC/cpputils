@@ -23,66 +23,65 @@ namespace NuHepMC {
 
 namespace GR2 {
 std::tuple<int, int, int>
-ReadVersion(std::shared_ptr<HepMC3::GenRunInfo> const &run_info);
+ReadVersion(std::shared_ptr<HepMC3::GenRunInfo const> run_info);
 std::string
-ReadVersionString(std::shared_ptr<HepMC3::GenRunInfo> const &run_info);
+ReadVersionString(std::shared_ptr<HepMC3::GenRunInfo const> run_info);
 } // namespace GR2
 
 namespace GR4 {
 StatusCodeDescriptors
-ReadProcessIdDefinitions(std::shared_ptr<HepMC3::GenRunInfo> const &run_info);
+ReadProcessIdDefinitions(std::shared_ptr<HepMC3::GenRunInfo const> run_info);
 } // namespace GR4
 
 namespace GR5 {
 StatusCodeDescriptors ReadVertexStatusIdDefinitions(
-    std::shared_ptr<HepMC3::GenRunInfo> const &run_info);
+    std::shared_ptr<HepMC3::GenRunInfo const> run_info);
 } // namespace GR5
 
 namespace GR6 {
 StatusCodeDescriptors ReadParticleStatusIdDefinitions(
-    std::shared_ptr<HepMC3::GenRunInfo> const &run_info);
+    std::shared_ptr<HepMC3::GenRunInfo const> run_info);
 } // namespace GR6
 
 namespace GR8 {
 StatusCodeDescriptors ReadNonStandardParticleNumbers(
-    std::shared_ptr<HepMC3::GenRunInfo> const &run_info);
+    std::shared_ptr<HepMC3::GenRunInfo const> run_info);
 } // namespace GR8
 
 namespace GC1 {
 std::set<std::string>
-ReadConventions(std::shared_ptr<HepMC3::GenRunInfo> const &run_info);
-bool SignalsConvention(std::shared_ptr<HepMC3::GenRunInfo> const &run_info,
+ReadConventions(std::shared_ptr<HepMC3::GenRunInfo const> run_info);
+bool SignalsConvention(std::shared_ptr<HepMC3::GenRunInfo const> run_info,
                        std::string const &Convention);
-bool SignalsConventions(std::shared_ptr<HepMC3::GenRunInfo> const &run_info,
+bool SignalsConventions(std::shared_ptr<HepMC3::GenRunInfo const> run_info,
                         std::vector<std::string> Conventions);
 } // namespace GC1
 
 namespace GC2 {
-long ReadExposureNEvents(std::shared_ptr<HepMC3::GenRunInfo> const &run_info);
+long ReadExposureNEvents(std::shared_ptr<HepMC3::GenRunInfo const> run_info);
 } // namespace GC2
 
 namespace GC3 {
-double ReadExposurePOT(std::shared_ptr<HepMC3::GenRunInfo> const &run_info);
-double
-ReadExposureLivetime(std::shared_ptr<HepMC3::GenRunInfo> const &run_info);
+double ReadExposurePOT(std::shared_ptr<HepMC3::GenRunInfo const> run_info);
+double ReadExposureLivetime(std::shared_ptr<HepMC3::GenRunInfo const> run_info);
 } // namespace GC3
 
 namespace GC4 {
 std::pair<std::string, std::string>
-ReadCrossSectionUnits(std::shared_ptr<HepMC3::GenRunInfo> const &run_info);
+ReadCrossSectionUnits(std::shared_ptr<HepMC3::GenRunInfo const> run_info);
 
-std::pair<CrossSection::Units::XSUnits, CrossSection::Units::XSTargetScale>
-ParseCrossSectionUnits(std::shared_ptr<HepMC3::GenRunInfo> const &run_info);
+CrossSection::Units::Unit
+ParseCrossSectionUnits(std::shared_ptr<HepMC3::GenRunInfo const> run_info);
 } // namespace GC4
 
 namespace GC5 {
 double
-ReadFluxAveragedTotalXSec(std::shared_ptr<HepMC3::GenRunInfo> const &run_info);
+ReadFluxAveragedTotalXSec(std::shared_ptr<HepMC3::GenRunInfo const> run_info);
 } // namespace GC5
 
 namespace GC6 {
 CitationData
-ReadAllCitations(std::shared_ptr<HepMC3::GenRunInfo> const &run_info);
+ReadAllCitations(std::shared_ptr<HepMC3::GenRunInfo const> run_info);
 } // namespace GC6
 
 namespace GC7 {
@@ -90,7 +89,7 @@ NEW_NuHepMC_EXCEPT(InvalidBeamEnergyType);
 NEW_NuHepMC_EXCEPT(InvalidBeamParticleNumber);
 
 std::map<int, EnergyDistribution>
-ReadAllEnergyDistributions(std::shared_ptr<HepMC3::GenRunInfo> const &run_info);
+ReadAllEnergyDistributions(std::shared_ptr<HepMC3::GenRunInfo const> run_info);
 } // namespace GC7
 
 namespace ER3 {

@@ -8,14 +8,14 @@ namespace NuHepMC {
 
 namespace GR2 {
 std::tuple<int, int, int>
-ReadVersion(std::shared_ptr<HepMC3::GenRunInfo> const &run_info) {
+ReadVersion(std::shared_ptr<HepMC3::GenRunInfo const> run_info) {
   return std::make_tuple(
       CheckedAttributeValue<int>(run_info, "NuHepMC.Version.Major"),
       CheckedAttributeValue<int>(run_info, "NuHepMC.Version.Minor"),
       CheckedAttributeValue<int>(run_info, "NuHepMC.Version.Patch"));
 }
 std::string
-ReadVersionString(std::shared_ptr<HepMC3::GenRunInfo> const &run_info) {
+ReadVersionString(std::shared_ptr<HepMC3::GenRunInfo const> run_info) {
   auto vt = ReadVersion(run_info);
   return std::to_string(std::get<0>(vt)) + "." +
          std::to_string(std::get<1>(vt)) + "." +
@@ -24,7 +24,7 @@ ReadVersionString(std::shared_ptr<HepMC3::GenRunInfo> const &run_info) {
 } // namespace GR2
 
 StatusCodeDescriptors
-ReadIdDefinitions(std::shared_ptr<HepMC3::GenRunInfo> const &run_info,
+ReadIdDefinitions(std::shared_ptr<HepMC3::GenRunInfo const> run_info,
                   std::pair<std::string, std::string> const &AttributeStubs,
                   bool DescriptionRequired = true) {
 
@@ -57,21 +57,21 @@ ReadIdDefinitions(std::shared_ptr<HepMC3::GenRunInfo> const &run_info,
 
 namespace GR4 {
 StatusCodeDescriptors
-ReadProcessIdDefinitions(std::shared_ptr<HepMC3::GenRunInfo> const &run_info) {
+ReadProcessIdDefinitions(std::shared_ptr<HepMC3::GenRunInfo const> run_info) {
   return ReadIdDefinitions(run_info, {"ProcessIDs", "ProcessInfo"});
 }
 } // namespace GR4
 
 namespace GR5 {
 StatusCodeDescriptors ReadVertexStatusIdDefinitions(
-    std::shared_ptr<HepMC3::GenRunInfo> const &run_info) {
+    std::shared_ptr<HepMC3::GenRunInfo const> run_info) {
   return ReadIdDefinitions(run_info, {"VertexStatusIDs", "VertexStatusInfo"});
 }
 } // namespace GR5
 
 namespace GR6 {
 StatusCodeDescriptors ReadParticleStatusIdDefinitions(
-    std::shared_ptr<HepMC3::GenRunInfo> const &run_info) {
+    std::shared_ptr<HepMC3::GenRunInfo const> run_info) {
   return ReadIdDefinitions(run_info,
                            {"ParticleStatusIDs", "ParticleStatusInfo"});
 }
@@ -79,7 +79,7 @@ StatusCodeDescriptors ReadParticleStatusIdDefinitions(
 
 namespace GR8 {
 StatusCodeDescriptors ReadNonStandardParticleNumbers(
-    std::shared_ptr<HepMC3::GenRunInfo> const &run_info) {
+    std::shared_ptr<HepMC3::GenRunInfo const> run_info) {
   return ReadIdDefinitions(
       run_info, {"AdditionalParticleNumbers", "AdditionalParticleInfo"});
 }
@@ -87,7 +87,7 @@ StatusCodeDescriptors ReadNonStandardParticleNumbers(
 
 namespace GC1 {
 std::set<std::string>
-ReadConventions(std::shared_ptr<HepMC3::GenRunInfo> const &run_info) {
+ReadConventions(std::shared_ptr<HepMC3::GenRunInfo const> run_info) {
   std::set<std::string> conventions;
   for (auto &c : CheckedAttributeValue<std::vector<std::string>>(
            run_info, "NuHepMC.Conventions", std::vector<std::string>{})) {
@@ -95,11 +95,11 @@ ReadConventions(std::shared_ptr<HepMC3::GenRunInfo> const &run_info) {
   }
   return conventions;
 }
-bool SignalsConvention(std::shared_ptr<HepMC3::GenRunInfo> const &run_info,
+bool SignalsConvention(std::shared_ptr<HepMC3::GenRunInfo const> run_info,
                        std::string const &Convention) {
   return ReadConventions(run_info).count(Convention);
 }
-bool SignalsConventions(std::shared_ptr<HepMC3::GenRunInfo> const &run_info,
+bool SignalsConventions(std::shared_ptr<HepMC3::GenRunInfo const> run_info,
                         std::vector<std::string> Conventions) {
   bool all = true;
   auto convs = ReadConventions(run_info);
@@ -111,55 +111,56 @@ bool SignalsConventions(std::shared_ptr<HepMC3::GenRunInfo> const &run_info,
 } // namespace GC1
 
 namespace GC2 {
-long ReadExposureNEvents(std::shared_ptr<HepMC3::GenRunInfo> const &run_info) {
+long ReadExposureNEvents(std::shared_ptr<HepMC3::GenRunInfo const> run_info) {
   return CheckedAttributeValue<long>(run_info, "NuHepMC.Exposure.NEvents");
 }
 } // namespace GC2
 
 namespace GC3 {
-double ReadExposurePOT(std::shared_ptr<HepMC3::GenRunInfo> const &run_info) {
+double ReadExposurePOT(std::shared_ptr<HepMC3::GenRunInfo const> run_info) {
   return CheckedAttributeValue<double>(run_info, "NuHepMC.Exposure.POT");
 }
 double
-ReadExposureLivetime(std::shared_ptr<HepMC3::GenRunInfo> const &run_info) {
+ReadExposureLivetime(std::shared_ptr<HepMC3::GenRunInfo const> run_info) {
   return CheckedAttributeValue<double>(run_info, "NuHepMC.Exposure.Livetime");
 }
 } // namespace GC3
 
 namespace GC4 {
 std::pair<std::string, std::string>
-ReadCrossSectionUnits(std::shared_ptr<HepMC3::GenRunInfo> const &run_info) {
+ReadCrossSectionUnits(std::shared_ptr<HepMC3::GenRunInfo const> run_info) {
   return std::make_pair(
       CheckedAttributeValue<std::string>(
           run_info, "NuHepMC.Units.CrossSection.Unit", "pb"),
       CheckedAttributeValue<std::string>(
           run_info, "NuHepMC.Units.CrossSection.TargetScale", "PerTargetAtom"));
 }
-std::pair<CrossSection::Units::XSUnits, CrossSection::Units::XSTargetScale>
-ParseCrossSectionUnits(std::shared_ptr<HepMC3::GenRunInfo> const &run_info) {
+
+CrossSection::Units::Unit
+ParseCrossSectionUnits(std::shared_ptr<HepMC3::GenRunInfo const> run_info) {
   auto csu = ReadCrossSectionUnits(run_info);
 
-  CrossSection::Units::XSUnits xs = CrossSection::Units::XSUnits::CustomType;
+  CrossSection::Units::Scale xs = CrossSection::Units::Scale::CustomType;
 
   if (csu.first == "pb") {
-    xs = CrossSection::Units::XSUnits::pb;
+    xs = CrossSection::Units::Scale::pb;
   } else if (csu.first == "cm2") {
-    xs = CrossSection::Units::XSUnits::cm2;
+    xs = CrossSection::Units::Scale::cm2;
   } else if (csu.first == "1e-38 cm2") {
-    xs = CrossSection::Units::XSUnits::cm2_ten38;
+    xs = CrossSection::Units::Scale::cm2_ten38;
   }
 
-  CrossSection::Units::XSTargetScale ts =
-      CrossSection::Units::XSTargetScale::CustomType;
+  CrossSection::Units::TargetScale ts =
+      CrossSection::Units::TargetScale::CustomType;
 
   if (csu.second == "PerTargetMolecule") {
-    ts = CrossSection::Units::XSTargetScale::PerTargetMolecule;
+    ts = CrossSection::Units::TargetScale::PerTargetMolecule;
   } else if (csu.second == "PerTargetAtom") {
-    ts = CrossSection::Units::XSTargetScale::PerTargetAtom;
+    ts = CrossSection::Units::TargetScale::PerTargetAtom;
   } else if (csu.second == "PerTargetNucleon") {
-    ts = CrossSection::Units::XSTargetScale::PerTargetNucleon;
+    ts = CrossSection::Units::TargetScale::PerTargetNucleon;
   } else if (csu.second == "PerTargetMolecularNucleon") {
-    ts = CrossSection::Units::XSTargetScale::PerTargetMolecularNucleon;
+    ts = CrossSection::Units::TargetScale::PerTargetMolecularNucleon;
   }
 
   return {xs, ts};
@@ -168,7 +169,7 @@ ParseCrossSectionUnits(std::shared_ptr<HepMC3::GenRunInfo> const &run_info) {
 
 namespace GC5 {
 double
-ReadFluxAveragedTotalXSec(std::shared_ptr<HepMC3::GenRunInfo> const &run_info) {
+ReadFluxAveragedTotalXSec(std::shared_ptr<HepMC3::GenRunInfo const> run_info) {
   return CheckedAttributeValue<double>(run_info,
                                        "NuHepMC.FluxAveragedTotalCrossSection");
 }
@@ -176,7 +177,7 @@ ReadFluxAveragedTotalXSec(std::shared_ptr<HepMC3::GenRunInfo> const &run_info) {
 
 namespace GC6 {
 CitationData
-ReadAllCitations(std::shared_ptr<HepMC3::GenRunInfo> const &run_info) {
+ReadAllCitations(std::shared_ptr<HepMC3::GenRunInfo const> run_info) {
 
   CitationData all_citations;
 
@@ -210,7 +211,7 @@ ReadAllCitations(std::shared_ptr<HepMC3::GenRunInfo> const &run_info) {
 namespace GC7 {
 
 std::map<int, EnergyDistribution> ReadAllMonoEnergeticDistributions(
-    std::shared_ptr<HepMC3::GenRunInfo> const &run_info) {
+    std::shared_ptr<HepMC3::GenRunInfo const> run_info) {
 
   std::map<int, EnergyDistribution> mono_energetic_beams;
 
@@ -239,7 +240,7 @@ std::map<int, EnergyDistribution> ReadAllMonoEnergeticDistributions(
 }
 
 std::map<int, EnergyDistribution> ReadAllHistogramDistributions(
-    std::shared_ptr<HepMC3::GenRunInfo> const &run_info) {
+    std::shared_ptr<HepMC3::GenRunInfo const> run_info) {
 
   std::map<int, EnergyDistribution> hist_energetic_beams;
 
@@ -280,8 +281,8 @@ std::map<int, EnergyDistribution> ReadAllHistogramDistributions(
   return hist_energetic_beams;
 }
 
-std::map<int, EnergyDistribution> ReadAllEnergyDistributions(
-    std::shared_ptr<HepMC3::GenRunInfo> const &run_info) {
+std::map<int, EnergyDistribution>
+ReadAllEnergyDistributions(std::shared_ptr<HepMC3::GenRunInfo const> run_info) {
 
   std::map<int, EnergyDistribution> energy_distributions;
 

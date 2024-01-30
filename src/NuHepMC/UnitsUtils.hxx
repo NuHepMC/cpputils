@@ -2,75 +2,55 @@
 
 #include "NuHepMC/Exceptions.hxx"
 
+#include "HepMC3/GenEvent.h"
+
 #include <ostream>
 
 namespace NuHepMC {
 
 namespace CrossSection {
+
 namespace Units {
 
 NEW_NuHepMC_EXCEPT(InvalidUnitType);
 
-enum class XSUnits { CustomType, pb, cm2, cm2_ten38 };
+enum class Scale { CustomType, pb, cm2, cm2_ten38, Automatic };
 
-enum class XSTargetScale {
+enum class TargetScale {
   CustomType,
   PerTargetMolecule,
   PerTargetAtom,
   PerTargetNucleon,
-  PerTargetMolecularNucleon
+  PerTargetMolecularNucleon,
+  Automatic
 };
+
+struct Unit {
+  Scale scale;
+  TargetScale tgtscale;
+};
+
+const Unit pb_PerAtom{Scale::pb, TargetScale::PerTargetAtom};
+const Unit automatic{Scale::Automatic, TargetScale::Automatic};
 
 const double pb = 1;
 const double cm2 = 1E36;
 const double cm2_ten38 = 1E-2;
 
+double GetRescaleFactor(HepMC3::GenEvent &evt, Unit const &from = automatic,
+                        Unit const &to = pb_PerAtom);
+
 } // namespace Units
+
 } // namespace CrossSection
 
 } // namespace NuHepMC
 
-inline std::ostream &operator<<(std::ostream &os,
-                                NuHepMC::CrossSection::Units::XSUnits us) {
-  switch (us) {
-  case NuHepMC::CrossSection::Units::XSUnits::CustomType: {
-    return os << "CustomXSUnit";
-  }
-  case NuHepMC::CrossSection::Units::XSUnits::pb: {
-    return os << "pb";
-  }
-  case NuHepMC::CrossSection::Units::XSUnits::cm2: {
-    return os << "cm2";
-  }
-  case NuHepMC::CrossSection::Units::XSUnits::cm2_ten38: {
-    return os << "1e-38 cm2";
-  }
-  default: {
-    throw NuHepMC::CrossSection::Units::InvalidUnitType();
-  }
-  }
-}
+std::ostream &operator<<(std::ostream &os,
+                         NuHepMC::CrossSection::Units::Scale us);
 
-inline std::ostream &
-operator<<(std::ostream &os, NuHepMC::CrossSection::Units::XSTargetScale ts) {
-  switch (ts) {
-  case NuHepMC::CrossSection::Units::XSTargetScale::CustomType: {
-    return os << "CustomTargetScale";
-  }
-  case NuHepMC::CrossSection::Units::XSTargetScale::PerTargetMolecule: {
-    return os << "PerTargetMolecule";
-  }
-  case NuHepMC::CrossSection::Units::XSTargetScale::PerTargetAtom: {
-    return os << "PerTargetAtom";
-  }
-  case NuHepMC::CrossSection::Units::XSTargetScale::PerTargetNucleon: {
-    return os << "PerTargetNucleon";
-  }
-  case NuHepMC::CrossSection::Units::XSTargetScale::PerTargetMolecularNucleon: {
-    return os << "PerTargetMolecularNucleon";
-  }
-  default: {
-    throw NuHepMC::CrossSection::Units::InvalidUnitType();
-  }
-  }
-}
+std::ostream &operator<<(std::ostream &os,
+                         NuHepMC::CrossSection::Units::TargetScale ts);
+
+std::ostream &operator<<(std::ostream &os,
+                         NuHepMC::CrossSection::Units::Unit const &u);
