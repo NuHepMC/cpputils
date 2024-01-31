@@ -34,9 +34,11 @@ std::string PartToStr(HepMC3::ConstGenParticlePtr pt) {
                            ? partstatus.at(pt->status()).first
                            : std::to_string(pt->status());
 
+  auto mom = pt->momentum() * ToGeV;
+
   ss << "{ id: " << pt->id() << ", pid: " << pt->pid() << ", status: " << status
-     << ", p: ( " << pt->momentum().x() << ", " << pt->momentum().y() << ", "
-     << pt->momentum().z() << ", E: " << pt->momentum().e() << ") GeV }";
+     << ", p: ( " << mom.x() << ", " << mom.y() << ", "
+     << mom.z() << ", E: " << mom.e() << ") GeV }";
 
   return ss.str();
 }

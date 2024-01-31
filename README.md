@@ -250,10 +250,11 @@ std::string PartToStr(HepMC3::ConstGenParticlePtr pt) {
   std::string status = partstatus.count(pt->status())
                            ? partstatus.at(pt->status()).first
                            : std::to_string(pt->status());
+  auto mom = pt->momentum() * ToGeV;
 
   ss << "{ id: " << pt->id() << ", pid: " << pt->pid() << ", status: " << status
-     << ", p: ( " << pt->momentum().x() << ", " << pt->momentum().y() << ", "
-     << pt->momentum().z() << ", E: " << pt->momentum().e() << ") GeV }";
+     << ", p: ( " << mom.x() << ", " << mom.y() << ", "
+     << mom.z() << ", E: " << mom.e() << ") GeV }";
 
   return ss.str();
 }
@@ -300,81 +301,76 @@ void ProcessEvent(HepMC3::GenEvent &evt) {
 An ACHILLES event:
 
 ```
-Evt: 25945, channel name: QESpectralCC0p0pi
-  NVertices = 4, NParticles = 10
-  Beam particle = { id: 10, pid: 14, status: Incoming beam Particle, p: ( 0, 0, 80, E: 80) GeV }
-  Target particle = { id: 9, pid: 1000180400, status: Target particle, p: ( 0, 0, 0, E: 37215.8) GeV }
+Evt: 26543, channel name: QESpectralCC0p0pi
+  NVertices = 4, NParticles = 7
+  Beam particle = { id: 7, pid: 14, status: Incoming beam Particle, p: ( 0, 0, 0.08, E: 0.08) GeV }
+  Target particle = { id: 6, pid: 1000180400, status: Target particle, p: ( 0, 0, 0, E: 37.2158) GeV }
   Primary Vertex:
-    in[0]: { id: 1, pid: 2112, status: Decayed physical particle, p: ( -85.1989, 296.03, -46.4709, E: 918.539) GeV }
-    in[1]: { id: 2, pid: 14, status: Decayed physical particle, p: ( 0, 0, 1410.99, E: 1410.99) GeV }
-    out[0]: { id: 3, pid: 2212, status: Propagating, p: ( 392.819, -95.4914, 251.554, E: 1052.17) GeV }
+    in[0]: { id: 1, pid: 2112, status: Decayed physical particle, p: ( -0.105241, -0.0867574, -0.0262175, E: 0.883828) GeV }
+    in[1]: { id: 2, pid: 14, status: Decayed physical particle, p: ( 0, 0, 1.68566, E: 1.68566) GeV }
+    out[0]: { id: 3, pid: 2212, status: Propagating, p: ( -0.738176, -0.374054, 1.1692, E: 1.71237) GeV }
   Final state particles:
-    fs[0]: { id: 4, pid: 13, status: Undecayed physical particle, p: ( -478.018, 391.522, 1112.96, E: 1277.36) GeV }
-    fs[1]: { id: 5, pid: 2212, status: Undecayed physical particle, p: ( 141.409, -93.4786, 47.9892, E: 954.667) GeV }
-    fs[2]: { id: 6, pid: 2112, status: Undecayed physical particle, p: ( 142.775, 149.573, -108.146, E: 966.852) GeV }
-    fs[3]: { id: 7, pid: 2212, status: Undecayed physical particle, p: ( 14.5119, 78.5001, 143.176, E: 952.483) GeV }
-    fs[4]: { id: 8, pid: 2212, status: Undecayed physical particle, p: ( 216.949, -183.061, 202.668, E: 1001) GeV }
+    fs[0]: { id: 4, pid: 13, status: Undecayed physical particle, p: ( 0.632935, 0.287297, 0.490241, E: 0.85712) GeV }
+    fs[1]: { id: 5, pid: 2212, status: Undecayed physical particle, p: ( -0.738176, -0.374054, 1.1692, E: 1.71237) GeV }
 ```
 
 A NEUT event:
 
 ```
-Evt: 6073, channel name: CC_multi_pi_nu
-  NVertices = 3, NParticles = 15
-  Beam particle = { id: 4, pid: 14, status: IncomingBeam, p: ( 0, 0, 2832.71, E: 2832.71) GeV }
+Evt: 3491, channel name: CC_QE_nu
+  NVertices = 3, NParticles = 9
+  Beam particle = { id: 4, pid: 14, status: IncomingBeam, p: ( 0, 0, 1.27846, E: 1.27846) GeV }
   Target particle = { id: 1, pid: 1000180400, status: TargetParticle, p: ( 0, 0, 0, E: 0) GeV }
   Primary Vertex:
-    in[0]: { id: 4, pid: 14, status: IncomingBeam, p: ( 0, 0, 2832.71, E: 2832.71) GeV }
-    in[1]: { id: 3, pid: 2112, status: StruckNucleon, p: ( 175.006, -136.761, -30.3932, E: 965.939) GeV }
-    out[0]: { id: 5, pid: 13, status: DocumentationLine, p: ( -308.677, -477.374, 257.145, E: 632.815) GeV }
-    out[1]: { id: 6, pid: 2212, status: UnderwentFSI, p: ( 553.409, 328.314, 1040.24, E: 1541.59) GeV }
-    out[2]: { id: 7, pid: -211, status: DocumentationLine, p: ( -303.444, 27.1702, 745.302, E: 817.173) GeV }
-    out[3]: { id: 8, pid: 211, status: DocumentationLine, p: ( 233.718, -14.8713, 759.63, E: 807.07) GeV }
+    in[0]: { id: 4, pid: 14, status: IncomingBeam, p: ( 0, 0, 1.27846, E: 1.27846) GeV }
+    in[1]: { id: 3, pid: 2112, status: StruckNucleon, p: ( -0.00981328, 0.0385872, -0.080145, E: 0.943818) GeV }
+    out[0]: { id: 5, pid: 13, status: DocumentationLine, p: ( 0.0887383, 0.131756, 1.24375, E: 1.2583) GeV }
+    out[1]: { id: 6, pid: 2212, status: DocumentationLine, p: ( -0.0989173, -0.0937118, -0.0505666, E: 0.949462) GeV }
   Final state particles:
-    fs[0]: { id: 9, pid: 2009900000, status: UndecayedPhysical, p: ( 0, 0, 0, E: 0) GeV }
-    fs[1]: { id: 10, pid: 13, status: UndecayedPhysical, p: ( -308.677, -477.374, 257.145, E: 632.815) GeV }
-    fs[2]: { id: 11, pid: -211, status: UndecayedPhysical, p: ( -303.444, 27.1702, 745.302, E: 817.173) GeV }
-    fs[3]: { id: 12, pid: 211, status: UndecayedPhysical, p: ( 233.718, -14.8713, 759.63, E: 807.07) GeV }
-    fs[4]: { id: 13, pid: 111, status: UndecayedPhysical, p: ( -2.17097, 56.577, 28.5757, E: 149.131) GeV }
-    fs[5]: { id: 14, pid: 2212, status: UndecayedPhysical, p: ( 497.899, 228.388, 223.754, E: 1109.27) GeV }
-    fs[6]: { id: 15, pid: 2112, status: UndecayedPhysical, p: ( 75.2598, -34.7639, 744.115, E: 1201.4) GeV }
+    fs[0]: { id: 7, pid: 2009900000, status: UndecayedPhysical, p: ( 0, 0, 0, E: 0) GeV }
+    fs[1]: { id: 8, pid: 13, status: UndecayedPhysical, p: ( 0.0887383, 0.131756, 1.24375, E: 1.2583) GeV }
+    fs[2]: { id: 9, pid: 2212, status: UndecayedPhysical, p: ( -0.0989173, -0.0937118, -0.0505666, E: 0.949462) GeV }
 ```
 
 A NuWro event:
 
 ```
-Evt: 3895, channel name: NC qel
-  NVertices = 3, NParticles = 10
-  Beam particle = { id: 4, pid: 14, status: IncomingBeamParticle, p: ( 0, 0, 2934.81, E: 2934.81) GeV }
+Evt: 3585, channel name: CC non-delta SPP
+  NVertices = 3, NParticles = 13
+  Beam particle = { id: 4, pid: 14, status: IncomingBeamParticle, p: ( 0, 0, 3.33073, E: 3.33073) GeV }
   Target particle = { id: 1, pid: 1000180400, status: TargetParticle, p: ( 0, 0, 0, E: 0) GeV }
   Primary Vertex:
-    in[0]: { id: 4, pid: 14, status: IncomingBeamParticle, p: ( 0, 0, 2934.81, E: 2934.81) GeV }
-    in[1]: { id: 3, pid: 2112, status: StruckNucleon, p: ( 63.9722, 13.0031, 71.9294, E: 922.76) GeV }
-    out[0]: { id: 5, pid: 14, status: DocumentationLine, p: ( 230.165, 425.32, 2742.87, E: 2785.17) GeV }
-    out[1]: { id: 6, pid: 2112, status: DocumentationLine, p: ( -166.193, -412.317, 263.875, E: 1072.4) GeV }
+    in[0]: { id: 4, pid: 14, status: IncomingBeamParticle, p: ( 0, 0, 3.33073, E: 3.33073) GeV }
+    in[1]: { id: 3, pid: 2112, status: StruckNucleon, p: ( -0.130055, 0.126408, -0.0156234, E: 0.957037) GeV }
+    out[0]: { id: 5, pid: 13, status: DocumentationLine, p: ( 0.336762, 0.473758, 2.18424, E: 2.26272) GeV }
+    out[1]: { id: 6, pid: 2112, status: DocumentationLine, p: ( -0.0828944, -0.0330903, 0.943409, E: 1.33446) GeV }
+    out[2]: { id: 7, pid: 211, status: DocumentationLine, p: ( -0.165183, 0.00592267, 0.0551189, E: 0.223245) GeV }
+    out[3]: { id: 8, pid: 111, status: DocumentationLine, p: ( -0.218739, -0.320182, 0.132346, E: 0.431391) GeV }
   Final state particles:
-    fs[0]: { id: 7, pid: 2009900000, status: UndecayedPhysicalParticle, p: ( 0, 0, 0, E: 0) GeV }
-    fs[1]: { id: 8, pid: 14, status: UndecayedPhysicalParticle, p: ( 230.165, 425.32, 2742.87, E: 2785.17) GeV }
-    fs[2]: { id: 9, pid: 2112, status: UndecayedPhysicalParticle, p: ( 127.216, -294.953, 76.403, E: 995.892) GeV }
-    fs[3]: { id: 10, pid: 2212, status: UndecayedPhysicalParticle, p: ( -304.577, -42.1201, 180.771, E: 1003.78) GeV }
+    fs[0]: { id: 9, pid: 2009900000, status: UndecayedPhysicalParticle, p: ( 0, 0, 0, E: 0) GeV }
+    fs[1]: { id: 10, pid: 13, status: UndecayedPhysicalParticle, p: ( 0.336762, 0.473758, 2.18424, E: 2.26272) GeV }
+    fs[2]: { id: 11, pid: 111, status: UndecayedPhysicalParticle, p: ( -0.218739, -0.320182, 0.132346, E: 0.431391) GeV }
+    fs[3]: { id: 12, pid: 211, status: UndecayedPhysicalParticle, p: ( -0.165183, 0.00592267, 0.0551189, E: 0.223245) GeV }
+    fs[4]: { id: 13, pid: 2112, status: UndecayedPhysicalParticle, p: ( -0.0784034, -0.0312976, 0.892297, E: 1.2985) GeV }
 ```
 
 A GENIE event:
 
 ```
-Evt: 2481, channel name: QES-Weak[CC]
-  NVertices = 4, NParticles = 9
-  Beam particle = { id: 1, pid: 14, status: Beam, p: ( 0, 0, 2.59026, E: 2.59026) GeV }
+Evt: 3776, channel name: DIS-Weak[CC]
+  NVertices = 10, NParticles = 16
+  Beam particle = { id: 1, pid: 14, status: Beam, p: ( 0, 0, 2.36393, E: 2.36393) GeV }
   Target particle = { id: 2, pid: 1000180400, status: Target, p: ( 0, 0, 0, E: 37.2155) GeV }
   Primary Vertex:
-    in[0]: { id: 1, pid: 14, status: Beam, p: ( 0, 0, 2.59026, E: 2.59026) GeV }
-    in[1]: { id: 3, pid: 2112, status: Target nucleon, p: ( -0.138524, 0.0474722, 0.00161607, E: 0.912119) GeV }
-    out[0]: { id: 6, pid: 13, status: Final state, p: ( 0.507448, 0.580357, 1.93058, E: 2.0815) GeV }
-    out[1]: { id: 7, pid: 2212, status: Hadron in the nucleus, p: ( -0.645972, -0.532885, 0.661297, E: 1.42089) GeV }
+    in[0]: { id: 1, pid: 14, status: Beam, p: ( 0, 0, 2.36393, E: 2.36393) GeV }
+    in[1]: { id: 3, pid: 2212, status: Target nucleon, p: ( 0.0724976, 0.0409516, 0.122352, E: 0.90642) GeV }
+    out[0]: { id: 5, pid: 13, status: Final state, p: ( -0.207274, -0.193279, 1.22554, E: 1.26231) GeV }
+    out[1]: { id: 6, pid: 2000000001, status: Prefragmentation, p: ( 0.279772, 0.23423, 1.26075, E: 2.00804) GeV }
   Final state particles:
-    fs[0]: { id: 5, pid: 22, status: Final state, p: ( 2.5586e-05, -4.77668e-05, 0.00221057, E: 0.00221124) GeV }
-    fs[1]: { id: 6, pid: 13, status: Final state, p: ( 0.507448, 0.580357, 1.93058, E: 2.0815) GeV }
-    fs[2]: { id: 8, pid: 2212, status: Final state, p: ( -0.645972, -0.532885, 0.661297, E: 1.42089) GeV }
+    fs[0]: { id: 5, pid: 13, status: Final state, p: ( -0.207274, -0.193279, 1.22554, E: 1.26231) GeV }
+    fs[1]: { id: 13, pid: 2212, status: Final state, p: ( 0.000916033, 0.0613825, 0.401031, E: 1.02223) GeV }
+    fs[2]: { id: 14, pid: 211, status: Final state, p: ( 0.176909, 0.00532308, 0.555731, E: 0.599701) GeV }
+    fs[3]: { id: 15, pid: 111, status: Final state, p: ( 0.101947, 0.167525, 0.303984, E: 0.386112) GeV }
 ```
 
 ## API Reference
