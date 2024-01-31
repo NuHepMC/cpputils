@@ -388,7 +388,7 @@ events.
 
 * Reading: [`ReaderUtils`](#readerutils)
 * Analysing: [`EventUtils`](#eventutils), [`FATXUtils`](#fatxutils),
-* Writing: [`WriterUtils`](#writerutils), [`make_writer`](#make-writer)
+* Writing: [`WriterUtils`](#writerutils), [`make_writer`](#make_writer)
 * Miscellaneous: [`AttributUtils`](#attributeutils), [`Constants`](#constants), 
   [`UnitsUtils`](#unitsutils)
 
