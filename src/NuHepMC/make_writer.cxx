@@ -14,6 +14,23 @@
 
 namespace NuHepMC {
 
+NEW_NuHepMC_EXCEPT(UnsupportedFilenameExtension);
+NEW_NuHepMC_EXCEPT(UnknownFilenameExtension);
+
+enum DiskFormat {
+  kHepMC3 = 1,
+  kProtobuf = 2,
+};
+
+enum CompressionFormat {
+  kZ = 10,
+  kLZMA = 20,
+  kBZip2 = 30,
+};
+
+std::pair<std::string, std::string> split_extension(std::string const &name);
+int ParseExtension(std::string const &name);
+
 namespace Writer {
 
 std::pair<std::string, std::string> split_extension(std::string const &name) {

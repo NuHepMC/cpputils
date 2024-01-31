@@ -41,20 +41,20 @@ double ToMeVFactor(HepMC3::GenEvent const &evt);
 namespace Vertex {
 
 std::vector<HepMC3::ConstGenParticlePtr>
-GetParticlesOut_All(HepMC3::ConstGenVertexPtr &vtx, int part_status,
-                    std::vector<int> PDGs = {});
-
-HepMC3::ConstGenParticlePtr
-GetParticleOut_HighestMomentum(HepMC3::ConstGenVertexPtr &evt, int part_status,
-                               std::vector<int> PDGs = {});
-
-std::vector<HepMC3::ConstGenParticlePtr>
 GetParticlesIn_All(HepMC3::ConstGenVertexPtr &evt, int part_status,
                    std::vector<int> PDGs = {});
 
 HepMC3::ConstGenParticlePtr
 GetParticleIn_HighestMomentum(HepMC3::ConstGenVertexPtr &evt, int part_status,
                               std::vector<int> PDGs = {});
+
+std::vector<HepMC3::ConstGenParticlePtr>
+GetParticlesOut_All(HepMC3::ConstGenVertexPtr &vtx, int part_status,
+                    std::vector<int> PDGs = {});
+
+HepMC3::ConstGenParticlePtr
+GetParticleOut_HighestMomentum(HepMC3::ConstGenVertexPtr &evt, int part_status,
+                               std::vector<int> PDGs = {});
 
 } // namespace Vertex
 

@@ -31,17 +31,22 @@ struct BaseAccumulator : public Accumulator {
   KBAccumulator<double> sumw;
   CrossSection::Units::Unit input_unit;
   size_t nevt;
+  int cvweight_index;
 
-  BaseAccumulator()
-      : sumw(), input_unit{CrossSection::Units::automatic}, nevt{0} {}
+  BaseAccumulator(int cvwi = -1)
+      : sumw(), input_unit{CrossSection::Units::automatic}, nevt{0},
+        cvweight_index{cvwi} {}
 
-  void process(HepMC3::GenEvent const &ev) {
-    sumw(ev.weight("CV"));
+  double process(HepMC3::GenEvent const &ev) {
+    double w = (cvweight_index == -1) ? 1 : ev.weights()[cvweight_index];
+    sumw(w);
     nevt++;
 
     if (input_unit == CrossSection::Units::automatic) {
       input_unit = NuHepMC::GC4::ParseCrossSectionUnits(ev.run_info());
     }
+
+    return w;
   }
 
   double sumweights() { return sumw(); }
@@ -52,16 +57,17 @@ struct GC5Accumulator : public BaseAccumulator {
 
   double GC5FATX;
 
-  GC5Accumulator() : BaseAccumulator(), GC5FATX{0xdeadbeef} {}
+  GC5Accumulator(int cvwi = -1) : BaseAccumulator(cvwi), GC5FATX{0xdeadbeef} {}
 
-  void process(HepMC3::GenEvent const &ev) {
-    BaseAccumulator::process(ev);
+  double process(HepMC3::GenEvent const &ev) {
+    double w = BaseAccumulator::process(ev);
 
     if (GC5FATX == 0xdeadbeef) {
       GC5FATX = GC5::ReadFluxAveragedTotalXSec(ev.run_info()) *
                 CrossSection::Units::GetRescaleFactor(
                     ev, input_unit, CrossSection::Units::pb_PerAtom);
     }
+    return w;
   }
 
   double fatx(CrossSection::Units::Unit const &units) {
@@ -78,15 +84,16 @@ struct EC2Accumulator : public BaseAccumulator {
 
   KBAccumulator<double> ReciprocalTotXS;
 
-  EC2Accumulator() : BaseAccumulator(), ReciprocalTotXS() {}
+  EC2Accumulator(int cvwi = -1) : BaseAccumulator(cvwi), ReciprocalTotXS() {}
 
-  void process(HepMC3::GenEvent const &ev) {
-    BaseAccumulator::process(ev);
+  double process(HepMC3::GenEvent const &ev) {
+    double w = BaseAccumulator::process(ev);
 
     ReciprocalTotXS(ev.weight("CV") *
                     CrossSection::Units::GetRescaleFactor(
                         ev, input_unit, CrossSection::Units::pb_PerAtom) /
                     EC2::ReadTotalCrossSection(ev));
+    return w;
   }
 
   double fatx(CrossSection::Units::Unit const &units) {
@@ -103,14 +110,16 @@ struct EC4Accumulator : public BaseAccumulator {
 
   double EC4BestEstimate;
 
-  EC4Accumulator() : BaseAccumulator(), EC4BestEstimate(0xdeadbeef) {}
+  EC4Accumulator(int cvwi = -1)
+      : BaseAccumulator(cvwi), EC4BestEstimate(0xdeadbeef) {}
 
-  void process(HepMC3::GenEvent const &ev) {
-    BaseAccumulator::process(ev);
+  double process(HepMC3::GenEvent const &ev) {
+    double w = BaseAccumulator::process(ev);
 
     EC4BestEstimate = ev.cross_section()->xsec() *
                       CrossSection::Units::GetRescaleFactor(
                           ev, input_unit, CrossSection::Units::pb_PerAtom);
+    return w;
   }
 
   double fatx(CrossSection::Units::Unit const &units) {
@@ -128,11 +137,14 @@ NEW_NuHepMC_EXCEPT(NoMethodToCalculateFATX);
 std::unique_ptr<Accumulator>
 MakeAccumulator(std::shared_ptr<HepMC3::GenRunInfo> gri) {
   if (GC1::SignalsConvention(gri, "G.C.5")) {
-    return std::unique_ptr<Accumulator>(new GC5Accumulator());
+    return std::unique_ptr<Accumulator>(
+        new GC5Accumulator(gri->weight_index("CV")));
   } else if (GC1::SignalsConvention(gri, "E.C.4")) {
-    return std::unique_ptr<Accumulator>(new EC4Accumulator());
+    return std::unique_ptr<Accumulator>(
+        new EC4Accumulator(gri->weight_index("CV")));
   } else if (GC1::SignalsConvention(gri, "E.C.2")) {
-    return std::unique_ptr<Accumulator>(new EC2Accumulator());
+    return std::unique_ptr<Accumulator>(
+        new EC2Accumulator(gri->weight_index("CV")));
   }
 
   throw NoMethodToCalculateFATX()

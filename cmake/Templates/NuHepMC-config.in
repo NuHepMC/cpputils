@@ -144,7 +144,7 @@ while [[ ${#} -gt 0 ]]; do
         exit 1
       fi
 
-      cp ${NuHepMC_ROOT}/share/NuHepMC/templates/ana_skeleton.cxx ${2}
+      cp ${NuHepMC_ROOT}/share/NuHepMC/examples/ana_skeleton.cxx ${2}
     ;;
 
     --build)
@@ -158,8 +158,19 @@ while [[ ${#} -gt 0 ]]; do
       done
 
       PBUF=
-      if [ -e ${NuHepMC_ROOT}/lib64/libHepMC3protobufIO.so ]; then
-        PBUF=-lHepMC3protobufIO
+      if [ @PROTOBUF_FOUND@ = "TRUE" ] && [ -e ${NuHepMC_ROOT}/lib64/libHepMC3protobufIO.so ]; then
+        PBUF="-lHepMC3protobufIO -I@PROTOBUF_INCLUDE_DIRS@ @PROTOBUF_LIBRARIES@"
+      fi
+
+      COMPRESSION_LIBS=
+      if [ @ZLIB_FOUND@ = "TRUE" ]; then
+        COMPRESSION_LIBS="-I@ZLIB_INCLUDE_DIRS@ @ZLIB_LIBRARIES@ ${COMPRESSION_LIBS}"
+      fi
+      if [ @LIBLZMA_FOUND@ = "TRUE" ]; then
+        COMPRESSION_LIBS="-I@LIBLZMA_INCLUDE_DIRS@ @LIBLZMA_LIBRARIES@ ${COMPRESSION_LIBS}"
+      fi
+      if [ @BZIP2_FOUND@ = "TRUE" ]; then
+        COMPRESSION_LIBS="-I@BZIP2_INCLUDE_DIRS@ @BZIP2_LIBRARIES@ ${COMPRESSION_LIBS}"
       fi
 
       set -e
@@ -167,7 +178,7 @@ while [[ ${#} -gt 0 ]]; do
       g++ ${INFILE} -o ${INFILE%\.*} ${FORWARDED_ARGS[@]} \
         -I${NuHepMC_ROOT}/include \
         -L${NuHepMC_ROOT}/lib -L${NuHepMC_ROOT}/lib64 \
-          -lnuhepmc_cpputils ${PBUF} -lHepMC3
+          -lnuhepmc_cpputils ${PBUF} -lHepMC3 ${COMPRESSION_LIBS}
       set +x
     ;;
 
