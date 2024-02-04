@@ -28,7 +28,8 @@ cmake_minimum_required (VERSION 3.14 FATAL_ERROR)
 find_program(CMAKE_C_COMPILER NAMES $ENV{CC} gcc PATHS ENV PATH NO_DEFAULT_PATH)
 find_program(CMAKE_CXX_COMPILER NAMES $ENV{CXX} g++ PATHS ENV PATH NO_DEFAULT_PATH)
 
-project(NuHepMC_cpputils VERSION 0.9.0)
+SET(NuHepMC_CPPUtils_VERSION 0.9.0)
+project(NuHepMC_CPPUtils VERSION ${NuHepMC_CPPUtils_VERSION} LANGUAGES CXX)
 
 # The specification version used in this repo
 SET(NuHepMC_VERSION_MAJOR  0)
@@ -42,11 +43,9 @@ option(NuHepMC_BUILD_STATIC_LIBS "Whether to build static versions of the librar
 
 #Changes default install path to be a subdirectory of the build dir.
 #Can set build dir at configure time with -DCMAKE_INSTALL_PREFIX=/install/path
-if(CMAKE_INSTALL_PREFIX STREQUAL "" OR CMAKE_INSTALL_PREFIX STREQUAL
-  "/usr/local")
-  set(CMAKE_INSTALL_PREFIX "${CMAKE_BINARY_DIR}/${CMAKE_SYSTEM_NAME}")
-elseif(NOT DEFINED CMAKE_INSTALL_PREFIX)
-  set(CMAKE_INSTALL_PREFIX "${CMAKE_BINARY_DIR}/${CMAKE_SYSTEM_NAME}")
+if (CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
+    set (CMAKE_INSTALL_PREFIX "${CMAKE_BINARY_DIR}/${CMAKE_SYSTEM_NAME}/"
+           CACHE PATH "default install path" FORCE)
 endif()
 
 if(CMAKE_BUILD_TYPE STREQUAL "")
@@ -88,11 +87,23 @@ target_include_directories(nuhepmc_options INTERFACE
   $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/include> 
   $<INSTALL_INTERFACE:include>)
 
+set_target_properties(nuhepmc_options PROPERTIES EXPORT_NAME Options)
+install(TARGETS nuhepmc_options
+    EXPORT nuhepmc_cpputils-targets)
+
+add_library(NuHepMC::Options ALIAS nuhepmc_options)
+
 add_library(nuhepmc_options_static INTERFACE)
 target_include_directories(nuhepmc_options_static INTERFACE 
   $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/src>
   $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/include> 
   $<INSTALL_INTERFACE:include>)
+
+set_target_properties(nuhepmc_options_static PROPERTIES EXPORT_NAME Options_static)
+install(TARGETS nuhepmc_options_static
+    EXPORT nuhepmc_cpputils-targets)
+
+add_library(NuHepMC::Options_static ALIAS nuhepmc_options_static)
 
 SET(NuHepMC_HEPMC3_USE_COMPRESSION)
 SET(NuHepMC_HEPMC3_Z_SUPPORT)
@@ -114,7 +125,7 @@ if(BUILTIN_HEPMC3)
   set(BUILTIN_HEPMC3_ENABLE_PROTOBUFIO OFF)
   if(Protobuf_FOUND)
     set(BUILTIN_HEPMC3_ENABLE_PROTOBUFIO ON)
-    SET(NuHepMC_HEPMC3_ProtobufIO_SUPPORT "#define HEPMC3_ProtobufIO_SUPPORT 1")
+    SET(NuHepMC_HEPMC3_ProtobufIO_SUPPORT "#define HEPMC3_PROTOBUFIO 1")
   endif()
 
   find_package(Python)
@@ -138,32 +149,41 @@ if(BUILTIN_HEPMC3)
         "HEPMC3_INSTALL_INTERFACES ON"
         "HEPMC3_BUILD_STATIC_LIBS ON"
   )
-else()
+else() #using a prebuilt HepMC3
   find_package(HepMC3 ${NuHepMC_HEPMC3_MIN_VERSION} REQUIRED)
   if(TARGET HepMC3::rootIO)
     find_package(ROOT REQUIRED)
+    target_link_libraries(nuhepmc_options INTERFACE HepMC3::rootIO)
   endif()
   if(TARGET HepMC3::protobufIO)
     find_package(Protobuf 2.4 REQUIRED)
+    target_link_libraries(nuhepmc_options INTERFACE HepMC3::protobufIO)
+    if(TARGET HepMC3::protobufIO_static)
+      target_link_libraries(nuhepmc_options_stastic INTERFACE HepMC3::protobufIO_stastic)
+    endif()
   endif()
 endif()
 
-if(TARGET HepMC3::All)
-  target_link_libraries(nuhepmc_options INTERFACE HepMC3::All)
+if(TARGET HepMC3::HepMC3)
+  target_link_libraries(nuhepmc_options INTERFACE HepMC3::HepMC3)
 
   if(NuHepMC_BUILD_STATIC_LIBS)
-    if(NOT TARGET HepMC3::All_static)
-      message(FATAL_ERROR "HepMC3::All_static target does not exist but NuHepMC_BUILD_STATIC_LIBS=${NuHepMC_BUILD_STATIC_LIBS}")
+    if(NOT TARGET HepMC3::HepMC3_static)
+      message(FATAL_ERROR "HepMC3::HepMC3_static target does not exist but NuHepMC_BUILD_STATIC_LIBS=${NuHepMC_BUILD_STATIC_LIBS}")
     endif()
-    target_link_libraries(nuhepmc_options_static INTERFACE HepMC3::All_static)
+    target_link_libraries(nuhepmc_options_static INTERFACE HepMC3::HepMC3_static)
   endif()
 
   if(Protobuf_FOUND)
-    target_link_libraries(nuhepmc_options INTERFACE protobuf::libprotobuf)
-    target_link_libraries(nuhepmc_options_static INTERFACE protobuf::libprotobuf)
+    target_link_libraries(nuhepmc_options INTERFACE HepMC3::protobufIO)
+    target_link_libraries(nuhepmc_options_static INTERFACE HepMC3::protobufIO_static)
     message(STATUS "PROTOBUF_INCLUDE_DIRS: ${PROTOBUF_INCLUDE_DIRS}")
     message(STATUS "PROTOBUF_LIBRARIES: ${PROTOBUF_LIBRARIES}")
     message(STATUS "PROTOBUF_FOUND: ${Protobuf_FOUND}")
+  endif()
+
+  if(TARGET HepMC3::rootIO)
+    target_link_libraries(nuhepmc_options INTERFACE HepMC3::rootIO)
   endif()
 
   find_package(ZLIB)
@@ -197,7 +217,7 @@ if(TARGET HepMC3::All)
   endif()
 
 else()
-  message(FATAL_ERROR "HepMC3::All target is not defined. HepMC3_FOUND=${HepMC3}")
+  message(FATAL_ERROR "HepMC3::HepMC3 target is not defined. HepMC3_FOUND=${HepMC3}")
 endif()
 
 configure_file(${CMAKE_CURRENT_LIST_DIR}/cmake/Templates/HepMC3Features.hxx.in
@@ -221,3 +241,28 @@ install(FILES
   examples/ana_skeleton.cxx DESTINATION share/NuHepMC/examples)
 
 add_subdirectory(src/NuHepMC)
+
+install(EXPORT nuhepmc_cpputils-targets
+  FILE NuHepMC_CPPUtilsTargets.cmake
+  NAMESPACE NuHepMC::
+  DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/cmake/NuHepMC_CPPUtils
+)
+
+include(CMakePackageConfigHelpers)
+configure_package_config_file(
+  ${CMAKE_CURRENT_LIST_DIR}/cmake/Templates/NuHepMC_CPPUtilsConfig.cmake.in 
+  ${CMAKE_BINARY_DIR}/NuHepMC_CPPUtilsConfig.cmake
+  INSTALL_DESTINATION 
+    /this/is/ignored/for/some/reason/thanks/kitware
+  NO_SET_AND_CHECK_MACRO
+  NO_CHECK_REQUIRED_COMPONENTS_MACRO)
+
+write_basic_package_version_file(
+  ${CMAKE_BINARY_DIR}/NuHepMC_CPPUtilsConfigVersion.cmake
+  VERSION ${NuHepMC_CPPUtils_VERSION}
+  COMPATIBILITY AnyNewerVersion)
+
+install(FILES 
+    ${CMAKE_BINARY_DIR}/NuHepMC_CPPUtilsConfig.cmake 
+    ${CMAKE_BINARY_DIR}/NuHepMC_CPPUtilsConfigVersion.cmake 
+  DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/cmake/NuHepMC_CPPUtils)

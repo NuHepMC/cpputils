@@ -1,0 +1,51 @@
+@PACKAGE_INIT@
+
+set(NuHepMC_CPPUtils_VERSION @PROJECT_VERSION@)
+
+LIST(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/../../../cmake)
+
+set(NuHepMC_CPPUtils_CXX_STANDARD 17)
+
+find_package(HepMC3 @NuHepMC_HEPMC3_MIN_VERSION@ REQUIRED)
+
+set(NuHepMC_CPPUtils_FOUND TRUE)
+include(${CMAKE_CURRENT_LIST_DIR}/NuHepMC_CPPUtilsTargets.cmake)
+
+if(NOT TARGET NuHepMC::CPPUtils)
+  set(NuHepMC_CPPUtils_FOUND FALSE)
+  return()
+endif()
+
+get_filename_component(NuHepMC_CPPUtils_CMAKE_DIR "${CMAKE_CURRENT_LIST_FILE}" PATH)
+
+find_path(NuHepMC_CPPUtils_INCLUDE_DIR
+  NAMES NuHepMC/Constants.hxx
+  PATHS ${NuHepMC_CPPUtils_CMAKE_DIR}/../../include/
+)
+
+find_path(NuHepMC_CPPUtils_LIB_DIR
+  NAMES libnuhepmc_cpputils.so libnuhepmc_cpputils.dylib
+  PATHS ${NuHepMC_CPPUtils_CMAKE_DIR}/../
+)
+
+find_path(NuHepMC_CPPUtils_PREFIX
+  NAMES bin/NuHepMC-config
+  PATHS ${NuHepMC_CPPUtils_CMAKE_DIR}/../../
+)
+
+include(FindPackageHandleStandardArgs)
+find_package_handle_standard_args(NuHepMC_CPPUtils
+    REQUIRED_VARS 
+      NuHepMC_CPPUtils_INCLUDE_DIR 
+      NuHepMC_CPPUtils_LIB_DIR
+      NuHepMC_CPPUtils_PREFIX
+    VERSION_VAR 
+      NuHepMC_CPPUtils_VERSION
+)
+
+message(STATUS "Found NuHepMC_CPPUtils Version: ${NuHepMC_CPPUtils_VERSION} in \"${NuHepMC_CPPUtils_CMAKE_DIR}\"")
+message(STATUS "    NuHepMC_CPPUtils_CXX_STANDARD: ${NuHepMC_CPPUtils_CXX_STANDARD}")
+message(STATUS "    NuHepMC_CPPUtils_INCLUDE_DIR: ${NuHepMC_CPPUtils_INCLUDE_DIR}")
+message(STATUS "    NuHepMC_CPPUtils_LIB_DIR: ${NuHepMC_CPPUtils_LIB_DIR}")
+message(STATUS "    NuHepMC_CPPUtils_PREFIX: ${NuHepMC_CPPUtils_PREFIX}")
+

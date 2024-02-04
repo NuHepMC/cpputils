@@ -40,6 +40,7 @@ const int DocumentationLine = PR1::DocumentationLine;
 const int IncomingBeam = PR1::IncomingBeam;
 const int Target = PR1::Target;
 const int StruckNucleon = PC1::StruckNucleon;
+
 }; // namespace ParticleStatus
 
 namespace ParticleNumber {
