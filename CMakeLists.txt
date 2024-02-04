@@ -41,6 +41,11 @@ set(CMAKE_CXX_STANDARD 17)
 option(BUILTIN_HEPMC3 "Whether to use build our own version of HepMC3" OFF)
 option(NuHepMC_BUILD_STATIC_LIBS "Whether to build static versions of the libraries" OFF)
 
+set(NuHepMC_BUILTIN_HEPMC3 FALSE)
+if(BUILTIN_HEPMC3)
+  set(NuHepMC_BUILTIN_HEPMC3 TRUE)
+endif()
+
 #Changes default install path to be a subdirectory of the build dir.
 #Can set build dir at configure time with -DCMAKE_INSTALL_PREFIX=/install/path
 if (CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
@@ -119,12 +124,12 @@ CPMFindPackage(
     GITHUB_REPOSITORY fmtlib/fmt
 )
 
-if(BUILTIN_HEPMC3)
+if(NuHepMC_BUILTIN_HEPMC3)
   find_package(Protobuf 2.4)
 
-  set(BUILTIN_HEPMC3_ENABLE_PROTOBUFIO OFF)
+  set(NuHepMC_BUILTIN_HEPMC3_ENABLE_PROTOBUFIO OFF)
   if(Protobuf_FOUND)
-    set(BUILTIN_HEPMC3_ENABLE_PROTOBUFIO ON)
+    set(NuHepMC_BUILTIN_HEPMC3_ENABLE_PROTOBUFIO ON)
     SET(NuHepMC_HEPMC3_ProtobufIO_SUPPORT "#define HEPMC3_PROTOBUFIO 1")
   endif()
 
@@ -139,7 +144,7 @@ if(BUILTIN_HEPMC3)
         "HEPMC3_CXX_STANDARD ${CMAKE_CXX_STANDARD}"
         "HEPMC3_ENABLE_SEARCH OFF"
         "HEPMC3_ENABLE_ROOTIO OFF"
-        "HEPMC3_ENABLE_PROTOBUFIO ${BUILTIN_HEPMC3_ENABLE_PROTOBUFIO}"
+        "HEPMC3_ENABLE_PROTOBUFIO ${NuHepMC_BUILTIN_HEPMC3_ENABLE_PROTOBUFIO}"
         "HEPMC3_ENABLE_PYTHON ON"
         "HEPMC3_Python_SITEARCH${Python_VERSION_MAJOR}${Python_VERSION_MINOR} ${CMAKE_INSTALL_PREFIX}/python/${Python_VERSION_MAJOR}.${Python_VERSION_MINOR}"
         "HEPMC3_BUILD_DOCS OFF"
@@ -174,18 +179,21 @@ if(TARGET HepMC3::HepMC3)
     target_link_libraries(nuhepmc_options_static INTERFACE HepMC3::HepMC3_static)
   endif()
 
+  SET(NuHepMC_Protobuf_FOUND FALSE)
   if(Protobuf_FOUND)
     target_link_libraries(nuhepmc_options INTERFACE HepMC3::protobufIO)
     target_link_libraries(nuhepmc_options_static INTERFACE HepMC3::protobufIO_static)
     message(STATUS "PROTOBUF_INCLUDE_DIRS: ${PROTOBUF_INCLUDE_DIRS}")
     message(STATUS "PROTOBUF_LIBRARIES: ${PROTOBUF_LIBRARIES}")
     message(STATUS "PROTOBUF_FOUND: ${Protobuf_FOUND}")
+    SET(NuHepMC_Protobuf_FOUND TRUE)
   endif()
 
   if(TARGET HepMC3::rootIO)
     target_link_libraries(nuhepmc_options INTERFACE HepMC3::rootIO)
   endif()
 
+  SET(NuHepMC_ZLIB_FOUND FALSE)
   find_package(ZLIB)
   if(ZLIB_FOUND)
     message(STATUS "ZLIB_INCLUDE_DIRS: ${ZLIB_INCLUDE_DIRS}")
@@ -194,8 +202,10 @@ if(TARGET HepMC3::HepMC3)
     target_link_libraries(nuhepmc_options_static INTERFACE ZLIB::ZLIB)
     SET(NuHepMC_HEPMC3_USE_COMPRESSION "#define HEPMC3_USE_COMPRESSION 1")
     SET(NuHepMC_HEPMC3_Z_SUPPORT "#define HEPMC3_Z_SUPPORT 1")
+    SET(NuHepMC_ZLIB_FOUND TRUE)
   endif()
 
+  SET(NuHepMC_LibLZMA_FOUND FALSE)
   find_package(LibLZMA)
   if(LibLZMA_FOUND)
     message(STATUS "LIBLZMA_INCLUDE_DIRS: ${LIBLZMA_INCLUDE_DIRS}")
@@ -204,8 +214,10 @@ if(TARGET HepMC3::HepMC3)
     target_link_libraries(nuhepmc_options_static INTERFACE LibLZMA::LibLZMA)
     SET(NuHepMC_HEPMC3_USE_COMPRESSION "#define HEPMC3_USE_COMPRESSION 1")
     SET(NuHepMC_HEPMC3_LZMA_SUPPORT "#define HEPMC3_LZMA_SUPPORT 1")
+    SET(NuHepMC_LibLZMA_FOUND TRUE)
   endif()
 
+  SET(NuHepMC_BZip2_FOUND FALSE)
   find_package(BZip2)
   if(BZip2_FOUND)
     message(STATUS "BZIP2_INCLUDE_DIRS: ${BZIP2_INCLUDE_DIRS}")
@@ -214,6 +226,7 @@ if(TARGET HepMC3::HepMC3)
     target_link_libraries(nuhepmc_options_static INTERFACE BZip2::BZip2)
     SET(NuHepMC_HEPMC3_USE_COMPRESSION "#define HEPMC3_USE_COMPRESSION 1")
     SET(NuHepMC_HEPMC3_BZ2_SUPPORT "#define HEPMC3_BZ2_SUPPORT 1")
+    SET(NuHepMC_BZip2_FOUND TRUE)
   endif()
 
 else()

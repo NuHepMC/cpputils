@@ -1,10 +1,5 @@
 #!/bin/bash
 
-if [ ${BASH_VERSINFO[0]} -le 2 ]; then
-  echo "[ERROR]: You must source this setup script (not run it in a sub-shell). Use like $ source setup.sh"
-  exit 1
-fi
-
 if ! type add_to_PATH &> /dev/null; then
 
 ### Adapted from https://unix.stackexchange.com/questions/4965/keep-duplicates-out-of-path-on-source
@@ -76,7 +71,7 @@ if ! type add_to_PYTHONPATH &> /dev/null; then
    done
  }
 
- fi
+fi
 
 if ! type is_in_PATH &> /dev/null; then
 
@@ -110,8 +105,6 @@ fi
 
 NuHepMC_ROOT=@CMAKE_INSTALL_PREFIX@
 
-
-
 while [[ ${#} -gt 0 ]]; do
 
   KEYARG=${1}
@@ -125,12 +118,14 @@ while [[ ${#} -gt 0 ]]; do
 
     --env)
       export NuHepMC_ROOT
+      export NuHepMC_CPPUtils_ROOT=${NuHepMC_ROOT}
       add_to_PATH ${NuHepMC_ROOT}/bin
       add_to_LD_LIBRARY_PATH ${NuHepMC_ROOT}/lib
       add_to_LD_LIBRARY_PATH ${NuHepMC_ROOT}/lib64
       add_to_PYTHONPATH ${NuHepMC_ROOT}/python/@Python_VERSION_MAJOR@.@Python_VERSION_MINOR@
 
       echo "export NuHepMC_ROOT=${NuHepMC_ROOT}"
+      echo "export NuHepMC_CPPUtils_ROOT=${NuHepMC_CPPUtils_ROOT}"
       echo "export PATH=${PATH}"
       echo "export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}"
       echo "export PYTHONPATH=${PYTHONPATH}"

@@ -4,6 +4,30 @@ set(NuHepMC_CPPUtils_VERSION @PROJECT_VERSION@)
 
 set(NuHepMC_CPPUtils_CXX_STANDARD 17)
 
+if(@NuHepMC_Protobuf_FOUND@)
+  if(NOT TARGET protobuf::libprotobuf)
+    find_package(Protobuf 2.4 REQUIRED)
+  endif()
+endif()
+
+if(@NuHepMC_ZLIB_FOUND@)
+  if(NOT TARGET ZLIB::ZLIB)
+    find_package(ZLIB REQUIRED)
+  endif()
+endif()
+
+if(@NuHepMC_LibLZMA_FOUND@)
+  if(NOT TARGET LibLZMA::LibLZMA)
+    find_package(LibLZMA REQUIRED)
+  endif()
+endif()
+
+if(@NuHepMC_BZip2_FOUND@)
+  if(NOT TARGET BZip2::BZip2)
+    find_package(BZip2 REQUIRED)
+  endif()
+endif()
+
 if(NOT TARGET HepMC3::HepMC3)
   find_package(HepMC3 @NuHepMC_HEPMC3_MIN_VERSION@ REQUIRED)
 endif()
