@@ -1,5 +1,10 @@
 @PACKAGE_INIT@
 
+if(TARGET NuHepMC::CPPUtils)
+  set(NuHepMC_CPPUtils_FOUND TRUE)
+  return()
+endif()
+
 set(NuHepMC_CPPUtils_VERSION @PROJECT_VERSION@)
 
 set(NuHepMC_CPPUtils_CXX_STANDARD 17)
