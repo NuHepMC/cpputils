@@ -21,8 +21,7 @@ set(IMPLEMENTATION
 
 add_library(nuhepmc_cpputils SHARED ${IMPLEMENTATION})
 target_link_libraries(nuhepmc_cpputils PUBLIC NuHepMC::Options)
-target_link_libraries(nuhepmc_cpputils PRIVATE fmt)
-target_compile_definitions(nuhepmc_cpputils PRIVATE FMT_HEADER_ONLY)
+target_link_libraries(nuhepmc_cpputils PRIVATE fmt::fmt-header-only)
 set_target_properties(nuhepmc_cpputils PROPERTIES 
   PUBLIC_HEADER "${HEADERS}"
   EXPORT_NAME CPPUtils)
@@ -37,9 +36,7 @@ add_library(NuHepMC::CPPUtils ALIAS nuhepmc_cpputils)
 if(NuHepMC_BUILD_STATIC_LIBS)
   add_library(nuhepmc_cpputils_static STATIC ${IMPLEMENTATION})
   target_link_libraries(nuhepmc_cpputils_static PUBLIC NuHepMC::Options_static)
-  target_link_libraries(nuhepmc_cpputils_static PRIVATE fmt)
-  target_compile_definitions(nuhepmc_cpputils_static PRIVATE FMT_HEADER_ONLY)
-
+  target_link_libraries(nuhepmc_cpputils_static PRIVATE fmt::fmt-header-only)
   set_target_properties(nuhepmc_cpputils_static PROPERTIES 
     EXPORT_NAME CPPUtils_static)
 
