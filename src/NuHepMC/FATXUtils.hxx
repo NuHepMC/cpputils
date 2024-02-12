@@ -16,13 +16,13 @@ namespace FATX {
 // Some subclasses will know the best estimate after one events and others will
 // continue to get better the more events you pass them
 struct Accumulator {
-  //returns the cv weight for the proferred event and accumulates FATX 
-  //information in an input-dependent way
+  // returns the cv weight for the proferred event and accumulates FATX
+  // information in an input-dependent way
   virtual double process(HepMC3::GenEvent const &) = 0;
   virtual double fatx(CrossSection::Units::Unit const &units =
-                          CrossSection::Units::pb_PerAtom) = 0;
-  virtual double sumweights() = 0;
-  virtual size_t events() = 0;
+                          CrossSection::Units::pb_PerAtom) const = 0;
+  virtual double sumweights() const = 0;
+  virtual size_t events() const = 0;
 };
 
 std::unique_ptr<Accumulator>

@@ -23,7 +23,7 @@ public:
     corr = (t - sum) - y;
     sum = t;
   }
-  T operator()() { return sum; }
+  T operator()() const { return sum; }
 };
 
 struct BaseAccumulator : public Accumulator {
@@ -49,8 +49,8 @@ struct BaseAccumulator : public Accumulator {
     return w;
   }
 
-  double sumweights() { return sumw(); }
-  size_t events() { return nevt; }
+  double sumweights() const { return sumw(); }
+  size_t events() const { return nevt; }
 };
 
 struct GC5Accumulator : public BaseAccumulator {
@@ -70,7 +70,7 @@ struct GC5Accumulator : public BaseAccumulator {
     return w;
   }
 
-  double fatx(CrossSection::Units::Unit const &units) {
+  double fatx(CrossSection::Units::Unit const &units) const {
     if (units != CrossSection::Units::pb_PerAtom) {
       throw CrossSection::Units::InvalidUnits()
           << "GC5Accumulator can only provide FATX in pb /Atom. If you require "
@@ -96,7 +96,7 @@ struct EC2Accumulator : public BaseAccumulator {
     return w;
   }
 
-  double fatx(CrossSection::Units::Unit const &units) {
+  double fatx(CrossSection::Units::Unit const &units) const {
     if (units != CrossSection::Units::pb_PerAtom) {
       throw CrossSection::Units::InvalidUnits()
           << "EC2Accumulator can only provide FATX in pb /Atom. If you require "
@@ -122,7 +122,7 @@ struct EC4Accumulator : public BaseAccumulator {
     return w;
   }
 
-  double fatx(CrossSection::Units::Unit const &units) {
+  double fatx(CrossSection::Units::Unit const &units) const {
     if (units != CrossSection::Units::pb_PerAtom) {
       throw CrossSection::Units::InvalidUnits()
           << "EC4Accumulator can only provide FATX in pb /Atom. If you require "
