@@ -164,7 +164,7 @@ else() #using a prebuilt HepMC3
     find_package(Protobuf 2.4 REQUIRED)
     target_link_libraries(nuhepmc_options INTERFACE HepMC3::protobufIO)
     if(TARGET HepMC3::protobufIO_static)
-      target_link_libraries(nuhepmc_options_stastic INTERFACE HepMC3::protobufIO_stastic)
+      target_link_libraries(nuhepmc_options_static INTERFACE HepMC3::protobufIO_stastic)
     endif()
   endif()
 endif()
