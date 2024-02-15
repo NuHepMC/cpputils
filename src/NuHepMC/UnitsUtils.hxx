@@ -37,14 +37,14 @@ struct Unit {
 };
 
 const Unit pb_PerAtom{Scale::pb, TargetScale::PerTargetAtom};
+const Unit pb_PerNucleon{Scale::pb, TargetScale::PerTargetNucleon};
 const Unit automatic{Scale::Automatic, TargetScale::Automatic};
 
 const double pb = 1;
 const double cm2 = 1E36;
 const double cm2_ten38 = 1E-2;
 
-double GetRescaleFactor(HepMC3::GenEvent const &evt,
-                        Unit from = automatic,
+double GetRescaleFactor(HepMC3::GenEvent const &evt, Unit from = automatic,
                         Unit const &to = pb_PerAtom);
 
 } // namespace Units
@@ -61,3 +61,9 @@ std::ostream &operator<<(std::ostream &os,
 
 std::ostream &operator<<(std::ostream &os,
                          NuHepMC::CrossSection::Units::Unit const &u);
+
+namespace NuHepMC {
+std::string to_string(NuHepMC::CrossSection::Units::Scale us);
+std::string to_string(NuHepMC::CrossSection::Units::TargetScale ts);
+std::string to_string(NuHepMC::CrossSection::Units::Unit const &u);
+} // namespace NuHepMC

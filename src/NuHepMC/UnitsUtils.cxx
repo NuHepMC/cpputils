@@ -1,7 +1,7 @@
 #include "NuHepMC/UnitsUtils.hxx"
 
-#include "NuHepMC/ReaderUtils.hxx"
 #include "NuHepMC/EventUtils.hxx"
+#include "NuHepMC/ReaderUtils.hxx"
 
 namespace NuHepMC {
 
@@ -118,3 +118,21 @@ std::ostream &operator<<(std::ostream &os,
                          NuHepMC::CrossSection::Units::Unit const &u) {
   return os << "[" << u.scale << ", " << u.tgtscale << "]";
 }
+
+namespace NuHepMC {
+std::string to_string(NuHepMC::CrossSection::Units::Scale us) {
+  std::stringstream ss("");
+  ss << us;
+  return ss.str();
+}
+std::string to_string(NuHepMC::CrossSection::Units::TargetScale ts) {
+  std::stringstream ss("");
+  ss << ts;
+  return ss.str();
+}
+std::string to_string(NuHepMC::CrossSection::Units::Unit const &u) {
+  std::stringstream ss("");
+  ss << u;
+  return ss.str();
+}
+} // namespace NuHepMC

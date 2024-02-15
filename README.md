@@ -822,6 +822,8 @@ struct Unit {
 };
 
 const Unit pb_PerAtom{Scale::pb, TargetScale::PerTargetAtom};
+const Unit pb_PerNucleon{Scale::pb, TargetScale::PerTargetNucleon};
+
 // automatic is used to signal that the input scale should be read from the 
 //   evt.run_info() according to G.C.4
 const Unit automatic{Scale::Automatic, TargetScale::Automatic};
@@ -831,5 +833,20 @@ double GetRescaleFactor(HepMC3::GenEvent const &evt,
                         Unit const &to = pb_PerAtom);
 }
 }
+}
+
+std::ostream &operator<<(std::ostream &os,
+                         NuHepMC::CrossSection::Units::Scale us);
+
+std::ostream &operator<<(std::ostream &os,
+                         NuHepMC::CrossSection::Units::TargetScale ts);
+
+std::ostream &operator<<(std::ostream &os,
+                         NuHepMC::CrossSection::Units::Unit const &u);
+
+namespace NuHepMC {
+std::string to_string(NuHepMC::CrossSection::Units::Scale us);
+std::string to_string(NuHepMC::CrossSection::Units::TargetScale ts);
+std::string to_string(NuHepMC::CrossSection::Units::Unit const &u);
 }
 ```
