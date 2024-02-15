@@ -66,14 +66,6 @@ struct GC5Accumulator : public BaseAccumulator {
       GC5FATX = GC5::ReadFluxAveragedTotalXSec(ev.run_info()) *
                 CrossSection::Units::GetRescaleFactor(
                     ev, input_unit, CrossSection::Units::pb_PerAtom);
-
-      std::cout << "GC5Accumulator: w = " << w
-                << ", xs: " << GC4::ParseCrossSectionUnits(ev.run_info())
-                << ", output xs: " << CrossSection::Units::pb_PerAtom
-                << ", rs factor: "
-                << CrossSection::Units::GetRescaleFactor(
-                       ev, input_unit, CrossSection::Units::pb_PerAtom)
-                << std::endl;
     }
     return w;
   }
@@ -96,14 +88,6 @@ struct EC2Accumulator : public BaseAccumulator {
 
   double process(HepMC3::GenEvent const &ev) {
     double w = BaseAccumulator::process(ev);
-
-    std::cout << "EC2Accumulator: w = " << w
-              << ", xs: " << GC4::ParseCrossSectionUnits(ev.run_info())
-              << ", output xs: " << CrossSection::Units::pb_PerAtom
-              << ", rs factor: "
-              << CrossSection::Units::GetRescaleFactor(
-                     ev, input_unit, CrossSection::Units::pb_PerAtom)
-              << std::endl;
 
     ReciprocalTotXS(ev.weight("CV") /
                     (EC2::ReadTotalCrossSection(ev) *
