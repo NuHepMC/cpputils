@@ -39,7 +39,6 @@ SET(NuHepMC_VERSION_PATCH  0)
 set(CMAKE_CXX_STANDARD 17)
 
 option(BUILTIN_HEPMC3 "Whether to use build our own version of HepMC3" OFF)
-option(NuHepMC_BUILD_STATIC_LIBS "Whether to build static versions of the libraries" OFF)
 
 set(NuHepMC_BUILTIN_HEPMC3 FALSE)
 if(BUILTIN_HEPMC3)
@@ -98,18 +97,6 @@ install(TARGETS nuhepmc_options
 
 add_library(NuHepMC::Options ALIAS nuhepmc_options)
 
-add_library(nuhepmc_options_static INTERFACE)
-target_include_directories(nuhepmc_options_static INTERFACE 
-  $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/src>
-  $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/include> 
-  $<INSTALL_INTERFACE:include>)
-
-set_target_properties(nuhepmc_options_static PROPERTIES EXPORT_NAME Options_static)
-install(TARGETS nuhepmc_options_static
-    EXPORT nuhepmc_cpputils-targets)
-
-add_library(NuHepMC::Options_static ALIAS nuhepmc_options_static)
-
 SET(NuHepMC_HEPMC3_USE_COMPRESSION)
 SET(NuHepMC_HEPMC3_Z_SUPPORT)
 SET(NuHepMC_HEPMC3_ProtobufIO_SUPPORT)
@@ -122,6 +109,7 @@ CPMFindPackage(
     NAME fmt
     GIT_TAG 8.1.1
     GITHUB_REPOSITORY fmtlib/fmt
+    OPTIONS "FMT_INSTALL ON"
 )
 
 if(NuHepMC_BUILTIN_HEPMC3)
@@ -152,7 +140,7 @@ if(NuHepMC_BUILTIN_HEPMC3)
         "HEPMC3_INSTALL_EXAMPLES OFF"
         "HEPMC3_ENABLE_TEST OFF"
         "HEPMC3_INSTALL_INTERFACES ON"
-        "HEPMC3_BUILD_STATIC_LIBS ON"
+        "HEPMC3_BUILD_STATIC_LIBS OFF"
   )
 else() #using a prebuilt HepMC3
   find_package(HepMC3 ${NuHepMC_HEPMC3_MIN_VERSION} REQUIRED)
@@ -163,26 +151,15 @@ else() #using a prebuilt HepMC3
   if(TARGET HepMC3::protobufIO)
     find_package(Protobuf 2.4 REQUIRED)
     target_link_libraries(nuhepmc_options INTERFACE HepMC3::protobufIO)
-    if(TARGET HepMC3::protobufIO_static)
-      target_link_libraries(nuhepmc_options_static INTERFACE HepMC3::protobufIO_stastic)
-    endif()
   endif()
 endif()
 
 if(TARGET HepMC3::HepMC3)
   target_link_libraries(nuhepmc_options INTERFACE HepMC3::HepMC3)
 
-  if(NuHepMC_BUILD_STATIC_LIBS)
-    if(NOT TARGET HepMC3::HepMC3_static)
-      message(FATAL_ERROR "HepMC3::HepMC3_static target does not exist but NuHepMC_BUILD_STATIC_LIBS=${NuHepMC_BUILD_STATIC_LIBS}")
-    endif()
-    target_link_libraries(nuhepmc_options_static INTERFACE HepMC3::HepMC3_static)
-  endif()
-
   SET(NuHepMC_Protobuf_FOUND FALSE)
   if(Protobuf_FOUND)
     target_link_libraries(nuhepmc_options INTERFACE HepMC3::protobufIO)
-    target_link_libraries(nuhepmc_options_static INTERFACE HepMC3::protobufIO_static)
     message(STATUS "PROTOBUF_INCLUDE_DIRS: ${PROTOBUF_INCLUDE_DIRS}")
     message(STATUS "PROTOBUF_LIBRARIES: ${PROTOBUF_LIBRARIES}")
     message(STATUS "PROTOBUF_FOUND: ${Protobuf_FOUND}")
@@ -199,7 +176,6 @@ if(TARGET HepMC3::HepMC3)
     message(STATUS "ZLIB_INCLUDE_DIRS: ${ZLIB_INCLUDE_DIRS}")
     message(STATUS "ZLIB_LIBRARIES: ${ZLIB_LIBRARIES}")
     target_link_libraries(nuhepmc_options INTERFACE ZLIB::ZLIB)
-    target_link_libraries(nuhepmc_options_static INTERFACE ZLIB::ZLIB)
     SET(NuHepMC_HEPMC3_USE_COMPRESSION "#define HEPMC3_USE_COMPRESSION 1")
     SET(NuHepMC_HEPMC3_Z_SUPPORT "#define HEPMC3_Z_SUPPORT 1")
     SET(NuHepMC_ZLIB_FOUND TRUE)
@@ -211,7 +187,6 @@ if(TARGET HepMC3::HepMC3)
     message(STATUS "LIBLZMA_INCLUDE_DIRS: ${LIBLZMA_INCLUDE_DIRS}")
     message(STATUS "LIBLZMA_LIBRARIES: ${LIBLZMA_LIBRARIES}")
     target_link_libraries(nuhepmc_options INTERFACE LibLZMA::LibLZMA)
-    target_link_libraries(nuhepmc_options_static INTERFACE LibLZMA::LibLZMA)
     SET(NuHepMC_HEPMC3_USE_COMPRESSION "#define HEPMC3_USE_COMPRESSION 1")
     SET(NuHepMC_HEPMC3_LZMA_SUPPORT "#define HEPMC3_LZMA_SUPPORT 1")
     SET(NuHepMC_LibLZMA_FOUND TRUE)
@@ -223,7 +198,6 @@ if(TARGET HepMC3::HepMC3)
     message(STATUS "BZIP2_INCLUDE_DIRS: ${BZIP2_INCLUDE_DIRS}")
     message(STATUS "BZIP2_LIBRARIES: ${BZIP2_LIBRARIES}")
     target_link_libraries(nuhepmc_options INTERFACE BZip2::BZip2)
-    target_link_libraries(nuhepmc_options_static INTERFACE BZip2::BZip2)
     SET(NuHepMC_HEPMC3_USE_COMPRESSION "#define HEPMC3_USE_COMPRESSION 1")
     SET(NuHepMC_HEPMC3_BZ2_SUPPORT "#define HEPMC3_BZ2_SUPPORT 1")
     SET(NuHepMC_BZip2_FOUND TRUE)

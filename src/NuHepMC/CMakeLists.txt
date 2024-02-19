@@ -33,18 +33,3 @@ install(TARGETS nuhepmc_cpputils
 
 add_library(NuHepMC::CPPUtils ALIAS nuhepmc_cpputils)
 
-if(NuHepMC_BUILD_STATIC_LIBS)
-  add_library(nuhepmc_cpputils_static STATIC ${IMPLEMENTATION})
-  target_link_libraries(nuhepmc_cpputils_static PUBLIC NuHepMC::Options_static)
-  target_link_libraries(nuhepmc_cpputils_static PRIVATE fmt::fmt-header-only)
-  set_target_properties(nuhepmc_cpputils_static PROPERTIES 
-    EXPORT_NAME CPPUtils_static)
-
-  install(TARGETS nuhepmc_cpputils_static
-      EXPORT nuhepmc_cpputils-targets
-      LIBRARY DESTINATION lib/)
-
-  add_library(NuHepMC::CPPUtils_static ALIAS nuhepmc_cpputils_static)
-
-endif()
-
