@@ -47,6 +47,13 @@ const double cm2_ten38 = 1E-2;
 double GetRescaleFactor(HepMC3::GenEvent const &evt, Unit from = automatic,
                         Unit const &to = pb_PerAtom);
 
+inline int NuclearPDG(int Z, int A) {
+  //±10LZZZAAAI
+  return 1000000000 + (A*10) + (Z*10000);
+}
+double GetRescaleFactor(int target_pdg, Unit from = automatic,
+                        Unit const &to = pb_PerAtom);
+
 } // namespace Units
 
 } // namespace CrossSection

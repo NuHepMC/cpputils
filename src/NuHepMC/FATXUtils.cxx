@@ -53,6 +53,19 @@ struct BaseAccumulator : public Accumulator {
   size_t events() const { return nevt; }
 };
 
+struct DummyAccumulator : public Accumulator {
+  size_t nevt;
+  DummyAccumulator() : nevt{0} {}
+  double process(HepMC3::GenEvent const &) {
+    nevt++;
+    return 1;
+  }
+  double fatx(CrossSection::Units::Unit const &) const { return 1; }
+
+  double sumweights() const { return nevt; }
+  size_t events() const { return nevt; }
+};
+
 struct GC5Accumulator : public BaseAccumulator {
 
   double GC5FATX;
@@ -89,10 +102,9 @@ struct EC2Accumulator : public BaseAccumulator {
   double process(HepMC3::GenEvent const &ev) {
     double w = BaseAccumulator::process(ev);
 
-    ReciprocalTotXS(ev.weight("CV") /
-                    (EC2::ReadTotalCrossSection(ev) *
-                     CrossSection::Units::GetRescaleFactor(
-                         ev, input_unit, CrossSection::Units::pb_PerAtom)));
+    ReciprocalTotXS(w / (EC2::ReadTotalCrossSection(ev) *
+                         CrossSection::Units::GetRescaleFactor(
+                             ev, input_unit, CrossSection::Units::pb_PerAtom)));
     return w;
   }
 
@@ -134,16 +146,16 @@ struct EC4Accumulator : public BaseAccumulator {
 
 NEW_NuHepMC_EXCEPT(NoMethodToCalculateFATX);
 
-std::unique_ptr<Accumulator>
+std::shared_ptr<Accumulator>
 MakeAccumulator(std::shared_ptr<HepMC3::GenRunInfo> gri) {
   if (GC1::SignalsConvention(gri, "G.C.5")) {
-    return std::unique_ptr<Accumulator>(
+    return std::shared_ptr<Accumulator>(
         new GC5Accumulator(gri->weight_index("CV")));
   } else if (GC1::SignalsConvention(gri, "E.C.4")) {
-    return std::unique_ptr<Accumulator>(
+    return std::shared_ptr<Accumulator>(
         new EC4Accumulator(gri->weight_index("CV")));
   } else if (GC1::SignalsConvention(gri, "E.C.2")) {
-    return std::unique_ptr<Accumulator>(
+    return std::shared_ptr<Accumulator>(
         new EC2Accumulator(gri->weight_index("CV")));
   }
 
@@ -153,13 +165,15 @@ MakeAccumulator(std::shared_ptr<HepMC3::GenRunInfo> gri) {
       << CheckedAttributeValue<std::string>(gri, "NuHepMC.Conventions", "");
 }
 
-std::unique_ptr<Accumulator> MakeAccumulator(std::string const &Convention) {
+std::shared_ptr<Accumulator> MakeAccumulator(std::string const &Convention) {
   if (Convention == "G.C.5") {
-    return std::unique_ptr<Accumulator>(new GC5Accumulator());
+    return std::shared_ptr<Accumulator>(new GC5Accumulator());
   } else if (Convention == "E.C.4") {
-    return std::unique_ptr<Accumulator>(new EC4Accumulator());
+    return std::shared_ptr<Accumulator>(new EC4Accumulator());
   } else if (Convention == "E.C.2") {
-    return std::unique_ptr<Accumulator>(new EC2Accumulator());
+    return std::shared_ptr<Accumulator>(new EC2Accumulator());
+  } else if (Convention == "Dummy") {
+    return std::shared_ptr<Accumulator>(new DummyAccumulator());
   }
 
   throw NoMethodToCalculateFATX() << "Convention: " << Convention

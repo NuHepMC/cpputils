@@ -25,7 +25,7 @@ CPMAddPackage(
   NAME NuHepMC_CPPUtils
   GIT_TAG main
   GIT_REPOSITORY "https://github.com/NuHepMC/cpputils.git"
-  OPTIONS "BUILTIN_HEPMC3 ON"
+  OPTIONS "NuHepMC_CPPUtils_BUILTIN_HEPMC3 ON"
 )
 ```
 
@@ -46,7 +46,7 @@ dependencies to your target.
 cd /path/to/cpputils
 mkdir build; cd build
 cmake .. -DCMAKE_INSTALL_PREFIX=/where/you/want/to/install \
-         -DBUILTIN_HEPMC3=ON
+         -DNuHepMC_CPPUtils_BUILTIN_HEPMC3=ON
 make install
 ```
 
@@ -513,8 +513,14 @@ NuHepMC::Event::GetParticles_AllRealFinalState(HepMC3::GenEvent const &evt,
   std::vector<int> PDGs = {});
 HepMC3::ConstGenParticlePtr NuHepMC::Event::GetParticle_First(
   HepMC3::GenEvent const &evt, int part_status, std::vector<int> PDGs = {});
+HepMC3::ConstGenParticlePtr NuHepMC::Event::GetParticle_FirstRealFinalState(
+  HepMC3::GenEvent const &evt, int part_status, std::vector<int> PDGs = {});
 HepMC3::ConstGenParticlePtr NuHepMC::Event::GetParticle_HighestMomentum(
   HepMC3::GenEvent const &evt, int part_status, std::vector<int> PDGs = {});
+HepMC3::ConstGenParticlePtr 
+NuHepMC::Event::GetParticle_HighestMomentumRealFinalState(
+  HepMC3::GenEvent const &evt, int part_status, std::vector<int> PDGs = {});
+
 
 // Reads the energy/momentum units of a given event and calculates the scale 
 //   factor required to express particle quantities in MeV-scale units

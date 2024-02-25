@@ -81,6 +81,12 @@ HepMC3::ConstGenParticlePtr GetParticle_First(HepMC3::GenEvent const &evt,
 }
 
 HepMC3::ConstGenParticlePtr
+GetParticle_FirstRealFinalState(HepMC3::GenEvent const &evt,
+                                std::vector<int> PDGs) {
+  return GetParticle_First(evt, ParticleStatus::UndecayedPhysical, PDGs);
+}
+
+HepMC3::ConstGenParticlePtr
 GetParticle_HighestMomentum(HepMC3::GenEvent const &evt, int part_status,
                             std::vector<int> PDGs) {
 
@@ -96,6 +102,13 @@ GetParticle_HighestMomentum(HepMC3::GenEvent const &evt, int part_status,
             });
 
   return parts.back();
+}
+
+HepMC3::ConstGenParticlePtr
+GetParticle_HighestMomentumRealFinalState(HepMC3::GenEvent const &evt,
+                                          std::vector<int> PDGs) {
+  return GetParticle_HighestMomentum(evt, ParticleStatus::UndecayedPhysical,
+                                     PDGs);
 }
 
 double ToMeVFactor(HepMC3::GenEvent const &evt) {

@@ -22,7 +22,7 @@
 # SOFTWARE.
 ################################################################################
 
-cmake_minimum_required (VERSION 3.14 FATAL_ERROR)
+cmake_minimum_required (VERSION 3.21 FATAL_ERROR)
 
 #Use the compilers found in the path
 find_program(CMAKE_C_COMPILER NAMES $ENV{CC} gcc PATHS ENV PATH NO_DEFAULT_PATH)
@@ -38,11 +38,14 @@ SET(NuHepMC_VERSION_PATCH  0)
 
 set(CMAKE_CXX_STANDARD 17)
 
-option(BUILTIN_HEPMC3 "Whether to use build our own version of HepMC3" OFF)
+option(NuHepMC_CPPUtils_BUILTIN_HEPMC3 "Whether to use build our own version of HepMC3" OFF)
+option(NuHepMC_CPPUtils_ENABLE_TESTS "Whether to enable test suite" OFF)
+option(NuHepMC_CPPUtils_ENABLE_SANITIZERS_CLI "Whether to enable ASAN LSAN and UBSAN" OFF)
+option(NuHepMC_CPPUtils_ENABLE_GCOV_CLI "Whether to enable GCOV" OFF)
 
-set(NuHepMC_BUILTIN_HEPMC3 FALSE)
-if(BUILTIN_HEPMC3)
-  set(NuHepMC_BUILTIN_HEPMC3 TRUE)
+if(NuHepMC_CPPUtils_ENABLE_TESTS)
+    SET(NuHepMC_CPPUtils_ENABLE_SANITIZERS ON)
+    SET(NuHepMC_CPPUtils_ENABLE_GCOV ON)
 endif()
 
 #Changes default install path to be a subdirectory of the build dir.
@@ -53,9 +56,9 @@ if (CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
 endif()
 
 if(CMAKE_BUILD_TYPE STREQUAL "")
-  set(CMAKE_BUILD_TYPE RELWITHDEBINFO)
+  set(CMAKE_BUILD_TYPE RelWithDebInfo)
 elseif(NOT DEFINED CMAKE_BUILD_TYPE)
-  set(CMAKE_BUILD_TYPE RELWITHDEBINFO)
+  set(CMAKE_BUILD_TYPE RelWithDebInfo)
 endif()
 
 LIST(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/cmake/Modules)
@@ -90,6 +93,17 @@ target_include_directories(nuhepmc_options INTERFACE
   $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/src>
   $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/include> 
   $<INSTALL_INTERFACE:include>)
+target_compile_options(nuhepmc_options INTERFACE -Wall -Werror -Wextra)
+
+if(NuHepMC_CPPUtils_ENABLE_SANITIZERS)
+  target_compile_options(nuhepmc_options INTERFACE -fno-omit-frame-pointer -fsanitize=address -fsanitize=leak -fsanitize=undefined)
+  target_link_options(nuhepmc_options INTERFACE -fsanitize=address -fsanitize=leak -fsanitize=undefined)
+endif()
+
+if(NuHepMC_CPPUtils_ENABLE_GCOV)
+  target_compile_options(nuhepmc_options INTERFACE -fprofile-arcs -ftest-coverage)
+  target_link_options(nuhepmc_options INTERFACE -fprofile-arcs -ftest-coverage)
+endif()
 
 set_target_properties(nuhepmc_options PROPERTIES EXPORT_NAME Options)
 install(TARGETS nuhepmc_options
@@ -112,12 +126,23 @@ CPMFindPackage(
     OPTIONS "FMT_INSTALL ON"
 )
 
-if(NuHepMC_BUILTIN_HEPMC3)
+CPMFindPackage(
+    NAME pybind11
+    VERSION 2.9.2
+    GITHUB_REPOSITORY pybind/pybind11
+    GIT_TAG "v2.9.2"
+)
+
+# PYTHON PATHS
+set(NuHepMC_CPPUtils_PYSITEARCH "${Python3_VERSION_MAJOR}${Python3_VERSION_MINOR}")
+set(NuHepMC_CPPUtils_PYTHONPATH "python/${Python3_VERSION_MAJOR}.${Python3_VERSION_MINOR}")
+
+if(NuHepMC_NuHepMC_CPPUtils_BUILTIN_HEPMC3)
   find_package(Protobuf 2.4)
 
-  set(NuHepMC_BUILTIN_HEPMC3_ENABLE_PROTOBUFIO OFF)
+  set(NuHepMC_NuHepMC_CPPUtils_BUILTIN_HEPMC3_ENABLE_PROTOBUFIO OFF)
   if(Protobuf_FOUND)
-    set(NuHepMC_BUILTIN_HEPMC3_ENABLE_PROTOBUFIO ON)
+    set(NuHepMC_NuHepMC_CPPUtils_BUILTIN_HEPMC3_ENABLE_PROTOBUFIO ON)
     SET(NuHepMC_HEPMC3_ProtobufIO_SUPPORT "#define HEPMC3_PROTOBUFIO 1")
   endif()
 
@@ -132,7 +157,7 @@ if(NuHepMC_BUILTIN_HEPMC3)
         "HEPMC3_CXX_STANDARD ${CMAKE_CXX_STANDARD}"
         "HEPMC3_ENABLE_SEARCH OFF"
         "HEPMC3_ENABLE_ROOTIO OFF"
-        "HEPMC3_ENABLE_PROTOBUFIO ${NuHepMC_BUILTIN_HEPMC3_ENABLE_PROTOBUFIO}"
+        "HEPMC3_ENABLE_PROTOBUFIO ${NuHepMC_NuHepMC_CPPUtils_BUILTIN_HEPMC3_ENABLE_PROTOBUFIO}"
         "HEPMC3_ENABLE_PYTHON ON"
         "HEPMC3_Python_SITEARCH${Python_VERSION_MAJOR}${Python_VERSION_MINOR} ${CMAKE_INSTALL_PREFIX}/python/${Python_VERSION_MAJOR}.${Python_VERSION_MINOR}"
         "HEPMC3_BUILD_DOCS OFF"
@@ -253,3 +278,14 @@ install(FILES
     ${CMAKE_BINARY_DIR}/NuHepMC_CPPUtilsConfig.cmake 
     ${CMAKE_BINARY_DIR}/NuHepMC_CPPUtilsConfigVersion.cmake 
   DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/cmake/NuHepMC_CPPUtils)
+
+if(NuHepMC_CPPUtils_ENABLE_TESTS)
+  CPMAddPackage("gh:catchorg/Catch2@3.3.2")
+
+  LIST(APPEND CMAKE_MODULE_PATH ${Catch2_SOURCE_DIR}/extras)
+
+  include(CTest)
+  include(Catch)
+
+  add_subdirectory(tests)
+endif()

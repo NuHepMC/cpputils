@@ -23,12 +23,16 @@ struct Accumulator {
                           CrossSection::Units::pb_PerAtom) const = 0;
   virtual double sumweights() const = 0;
   virtual size_t events() const = 0;
+
+  virtual ~Accumulator() {}
 };
 
-std::unique_ptr<Accumulator>
+std::shared_ptr<Accumulator>
 MakeAccumulator(std::shared_ptr<HepMC3::GenRunInfo> gri);
 
-std::unique_ptr<Accumulator> MakeAccumulator(std::string const &Convention);
+// Can pass Convention = "Dummy" to instantiate an accumulator that
+// just counts events.
+std::shared_ptr<Accumulator> MakeAccumulator(std::string const &Convention);
 
 } // namespace FATX
 

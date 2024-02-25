@@ -243,12 +243,14 @@ void WriteBeamEnergyDistribution(std::shared_ptr<HepMC3::GenRunInfo> run_info,
       WriteBeamEnergyMonoenergetic(run_info, BeamParticleNumber,
                                    distribution.MonoEnergeticEnergy);
     }
+    break;
   }
   case EDistType::kHistogram: {
     SetHistogramBeamType(run_info);
     WriteBeamUnits(run_info, distribution.energy_unit, distribution.rate_unit);
     WriteBeamEnergyHistogram(run_info, BeamParticleNumber,
                              distribution.bin_edges, distribution.bin_content);
+    break;
   }
   }
 }
