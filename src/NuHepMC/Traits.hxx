@@ -19,7 +19,7 @@ template <> struct attr_traits<long> {
   typedef HepMC3::LongAttribute type;
 };
 
-template <> struct attr_traits<long long int> {
+template <> struct attr_traits<long long> {
   typedef HepMC3::LongAttribute type;
 };
 

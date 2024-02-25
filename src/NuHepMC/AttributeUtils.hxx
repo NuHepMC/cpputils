@@ -47,7 +47,7 @@ NEW_NuHepMC_EXCEPT(MissingAttributeException);
 NEW_NuHepMC_EXCEPT(AttributeTypeException);
 
 template <typename T> bool HasAttribute(T const &obj, std::string const &name) {
-  auto attr_names = obj->attribute_names();
+  auto const &attr_names = obj->attribute_names();
   return std::find(attr_names.begin(), attr_names.end(), name) !=
          attr_names.end();
 }
