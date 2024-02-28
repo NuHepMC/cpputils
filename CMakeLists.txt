@@ -146,8 +146,6 @@ if(NuHepMC_NuHepMC_CPPUtils_BUILTIN_HEPMC3)
     SET(NuHepMC_HEPMC3_ProtobufIO_SUPPORT "#define HEPMC3_PROTOBUFIO 1")
   endif()
 
-  find_package(Python)
-
   CPMAddPackage(
       NAME HepMC3
       VERSION ${NuHepMC_HEPMC3_MIN_VERSION}
@@ -253,6 +251,7 @@ install(FILES
   examples/ana_skeleton.cxx DESTINATION share/NuHepMC/examples)
 
 add_subdirectory(src/NuHepMC)
+add_subdirectory(python)
 
 install(EXPORT nuhepmc_cpputils-targets
   FILE NuHepMC_CPPUtilsTargets.cmake
@@ -280,6 +279,7 @@ install(FILES
   DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/cmake/NuHepMC_CPPUtils)
 
 if(NuHepMC_CPPUtils_ENABLE_TESTS)
+
   CPMAddPackage("gh:catchorg/Catch2@3.3.2")
 
   LIST(APPEND CMAKE_MODULE_PATH ${Catch2_SOURCE_DIR}/extras)

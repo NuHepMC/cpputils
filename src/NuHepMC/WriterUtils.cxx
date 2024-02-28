@@ -119,7 +119,7 @@ void SetConventions(std::shared_ptr<HepMC3::GenRunInfo> run_info,
 
 namespace GC2 {
 void SetExposureNEvents(std::shared_ptr<HepMC3::GenRunInfo> run_info,
-                        int NEvents) {
+                        long NEvents) {
   add_attribute(run_info, "NuHepMC.Exposure.NEvents", NEvents);
 }
 } // namespace GC2

@@ -53,6 +53,22 @@ template <typename T> bool HasAttribute(T const &obj, std::string const &name) {
 }
 
 template <typename AT, typename T>
+bool HasAttributeOfType(T const &obj, std::string const &name) {
+  if (!obj) {
+    throw NullObjectException();
+  }
+
+  if (!HasAttribute(obj, name)) {
+    return false;
+  }
+
+  if (!obj->template attribute<typename NuHepMC::attr_traits<AT>::type>(name)) {
+    return false;
+  }
+  return true;
+}
+
+template <typename AT, typename T>
 auto CheckedAttributeValue(T const &obj, std::string const &name) {
   if (!obj) {
     throw NullObjectException();
@@ -70,7 +86,9 @@ auto CheckedAttributeValue(T const &obj, std::string const &name) {
 
   if (!obj->template attribute<typename NuHepMC::attr_traits<AT>::type>(name)) {
     throw AttributeTypeException()
-        << name << ": " << obj->attribute_as_string(name);
+        << name << ": \"" << obj->attribute_as_string(name)
+        << "\" could not be parsed as requested type: "
+        << NuHepMC::attr_traits<AT>::typestr;
   }
 
   return obj->template attribute<typename NuHepMC::attr_traits<AT>::type>(name)
@@ -96,6 +114,5 @@ auto CheckedAttributeValue(T const &obj, std::string const &name,
   return obj->template attribute<typename NuHepMC::attr_traits<AT>::type>(name)
       ->value();
 }
-
 
 } // namespace NuHepMC

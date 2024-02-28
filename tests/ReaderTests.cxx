@@ -17,7 +17,14 @@ TEST_CASE("GR2::ReadVersion", "[ReaderUtils]") {
   REQUIRE(maj == 1);
   REQUIRE(min == 2);
   REQUIRE(pat == 3);
+}
 
+TEST_CASE("GC2::ReadExposureNEvents", "[ReaderUtils]") {
+  auto gri = std::make_shared<HepMC3::GenRunInfo>();
+
+  NuHepMC::add_attribute(gri,"NuHepMC.Exposure.NEvents",100000l);
+
+  REQUIRE(NuHepMC::GC2::ReadExposureNEvents(gri) == 100000l);
 }
 
 // ReadVersion

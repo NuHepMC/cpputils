@@ -16,7 +16,6 @@ enum class EDistType {
   kInvalid = 0,
   kMonoEnergetic = 1,
   kHistogram = 2,
-
 };
 
 struct EnergyDistribution {

@@ -1,9 +1,9 @@
 #include "NuHepMC/Constants.hxx"
 #include "NuHepMC/EventUtils.hxx"
 #include "NuHepMC/FATXUtils.hxx"
+#include "NuHepMC/ReaderUtils.hxx"
+#include "NuHepMC/Types.hxx"
 
-#include "pybind11/eigen.h"
-#include "pybind11/functional.h"
 #include "pybind11/pybind11.h"
 #include "pybind11/stl.h"
 #include "pybind11/stl_bind.h"
@@ -17,6 +17,7 @@ class pyFATXAccumulator {
   std::shared_ptr<FATX::Accumulator> acc;
 
 public:
+  pyFATXAccumulator(std::shared_ptr<FATX::Accumulator> a) : acc(a) {}
   double process(HepMC3::GenEvent const &ev) { return acc->process(ev); }
   double fatx(CrossSection::Units::Unit const &units =
                   CrossSection::Units::pb_PerAtom) const {
@@ -27,7 +28,7 @@ public:
 };
 
 pyFATXAccumulator pyMakeAccumulator(std::shared_ptr<HepMC3::GenRunInfo> gri) {
-  return pyFATXAccumulator{FATX::MakeAccumulator(gri)};
+  return pyFATXAccumulator(FATX::MakeAccumulator(gri));
 }
 
 PYBIND11_MODULE(pyNuHepMC, m) {
@@ -49,7 +50,7 @@ PYBIND11_MODULE(pyNuHepMC, m) {
   particle_status.attr("StruckNucleon") = ParticleStatus::StruckNucleon;
 
   auto particle_number = constants.def_submodule("ParticleNumber", "");
-  particle_number.attr("NuclearRemnant") = ParticleStatus::NuclearRemnant;
+  particle_number.attr("NuclearRemnant") = ParticleNumber::NuclearRemnant;
 
   auto event_utils = m.def_submodule("EventUtils", "");
   event_utils.def("GetVertex_First", &Event::GetVertex_First, "");
@@ -76,10 +77,32 @@ PYBIND11_MODULE(pyNuHepMC, m) {
                   &Vertex::GetParticleOut_HighestMomentum, "");
 
   auto fatx_utils = m.def_submodule("FATXUtils", "");
-  fatx_utils.def("MakeAccumulator", &pyMakeAccumulator, "");
-  py::class_<pyFATXAccumulator>(m, "EventSource")
+  py::class_<pyFATXAccumulator>(m, "FATXAccumulator")
       .def("process", &pyFATXAccumulator::process)
       .def("fatx", &pyFATXAccumulator::fatx)
       .def("sumweights", &pyFATXAccumulator::sumweights)
       .def("events", &pyFATXAccumulator::events);
+  fatx_utils.def("make_accumulator", &pyMakeAccumulator, "");
+
+  auto reader_utils = m.def_submodule("ReaderUtils", "");
+  auto reader_utils_gc7 = reader_utils.def_submodule("GC7", "");
+
+  py::enum_<GC7::EDistType>(reader_utils_gc7, "EDistType")
+      .value("Invalid", GC7::EDistType::kInvalid)
+      .value("MonoEnergetic", GC7::EDistType::kMonoEnergetic)
+      .value("Histogram", GC7::EDistType::kHistogram);
+
+  py::class_<GC7::EnergyDistribution>(reader_utils_gc7, "EnergyDistribution")
+      .def_readonly("dist_type", &GC7::EnergyDistribution::dist_type)
+      .def_readonly("MonoEnergeticEnergy",
+                    &GC7::EnergyDistribution::MonoEnergeticEnergy)
+      .def_readonly("energy_unit", &GC7::EnergyDistribution::energy_unit)
+      .def_readonly("rate_unit", &GC7::EnergyDistribution::rate_unit)
+      .def_readonly("bin_edges", &GC7::EnergyDistribution::bin_edges)
+      .def_readonly("bin_content", &GC7::EnergyDistribution::bin_content)
+      .def_readonly("ContentIsPerWidth",
+                    &GC7::EnergyDistribution::ContentIsPerWidth);
+
+  reader_utils_gc7.def("read_all_energy_distributions",
+                       &GC7::ReadAllEnergyDistributions);
 }

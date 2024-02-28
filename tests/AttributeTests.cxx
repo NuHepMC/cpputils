@@ -91,3 +91,31 @@ TEST_CASE("HasAttribute", "[AttributeUtils]") {
   REQUIRE(NuHepMC::HasAttribute(gri, "d"));
   REQUIRE(!NuHepMC::HasAttribute(gri, "e"));
 }
+
+TEST_CASE("HasAttributeOfType", "[AttributeUtils]") {
+  auto gri = std::make_shared<HepMC3::GenRunInfo>();
+  NuHepMC::add_attribute(gri, "a", bool(true));
+  NuHepMC::add_attribute(gri, "b", 1);
+  NuHepMC::add_attribute(gri, "c", std::vector<std::string>{"a", "b", "c"});
+  NuHepMC::add_attribute(gri, "d", 1.2345);
+  REQUIRE(NuHepMC::HasAttributeOfType<bool>(gri, "a"));
+  REQUIRE(NuHepMC::HasAttributeOfType<int>(gri, "b"));
+  REQUIRE(NuHepMC::HasAttributeOfType<std::vector<std::string>>(gri, "c"));
+  REQUIRE(NuHepMC::HasAttributeOfType<double>(gri, "d"));
+
+  REQUIRE(!NuHepMC::HasAttributeOfType<int>(gri, "a"));
+  REQUIRE(!NuHepMC::HasAttributeOfType<std::vector<std::string>>(gri, "a"));
+  REQUIRE(!NuHepMC::HasAttributeOfType<double>(gri, "a"));
+
+  REQUIRE(!NuHepMC::HasAttributeOfType<bool>(gri, "b"));
+  REQUIRE(!NuHepMC::HasAttributeOfType<std::vector<std::string>>(gri, "b"));
+  REQUIRE(!NuHepMC::HasAttributeOfType<double>(gri, "b"));
+
+  REQUIRE(!NuHepMC::HasAttributeOfType<bool>(gri, "c"));
+  REQUIRE(!NuHepMC::HasAttributeOfType<int>(gri, "c"));
+  REQUIRE(!NuHepMC::HasAttributeOfType<double>(gri, "c"));
+
+  REQUIRE(!NuHepMC::HasAttributeOfType<bool>(gri, "d"));
+  REQUIRE(!NuHepMC::HasAttributeOfType<int>(gri, "d"));
+  REQUIRE(!NuHepMC::HasAttributeOfType<std::vector<std::string>>(gri, "d"));
+}
