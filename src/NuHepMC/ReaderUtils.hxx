@@ -1,17 +1,19 @@
 #pragma once
 
-#include "HepMC3/GenEvent.h"
-#include "HepMC3/GenRunInfo.h"
-#include "HepMC3/GenVertex.h"
-
-#include "HepMC3/Attribute.h"
-
 #include "NuHepMC/AttributeUtils.hxx"
 #include "NuHepMC/Constants.hxx"
 #include "NuHepMC/Exceptions.hxx"
 #include "NuHepMC/Traits.hxx"
 #include "NuHepMC/Types.hxx"
 #include "NuHepMC/UnitsUtils.hxx"
+
+#include "HepMC3/GenEvent.h"
+#include "HepMC3/GenRunInfo.h"
+#include "HepMC3/GenVertex.h"
+
+#include "HepMC3/Attribute.h"
+
+#include "Eigen/Dense"
 
 #include <map>
 #include <memory>
@@ -90,6 +92,12 @@ NEW_NuHepMC_EXCEPT(InvalidBeamParticleNumber);
 
 std::map<int, EnergyDistribution>
 ReadAllEnergyDistributions(std::shared_ptr<HepMC3::GenRunInfo const> run_info);
+EnergyDistribution
+ReadEnergyDistribution(std::shared_ptr<HepMC3::GenRunInfo const> run_info,
+                       int pdg_number);
+bool HasEnergyDistribution(std::shared_ptr<HepMC3::GenRunInfo const> run_info,
+                           int pdg_number = 0);
+
 } // namespace GC7
 
 namespace ER3 {

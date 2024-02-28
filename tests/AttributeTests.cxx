@@ -28,6 +28,17 @@ using namespace HepMC3;
     REQUIRE(a_hmtype->value()[1] == tval[1]);                                  \
   }
 
+#define TYPE_TEST_MACRO_ARRAYXD(tname, hmtype, tval)                           \
+  TEST_CASE(tname, "[AttributeUtils]") {                                       \
+    auto gri = std::make_shared<HepMC3::GenRunInfo>();                         \
+    NuHepMC::add_attribute(gri, "a", tval);                                    \
+    REQUIRE(gri->attribute_names().size() == 1);                               \
+    REQUIRE(gri->attribute_names()[0] == "a");                                 \
+    auto a_hmtype = gri->attribute<hmtype>("a");                               \
+    REQUIRE(bool(a_hmtype));                                                   \
+    REQUIRE(a_hmtype->value()[1] == tval(1));                                  \
+  }
+
 bool mybool = true;
 TYPE_TEST_MACRO("add_attribute<bool>", BoolAttribute, mybool);
 
@@ -59,6 +70,10 @@ std::vector<double> myvectordouble = {
 };
 TYPE_TEST_MACRO_VECTOR("add_attribute<std::vector<double>>",
                        VectorDoubleAttribute, myvectordouble);
+
+Eigen::ArrayXd myearr = (Eigen::ArrayXd(5) << 1, 2, 3, 4, 5).finished();
+TYPE_TEST_MACRO_ARRAYXD("add_attribute<Eigen::ArrayXd>", VectorDoubleAttribute,
+                        myearr);
 
 std::string mystdstring = "abcdef";
 TYPE_TEST_MACRO("add_attribute<std::string>", StringAttribute, mystdstring);

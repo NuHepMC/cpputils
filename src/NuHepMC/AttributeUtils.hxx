@@ -17,8 +17,17 @@ NEW_NuHepMC_EXCEPT(CannotAddAttribute);
 template <typename T>
 void add_attribute(std::shared_ptr<HepMC3::GenRunInfo> run_info,
                    std::string const &name, T const &val) {
-  run_info->add_attribute(
-      name, std::make_shared<typename NuHepMC::attr_traits<T>::type>(val));
+  if constexpr (std::is_same_v<T, Eigen::ArrayXd>) {
+    std::vector<double> vect;
+    for (int i = 0; i < val.size(); ++i) {
+      vect.push_back(val(i));
+    }
+    run_info->add_attribute(
+        name, std::make_shared<typename NuHepMC::attr_traits<T>::type>(vect));
+  } else {
+    run_info->add_attribute(
+        name, std::make_shared<typename NuHepMC::attr_traits<T>::type>(val));
+  }
 }
 
 template <typename T>
@@ -31,8 +40,17 @@ void add_attribute(HepMC3::GenParticlePtr &part, std::string const &name,
            "NuHepMC::add_attribute was called. In HepMC3 this would result in "
            "a silent failure.";
   }
-  part->add_attribute(
-      name, std::make_shared<typename NuHepMC::attr_traits<T>::type>(val));
+  if constexpr (std::is_same_v<T, Eigen::ArrayXd>) {
+    std::vector<double> vect;
+    for (int i = 0; i < val.size(); ++i) {
+      vect.push_back(val(i));
+    }
+    part->add_attribute(
+        name, std::make_shared<typename NuHepMC::attr_traits<T>::type>(vect));
+  } else {
+    part->add_attribute(
+        name, std::make_shared<typename NuHepMC::attr_traits<T>::type>(val));
+  }
 }
 
 template <typename T>
@@ -91,8 +109,19 @@ auto CheckedAttributeValue(T const &obj, std::string const &name) {
         << NuHepMC::attr_traits<AT>::typestr;
   }
 
-  return obj->template attribute<typename NuHepMC::attr_traits<AT>::type>(name)
-      ->value();
+  auto attr_val =
+      obj->template attribute<typename NuHepMC::attr_traits<AT>::type>(name)
+          ->value();
+
+  if constexpr (std::is_same_v<AT, Eigen::ArrayXd>) {
+    Eigen::ArrayXd rtnarr(attr_val.size());
+    for (size_t i = 0; i < attr_val.size(); ++i) {
+      rtnarr(i) = attr_val[i];
+    }
+    return rtnarr;
+  } else {
+    return attr_val;
+  }
 }
 
 template <typename AT, typename T>
@@ -108,7 +137,9 @@ auto CheckedAttributeValue(T const &obj, std::string const &name,
 
   if (!obj->template attribute<typename NuHepMC::attr_traits<AT>::type>(name)) {
     throw AttributeTypeException()
-        << name << ": " << obj->attribute_as_string(name);
+        << name << ": " << obj->attribute_as_string(name)
+        << "\" could not be parsed as requested type: "
+        << NuHepMC::attr_traits<AT>::typestr;
   }
 
   return obj->template attribute<typename NuHepMC::attr_traits<AT>::type>(name)

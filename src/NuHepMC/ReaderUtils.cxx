@@ -210,10 +210,19 @@ ReadAllCitations(std::shared_ptr<HepMC3::GenRunInfo const> run_info) {
 
 namespace GC7 {
 
-std::map<int, EnergyDistribution> ReadAllMonoEnergeticDistributions(
+EnergyDistribution ReadMonoEnergeticDistribution(
+    std::shared_ptr<HepMC3::GenRunInfo const> run_info, int pdg_number) {
+  EnergyDistribution dist;
+  dist.MonoEnergeticEnergy = CheckedAttributeValue<double>(
+      run_info, std::string("NuHepMC.Beam[") + std::to_string(pdg_number) +
+                    "].MonoEnergetic.Energy");
+  return dist;
+}
+
+std::vector<int> FindAllMonoEnergeticDistributionsPDGs(
     std::shared_ptr<HepMC3::GenRunInfo const> run_info) {
 
-  std::map<int, EnergyDistribution> mono_energetic_beams;
+  std::vector<int> pdg_numbers;
 
   static std::regex const key_re(
       R"(NuHepMC\.Beam\[([0-9]+)\]\.MonoEnergetic\.Energy)");
@@ -226,23 +235,43 @@ std::map<int, EnergyDistribution> ReadAllMonoEnergeticDistributions(
       continue;
     }
 
-    int pdg_number = std::stol(matches[1]);
+    pdg_numbers.push_back(std::stol(matches[1]));
 
-    if (pdg_number == 0) {
+    if (pdg_numbers.back() == 0) {
       throw InvalidBeamParticleNumber() << "\"" << matches[1] << "\"";
     }
-
-    mono_energetic_beams[pdg_number].MonoEnergeticEnergy =
-        CheckedAttributeValue<double>(run_info, matches[0]);
   }
 
-  return mono_energetic_beams;
+  return pdg_numbers;
 }
 
-std::map<int, EnergyDistribution> ReadAllHistogramDistributions(
+EnergyDistribution
+ReadHistogramDistribution(std::shared_ptr<HepMC3::GenRunInfo const> run_info,
+                          int pdg_number) {
+
+  EnergyDistribution dist;
+
+  dist.bin_edges = CheckedAttributeValue<Eigen::ArrayXd>(
+      run_info, std::string("NuHepMC.Beam[") + std::to_string(pdg_number) +
+                    "].Histogram.BinEdges");
+
+  dist.bin_content = CheckedAttributeValue<Eigen::ArrayXd>(
+      run_info, std::string("NuHepMC.Beam[") + std::to_string(pdg_number) +
+                    "].Histogram.BinContent");
+
+  dist.ContentIsPerWidth = CheckedAttributeValue<bool>(
+      run_info,
+      std::string("NuHepMC.Beam[") + std::to_string(pdg_number) +
+          "].Histogram.ContentIsPerWidth",
+      false);
+
+  return dist;
+}
+
+std::vector<int> FindAllHistogramDistributionsPDGs(
     std::shared_ptr<HepMC3::GenRunInfo const> run_info) {
 
-  std::map<int, EnergyDistribution> hist_energetic_beams;
+  std::vector<int> pdg_numbers;
 
   static std::regex const key_re(
       R"(NuHepMC\.Beam\[([0-9]+)\]\.Histogram\.BinEdges)");
@@ -255,30 +284,38 @@ std::map<int, EnergyDistribution> ReadAllHistogramDistributions(
       continue;
     }
 
-    int pdg_number = std::stol(matches[1]);
+    pdg_numbers.push_back(std::stol(matches[1]));
 
-    if (pdg_number == 0) {
+    if (pdg_numbers.back() == 0) {
       throw InvalidBeamParticleNumber() << "\"" << matches[1] << "\"";
     }
-
-    hist_energetic_beams[pdg_number].bin_edges =
-        CheckedAttributeValue<std::vector<double>>(run_info, matches[0]);
-
-    hist_energetic_beams[pdg_number].bin_content =
-        CheckedAttributeValue<std::vector<double>>(
-            run_info, std::string("NuHepMC.Beam[") +
-                          std::to_string(pdg_number) +
-                          "].Histogram.BinContent");
-
-    hist_energetic_beams[pdg_number].ContentIsPerWidth =
-        CheckedAttributeValue<bool>(run_info,
-                                    std::string("NuHepMC.Beam[") +
-                                        std::to_string(pdg_number) +
-                                        "].Histogram.ContentIsPerWidth",
-                                    false);
   }
 
-  return hist_energetic_beams;
+  return pdg_numbers;
+}
+
+EnergyDistribution BuildEnergyDistributionTemplate(
+    std::shared_ptr<HepMC3::GenRunInfo const> run_info) {
+  EnergyDistribution dist;
+
+  dist.energy_unit =
+      CheckedAttributeValue<std::string>(run_info, "NuHepMC.Beam.EnergyUnit");
+  dist.rate_unit = CheckedAttributeValue<std::string>(
+      run_info, "NuHepMC.Beam.RateUnit", "Arbitrary");
+
+  std::string dist_type_attr =
+      CheckedAttributeValue<std::string>(run_info, "NuHepMC.Beam.Type");
+
+  if (dist_type_attr == "MonoEnergetic") {
+    dist.dist_type = EDistType::kMonoEnergetic;
+  } else if (dist_type_attr == "Histogram") {
+    dist.dist_type = EDistType::kHistogram;
+  } else {
+    throw InvalidBeamEnergyType()
+        << "NuHepMC.Beam.Type = \"" << dist_type_attr << "\" is invalid.";
+  }
+
+  return dist;
 }
 
 std::map<int, EnergyDistribution>
@@ -286,35 +323,71 @@ ReadAllEnergyDistributions(std::shared_ptr<HepMC3::GenRunInfo const> run_info) {
 
   std::map<int, EnergyDistribution> energy_distributions;
 
-  std::string energy_unit =
-      CheckedAttributeValue<std::string>(run_info, "NuHepMC.Beam.EnergyUnit");
-  std::string rate_unit = CheckedAttributeValue<std::string>(
-      run_info, "NuHepMC.Beam.RateUnit", "Arbitrary");
+  EnergyDistribution template_dist = BuildEnergyDistributionTemplate(run_info);
 
-  std::string beam_type_attr =
-      CheckedAttributeValue<std::string>(run_info, "NuHepMC.Beam.Type");
-
-  EDistType beam_type = EDistType::kInvalid;
-
-  if (beam_type_attr == "MonoEnergetic") {
-    beam_type = EDistType::kMonoEnergetic;
-    energy_distributions = ReadAllMonoEnergeticDistributions(run_info);
-  } else if (beam_type_attr == "Histogram") {
-    beam_type = EDistType::kHistogram;
-    energy_distributions = ReadAllHistogramDistributions(run_info);
-  } else {
-    throw InvalidBeamEnergyType()
-        << "NuHepMC.Beam.Type = \"" << beam_type_attr << "\" is invalid.";
+  switch (template_dist.dist_type) {
+  case EDistType::kMonoEnergetic: {
+    for (auto pdg : FindAllMonoEnergeticDistributionsPDGs(run_info)) {
+      energy_distributions[pdg] = ReadMonoEnergeticDistribution(run_info, pdg);
+      energy_distributions[pdg].dist_type = template_dist.dist_type;
+      energy_distributions[pdg].energy_unit = template_dist.energy_unit;
+      energy_distributions[pdg].rate_unit = template_dist.rate_unit;
+    }
+    break;
   }
-
-  for (auto &ed : energy_distributions) {
-    ed.second.dist_type = beam_type;
-    ed.second.energy_unit = energy_unit;
-    ed.second.rate_unit = rate_unit;
+  case EDistType::kHistogram: {
+    for (auto pdg : FindAllHistogramDistributionsPDGs(run_info)) {
+      energy_distributions[pdg] = ReadHistogramDistribution(run_info, pdg);
+      energy_distributions[pdg].dist_type = template_dist.dist_type;
+      energy_distributions[pdg].energy_unit = template_dist.energy_unit;
+      energy_distributions[pdg].rate_unit = template_dist.rate_unit;
+    }
+    break;
+  }
+  case EDistType::kInvalid:
+  default: {
+    throw InvalidBeamEnergyType();
+  }
   }
 
   return energy_distributions;
 }
+
+EnergyDistribution
+ReadEnergyDistribution(std::shared_ptr<HepMC3::GenRunInfo const> run_info,
+                       int pdg_number) {
+
+  EnergyDistribution template_dist = BuildEnergyDistributionTemplate(run_info);
+  EnergyDistribution dist = ReadHistogramDistribution(run_info, pdg_number);
+  dist.dist_type = template_dist.dist_type;
+  dist.energy_unit = template_dist.energy_unit;
+  dist.rate_unit = template_dist.rate_unit;
+
+  return dist;
+}
+
+bool HasEnergyDistribution(std::shared_ptr<HepMC3::GenRunInfo const> run_info,
+                           int pdg_number) {
+  if (!HasAttributeOfType<std::string>(run_info, "NuHepMC.Beam.EnergyUnit") ||
+      !HasAttributeOfType<std::string>(run_info, "NuHepMC.Beam.Type")) {
+    return false;
+  }
+
+  auto monoed = FindAllMonoEnergeticDistributionsPDGs(run_info);
+  auto histed = FindAllHistogramDistributionsPDGs(run_info);
+
+  if (pdg_number == 0) {
+    return monoed.size() + histed.size();
+  }
+
+  if ((std::find(monoed.begin(), monoed.end(), pdg_number) == monoed.end()) &&
+      (std::find(histed.begin(), histed.end(), pdg_number) == histed.end())) {
+    return false;
+  }
+
+  return true;
+}
+
 } // namespace GC7
 
 namespace ER3 {

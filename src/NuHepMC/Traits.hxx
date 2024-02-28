@@ -2,6 +2,8 @@
 
 #include "HepMC3/Attribute.h"
 
+#include "Eigen/Dense"
+
 namespace NuHepMC {
 
 // Lazy way of choosing the right attribute type via TMP
@@ -43,6 +45,11 @@ template <> struct attr_traits<double> {
 };
 
 template <> struct attr_traits<std::vector<double>> {
+  typedef HepMC3::VectorDoubleAttribute type;
+  constexpr static char const typestr[] = "HepMC3::VectorDoubleAttribute";
+};
+
+template <> struct attr_traits<Eigen::ArrayXd> {
   typedef HepMC3::VectorDoubleAttribute type;
   constexpr static char const typestr[] = "HepMC3::VectorDoubleAttribute";
 };

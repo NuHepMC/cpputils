@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Eigen/Dense"
+
 #include <map>
 #include <string>
 
@@ -27,34 +29,35 @@ struct EnergyDistribution {
   std::string energy_unit;
   std::string rate_unit;
 
-  std::vector<double> bin_edges;
-  std::vector<double> bin_content;
+  Eigen::ArrayXd bin_edges;
+  Eigen::ArrayXd bin_content;
 
   bool ContentIsPerWidth;
 
-  std::vector<double> GetContentPerWidth() {
+  Eigen::ArrayXd GetContentPerWidth() {
     if (!ContentIsPerWidth) {
-      std::vector<double> contentperwidth;
-      for (size_t bin_it = 0; bin_it < bin_content.size(); ++bin_it) {
-        contentperwidth.push_back(bin_content[bin_it] /
-                                  (bin_edges[bin_it + 1] - bin_edges[bin_it]));
-      }
-      return contentperwidth;
+      return bin_content / (bin_edges.bottomRows(bin_edges.rows() - 1) -
+                            bin_edges.topRows(bin_edges.rows() - 1));
     }
     return bin_content;
   }
 
-  std::vector<double> GetContentCount() {
+  Eigen::ArrayXd GetContentCount() {
     if (ContentIsPerWidth) {
-      std::vector<double> contentcount;
-      for (size_t bin_it = 0; bin_it < bin_content.size(); ++bin_it) {
-        contentcount.push_back(bin_content[bin_it] *
-                               (bin_edges[bin_it + 1] - bin_edges[bin_it]));
-      }
-      return contentcount;
+      return bin_content * (bin_edges.bottomRows(bin_edges.rows() - 1) -
+                            bin_edges.topRows(bin_edges.rows() - 1));
     }
     return bin_content;
   }
+
+  Eigen::ArrayXd GetBinCenters() {
+    return (bin_edges.bottomRows(bin_edges.rows() - 1) +
+            bin_edges.topRows(bin_edges.rows() - 1)) /
+           2.0;
+  }
+
+  bool IsInGeV() { return energy_unit == "GEV"; }
+  bool IsInMeV() { return energy_unit == "MEV"; }
 };
 
 } // namespace GC7

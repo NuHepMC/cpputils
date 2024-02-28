@@ -105,4 +105,7 @@ PYBIND11_MODULE(pyNuHepMC, m) {
 
   reader_utils_gc7.def("read_all_energy_distributions",
                        &GC7::ReadAllEnergyDistributions);
+  reader_utils_gc7.def("read_energy_distribution",
+                       &GC7::ReadEnergyDistribution);
+  reader_utils_gc7.def("has_energy_distribution", &GC7::HasEnergyDistribution);
 }

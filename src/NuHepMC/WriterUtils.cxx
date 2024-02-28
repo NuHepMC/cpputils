@@ -193,8 +193,8 @@ void SetMonoEnergeticBeamType(std::shared_ptr<HepMC3::GenRunInfo> run_info) {
 
 void WriteBeamEnergyHistogram(std::shared_ptr<HepMC3::GenRunInfo> run_info,
                               int BeamParticleNumber,
-                              std::vector<double> const &bin_edges,
-                              std::vector<double> const &bin_content,
+                              Eigen::ArrayXd const &bin_edges,
+                              Eigen::ArrayXd const &bin_content,
                               bool ContentIsPerWidth) {
 
   if (!bin_edges.size() || !((bin_content.size() + 1) == bin_edges.size())) {
