@@ -217,6 +217,25 @@ void WriteBeamEnergyHistogram(std::shared_ptr<HepMC3::GenRunInfo> run_info,
                     "].Histogram.ContentIsPerWidth",
                 ContentIsPerWidth);
 }
+
+void WriteBeamEnergyHistogram(std::shared_ptr<HepMC3::GenRunInfo> run_info,
+                              int BeamParticleNumber,
+                              std::vector<double> const &bin_edges,
+                              std::vector<double> const &bin_content,
+                              bool ContentIsPerWidth) {
+
+  Eigen::ArrayXd bin_edges_eigen(bin_edges.size());
+  for (size_t i = 0; i < bin_edges.size(); ++i) {
+    bin_edges_eigen(i) = bin_edges[i];
+  }
+  Eigen::ArrayXd bin_content_eigen(bin_content.size());
+  for (size_t i = 0; i < bin_content.size(); ++i) {
+    bin_content_eigen(i) = bin_content[i];
+  }
+  WriteBeamEnergyHistogram(run_info, BeamParticleNumber, bin_edges_eigen,
+                           bin_content_eigen, ContentIsPerWidth);
+}
+
 void WriteBeamEnergyMonoenergetic(std::shared_ptr<HepMC3::GenRunInfo> run_info,
                                   int BeamParticleNumber,
                                   double const &energy) {

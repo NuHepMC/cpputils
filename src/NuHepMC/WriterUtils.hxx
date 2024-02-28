@@ -107,6 +107,12 @@ void WriteBeamEnergyHistogram(std::shared_ptr<HepMC3::GenRunInfo> run_info,
                               Eigen::ArrayXd const &bin_content,
                               bool ContentIsPerWidth = false);
 
+void WriteBeamEnergyHistogram(std::shared_ptr<HepMC3::GenRunInfo> run_info,
+                              int BeamParticleNumber,
+                              std::vector<double> const &bin_edges,
+                              std::vector<double> const &bin_content,
+                              bool ContentIsPerWidth = false);
+
 void WriteBeamEnergyMonoenergetic(std::shared_ptr<HepMC3::GenRunInfo> run_info,
                                   int BeamParticleNumber, double const &energy);
 

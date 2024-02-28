@@ -4,6 +4,7 @@
 #include "NuHepMC/ReaderUtils.hxx"
 #include "NuHepMC/Types.hxx"
 
+#include "pybind11/eigen.h"
 #include "pybind11/pybind11.h"
 #include "pybind11/stl.h"
 #include "pybind11/stl_bind.h"
@@ -100,7 +101,13 @@ PYBIND11_MODULE(pyNuHepMC, m) {
       .def_readonly("rate_unit", &GC7::EnergyDistribution::rate_unit)
       .def_readonly("bin_edges", &GC7::EnergyDistribution::bin_edges)
       .def_readonly("bin_content", &GC7::EnergyDistribution::bin_content)
-      .def_readonly("ContentIsPerWidth",
+      .def("get_content_per_width",
+           &GC7::EnergyDistribution::GetContentPerWidth)
+      .def("get_content_count", &GC7::EnergyDistribution::GetContentCount)
+      .def("get_bin_centers", &GC7::EnergyDistribution::GetBinCenters)
+      .def("is_in_GeV", &GC7::EnergyDistribution::IsInGeV)
+      .def("is_in_MeV", &GC7::EnergyDistribution::IsInMeV)
+      .def_readonly("content_is_per_width",
                     &GC7::EnergyDistribution::ContentIsPerWidth);
 
   reader_utils_gc7.def("read_all_energy_distributions",
