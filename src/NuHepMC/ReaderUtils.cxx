@@ -182,7 +182,7 @@ ReadAllCitations(std::shared_ptr<HepMC3::GenRunInfo const> run_info) {
   CitationData all_citations;
 
   static std::regex const key_re(
-      R"(NuHepMC\.Citations\.([0-9a-zA-Z])\.([0-9a-zA-Z]))");
+      R"(NuHepMC\.Citations\.([^\.])\.([^\.\s]))");
 
   for (auto attn : run_info->attribute_names()) {
 
@@ -195,7 +195,7 @@ ReadAllCitations(std::shared_ptr<HepMC3::GenRunInfo const> run_info) {
     if (!matches.ready() || (matches.size() != 3)) {
       std::cerr << "[ERROR]: When parsing Citation metadata key: " << attn
                 << " expected pattern to match "
-                   "NuHepMC\\.Citations\\.([0-9a-zA-Z])\\.([0-9a-zA-Z]) with 2 "
+                   "NuHepMC\\.Citations\\.([^\\.])\\.([^\\.\\s]) with 2 "
                    "sub_matches, but found: "
                 << (matches.size() - 1) << std::endl;
     }
