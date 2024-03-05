@@ -174,6 +174,7 @@ if(NuHepMC_NuHepMC_CPPUtils_BUILTIN_HEPMC3)
         "HEPMC3_BUILD_STATIC_LIBS OFF"
   )
 else() #using a prebuilt HepMC3
+  message(STATUS "Using prebuilt HepMC3")
   find_package(HepMC3 ${NuHepMC_HEPMC3_MIN_VERSION} REQUIRED)
   if(TARGET HepMC3::rootIO)
     find_package(ROOT REQUIRED)
