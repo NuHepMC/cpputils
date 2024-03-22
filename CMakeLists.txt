@@ -38,7 +38,8 @@ SET(NuHepMC_VERSION_PATCH  0)
 
 set(CMAKE_CXX_STANDARD 17)
 
-option(NuHepMC_CPPUtils_BUILTIN_HEPMC3 "Whether to use build our own version of HepMC3" OFF)
+option(NuHepMC_CPPUtils_BUILTIN_HEPMC3 "Whether to build our own version of HepMC3" OFF)
+option(NuHepMC_CPPUtils_PYTHON_ENABLED "Whether to build python bindings" OFF)
 option(NuHepMC_CPPUtils_ENABLE_TESTS "Whether to enable test suite" OFF)
 option(NuHepMC_CPPUtils_ENABLE_SANITIZERS_CLI "Whether to enable ASAN LSAN and UBSAN" OFF)
 option(NuHepMC_CPPUtils_ENABLE_GCOV_CLI "Whether to enable GCOV" OFF)
@@ -88,22 +89,24 @@ ENDIF("${isSystemDir}" STREQUAL "-1")
 
 ######################### Dependencies
 
+add_library(nuhepmc_private_compile_options INTERFACE)
+target_compile_options(nuhepmc_private_compile_options INTERFACE -Wall -Werror -Wextra)
+
+if(NuHepMC_CPPUtils_ENABLE_SANITIZERS)
+  target_compile_options(nuhepmc_private_compile_options INTERFACE -fno-omit-frame-pointer -fsanitize=address -fsanitize=leak -fsanitize=undefined)
+  target_link_options(nuhepmc_private_compile_options INTERFACE -fsanitize=address -fsanitize=leak -fsanitize=undefined)
+endif()
+
+if(NuHepMC_CPPUtils_ENABLE_GCOV)
+  target_compile_options(nuhepmc_private_compile_options INTERFACE -fprofile-arcs -ftest-coverage)
+  target_link_options(nuhepmc_private_compile_options INTERFACE -fprofile-arcs -ftest-coverage)
+endif()
+
 add_library(nuhepmc_options INTERFACE)
 target_include_directories(nuhepmc_options INTERFACE 
   $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/src>
   $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/include> 
   $<INSTALL_INTERFACE:include>)
-target_compile_options(nuhepmc_options INTERFACE -Wall -Werror -Wextra)
-
-if(NuHepMC_CPPUtils_ENABLE_SANITIZERS)
-  target_compile_options(nuhepmc_options INTERFACE -fno-omit-frame-pointer -fsanitize=address -fsanitize=leak -fsanitize=undefined)
-  target_link_options(nuhepmc_options INTERFACE -fsanitize=address -fsanitize=leak -fsanitize=undefined)
-endif()
-
-if(NuHepMC_CPPUtils_ENABLE_GCOV)
-  target_compile_options(nuhepmc_options INTERFACE -fprofile-arcs -ftest-coverage)
-  target_link_options(nuhepmc_options INTERFACE -fprofile-arcs -ftest-coverage)
-endif()
 
 set_target_properties(nuhepmc_options PROPERTIES EXPORT_NAME Options)
 install(TARGETS nuhepmc_options
@@ -141,10 +144,6 @@ CPMFindPackage(
     GIT_TAG "v2.9.2"
 )
 
-# PYTHON PATHS
-set(NuHepMC_CPPUtils_PYSITEARCH "${Python3_VERSION_MAJOR}${Python3_VERSION_MINOR}")
-set(NuHepMC_CPPUtils_PYTHONPATH "python/${Python3_VERSION_MAJOR}.${Python3_VERSION_MINOR}")
-
 if(NuHepMC_CPPUtils_BUILTIN_HEPMC3)
   find_package(Protobuf 2.4)
 
@@ -164,7 +163,7 @@ if(NuHepMC_CPPUtils_BUILTIN_HEPMC3)
         "HEPMC3_ENABLE_SEARCH OFF"
         "HEPMC3_ENABLE_ROOTIO OFF"
         "HEPMC3_ENABLE_PROTOBUFIO ${NuHepMC_CPPUtils_BUILTIN_HEPMC3_ENABLE_PROTOBUFIO}"
-        "HEPMC3_ENABLE_PYTHON ON"
+        "HEPMC3_ENABLE_PYTHON ${NuHepMC_CPPUtils_PYTHON_ENABLED}"
         "HEPMC3_Python_SITEARCH${Python_VERSION_MAJOR}${Python_VERSION_MINOR} ${CMAKE_INSTALL_PREFIX}/python/${Python_VERSION_MAJOR}.${Python_VERSION_MINOR}"
         "HEPMC3_BUILD_DOCS OFF"
         "HEPMC3_BUILD_EXAMPLES OFF"
@@ -260,7 +259,14 @@ install(FILES
   examples/ana_skeleton.cxx DESTINATION share/NuHepMC/examples)
 
 add_subdirectory(src/NuHepMC)
-add_subdirectory(python)
+
+if(NuHepMC_CPPUtils_PYTHON_ENABLED)
+  # PYTHON PATHS
+  set(NuHepMC_CPPUtils_PYSITEARCH "${Python3_VERSION_MAJOR}${Python3_VERSION_MINOR}")
+  set(NuHepMC_CPPUtils_PYTHONPATH "python/${Python3_VERSION_MAJOR}.${Python3_VERSION_MINOR}")
+
+  add_subdirectory(python)
+endif()
 
 install(EXPORT nuhepmc_cpputils-targets
   FILE NuHepMC_CPPUtilsTargets.cmake
