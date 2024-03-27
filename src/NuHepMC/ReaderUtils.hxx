@@ -13,6 +13,8 @@
 
 #include "HepMC3/Attribute.h"
 
+#include "Eigen/Dense"
+
 #include <map>
 #include <memory>
 #include <set>

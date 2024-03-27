@@ -1,5 +1,7 @@
 #pragma once
 
+#include "NuHepMC/HepMC3Features.hxx"
+
 #include "NuHepMC/Exceptions.hxx"
 
 #include "HepMC3/GenRunInfo.h"

@@ -150,7 +150,6 @@ if(NuHepMC_CPPUtils_BUILTIN_HEPMC3)
   set(NuHepMC_CPPUtils_BUILTIN_HEPMC3_ENABLE_PROTOBUFIO OFF)
   if(Protobuf_FOUND)
     set(NuHepMC_CPPUtils_BUILTIN_HEPMC3_ENABLE_PROTOBUFIO ON)
-    SET(NuHepMC_HEPMC3_ProtobufIO_SUPPORT "#define HEPMC3_PROTOBUFIO 1")
   endif()
 
   CPMAddPackage(
@@ -195,6 +194,7 @@ if(TARGET HepMC3::HepMC3)
     message(STATUS "PROTOBUF_LIBRARIES: ${PROTOBUF_LIBRARIES}")
     message(STATUS "PROTOBUF_FOUND: ${Protobuf_FOUND}")
     SET(NuHepMC_Protobuf_FOUND TRUE)
+    SET(NuHepMC_HEPMC3_ProtobufIO_SUPPORT "#define HEPMC3_PROTOBUFIO 1")
   endif()
 
   if(TARGET HepMC3::rootIO)
