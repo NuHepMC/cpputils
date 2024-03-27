@@ -1,10 +1,10 @@
 #pragma once
 
-#include "HepMC3/GenRunInfo.h"
-
 #include "NuHepMC/AttributeUtils.hxx"
 #include "NuHepMC/Constants.hxx"
 #include "NuHepMC/Types.hxx"
+
+#include "HepMC3/GenRunInfo.h"
 
 #include "Eigen/Dense"
 

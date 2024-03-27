@@ -1,8 +1,9 @@
 #pragma once
 
+#include "NuHepMC/Exceptions.hxx"
+
 #include "HepMC3/GenRunInfo.h"
 #include "HepMC3/Writer.h"
-#include "NuHepMC/Exceptions.hxx"
 
 #include <string>
 #include <utility>

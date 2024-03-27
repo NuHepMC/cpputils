@@ -1,11 +1,11 @@
 #pragma once
 
+#include "NuHepMC/Exceptions.hxx"
+#include "NuHepMC/Traits.hxx"
+
 #include "HepMC3/GenEvent.h"
 #include "HepMC3/GenParticle.h"
 #include "HepMC3/GenRunInfo.h"
-
-#include "NuHepMC/Exceptions.hxx"
-#include "NuHepMC/Traits.hxx"
 
 #include <memory>
 #include <string>
