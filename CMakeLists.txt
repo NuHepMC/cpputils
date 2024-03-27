@@ -194,7 +194,7 @@ if(TARGET HepMC3::HepMC3)
     message(STATUS "PROTOBUF_LIBRARIES: ${PROTOBUF_LIBRARIES}")
     message(STATUS "PROTOBUF_FOUND: ${Protobuf_FOUND}")
     SET(NuHepMC_Protobuf_FOUND TRUE)
-    SET(NuHepMC_HEPMC3_ProtobufIO_SUPPORT "#define HEPMC3_PROTOBUFIO 1")
+    SET(NuHepMC_HEPMC3_ProtobufIO_SUPPORT "#define HEPMC3_ProtobufIO_SUPPORT 1")
   endif()
 
   if(TARGET HepMC3::rootIO)
