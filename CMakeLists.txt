@@ -43,9 +43,11 @@ option(NuHepMC_BUILD_STATIC_LIBS "Whether to build static versions of the librar
 
 #Changes default install path to be a subdirectory of the build dir.
 #Can set build dir at configure time with -DCMAKE_INSTALL_PREFIX=/install/path
-if (CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
-    set (CMAKE_INSTALL_PREFIX "${CMAKE_BINARY_DIR}/${CMAKE_SYSTEM_NAME}/"
-           CACHE PATH "default install path" FORCE)
+if(NOT PROJECT_IS_TOP_LEVEL)
+    if (CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
+        set (CMAKE_INSTALL_PREFIX "${CMAKE_BINARY_DIR}/${CMAKE_SYSTEM_NAME}/"
+               CACHE PATH "default install path" FORCE)
+    endif()
 endif()
 
 if(CMAKE_BUILD_TYPE STREQUAL "")
