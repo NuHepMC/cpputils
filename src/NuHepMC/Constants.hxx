@@ -12,6 +12,7 @@ const int NucleonSeparation = 21;
 }
 
 namespace VertexStatus {
+const int AnyStatus = 0;
 const int Primary = VR1::Primary;
 const int FSISummary = VR1::FSISummary;
 const int NucleonSeparation = VC1::NucleonSeparation;
@@ -34,6 +35,7 @@ const int NuclearRemnant = 2009900000;
 }
 
 namespace ParticleStatus {
+const int AnyStatus = 0;
 const int UndecayedPhysical = PR1::UndecayedPhysical;
 const int DecayedPhysical = PR1::DecayedPhysical;
 const int DocumentationLine = PR1::DocumentationLine;

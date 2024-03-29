@@ -13,7 +13,7 @@ namespace Event {
 HepMC3::ConstGenVertexPtr GetVertex_First(HepMC3::GenEvent const &evt,
                                           int vtx_status) {
   for (auto const &vtx : evt.vertices()) {
-    if (vtx->status() == vtx_status) {
+    if (!vtx_status || (vtx->status() == vtx_status)) {
       return vtx;
     }
   }
@@ -44,7 +44,7 @@ GetParticles_All(HepMC3::GenEvent const &evt, int part_status,
   std::vector<HepMC3::ConstGenParticlePtr> parts;
 
   for (auto const &part : evt.particles()) {
-    if (part->status() == part_status) {
+    if (!part_status || (part->status() == part_status)) {
       if (PDGs.size()) {
         if (std::find(PDGs.begin(), PDGs.end(), part->pid()) != PDGs.end()) {
           parts.push_back(part);
@@ -67,7 +67,7 @@ HepMC3::ConstGenParticlePtr GetParticle_First(HepMC3::GenEvent const &evt,
                                               int part_status,
                                               std::vector<int> PDGs) {
   for (auto const &part : evt.particles()) {
-    if (part->status() == part_status) {
+    if (!part_status || (part->status() == part_status)) {
       if (PDGs.size()) {
         if (std::find(PDGs.begin(), PDGs.end(), part->pid()) != PDGs.end()) {
           return part;
@@ -126,7 +126,7 @@ GetParticlesIn_All(HepMC3::ConstGenVertexPtr &evt, int part_status,
   std::vector<HepMC3::ConstGenParticlePtr> parts;
 
   for (auto const &part : evt->particles_in()) {
-    if (part->status() == part_status) {
+    if (!part_status || (part->status() == part_status)) {
       if (PDGs.size()) {
         if (std::find(PDGs.begin(), PDGs.end(), part->pid()) != PDGs.end()) {
           parts.push_back(part);
@@ -164,7 +164,7 @@ GetParticlesOut_All(HepMC3::ConstGenVertexPtr &vtx, int part_status,
   std::vector<HepMC3::ConstGenParticlePtr> parts;
 
   for (auto const &part : vtx->particles_out()) {
-    if (part->status() == part_status) {
+    if (!part_status || (part->status() == part_status)) {
       if (PDGs.size()) {
         if (std::find(PDGs.begin(), PDGs.end(), part->pid()) != PDGs.end()) {
           parts.push_back(part);
