@@ -90,7 +90,10 @@ ENDIF("${isSystemDir}" STREQUAL "-1")
 ######################### Dependencies
 
 add_library(nuhepmc_private_compile_options INTERFACE)
-target_compile_options(nuhepmc_private_compile_options INTERFACE -Wall -Werror -Wextra -Wno-class-memaccess)
+target_compile_options(nuhepmc_private_compile_options INTERFACE -Wall -Werror -Wextra)
+if(NOT CMAKE_CXX_COMPILER_ID MATCHES "^(Apple)?Clang$")
+    target_compile_options(nuhepmc_private_compile_options INTERFACE -Wno-class-memaccess)
+endif()
 
 if(NuHepMC_CPPUtils_ENABLE_SANITIZERS)
   target_compile_options(nuhepmc_private_compile_options INTERFACE -fno-omit-frame-pointer -fsanitize=address -fsanitize=leak -fsanitize=undefined)
