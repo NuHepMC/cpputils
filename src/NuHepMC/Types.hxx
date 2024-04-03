@@ -34,20 +34,32 @@ struct EnergyDistribution {
 
   bool ContentIsPerWidth;
 
-  Eigen::ArrayXd GetContentPerWidth() {
-    if (!ContentIsPerWidth) {
-      return bin_content / (bin_edges.bottomRows(bin_edges.rows() - 1) -
-                            bin_edges.topRows(bin_edges.rows() - 1));
+  Eigen::ArrayXd GetContentPerWidth(bool shape_only = false) {
+    double num_probes = 1;
+    if (shape_only) {
+      num_probes = 1.0 / GetContentCount(false).sum();
     }
-    return bin_content;
+
+    if (!ContentIsPerWidth) {
+      return (bin_content / (bin_edges.bottomRows(bin_edges.rows() - 1) -
+                             bin_edges.topRows(bin_edges.rows() - 1))) /
+             num_probes;
+    }
+    return bin_content / num_probes;
   }
 
-  Eigen::ArrayXd GetContentCount() {
-    if (ContentIsPerWidth) {
-      return bin_content * (bin_edges.bottomRows(bin_edges.rows() - 1) -
-                            bin_edges.topRows(bin_edges.rows() - 1));
+  Eigen::ArrayXd GetContentCount(bool shape_only = false) {
+    double num_probes = 1;
+    if (shape_only) {
+      num_probes = 1.0 / GetContentCount(false).sum();
     }
-    return bin_content;
+
+    if (ContentIsPerWidth) {
+      return (bin_content * (bin_edges.bottomRows(bin_edges.rows() - 1) -
+                             bin_edges.topRows(bin_edges.rows() - 1))) /
+             num_probes;
+    }
+    return bin_content / num_probes;
   }
 
   Eigen::ArrayXd GetBinCenters() {
