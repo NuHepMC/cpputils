@@ -62,6 +62,44 @@ struct EnergyDistribution {
     return bin_content / num_probes;
   }
 
+  NEW_NuHepMC_EXCEPT(UnconvertibleEnergyUnit);
+
+  void set_units(std::string to_unit) {
+    if (to_unit == energy_unit) {
+      return;
+    }
+
+    double to_fact = 1;
+
+    if (to_unit == "MEV") {
+      to_fact /= 1;
+    } else if (to_unit == "GEV") {
+      to_fact /= 1E3;
+    } else {
+      throw UnconvertibleEnergyUnit()
+          << "Cannot call EnergyDistribution::set_units with " << to_unit;
+    }
+
+    double from_fact = 1;
+    if (energy_unit == "MEV") {
+      from_fact /= 1;
+    } else if (energy_unit == "GEV") {
+      from_fact /= 1E3;
+    } else {
+      throw UnconvertibleEnergyUnit()
+          << "Cannot call EnergyDistribution::set_units on EnergyDistribution "
+             "with energy_unit = "
+          << energy_unit;
+    }
+
+    double sf = to_fact / from_fact;
+
+    energy_unit = to_unit;
+
+    bin_edges *= sf;
+    bin_content *= sf;
+  }
+
   Eigen::ArrayXd GetBinCenters() {
     return (bin_edges.bottomRows(bin_edges.rows() - 1) +
             bin_edges.topRows(bin_edges.rows() - 1)) /

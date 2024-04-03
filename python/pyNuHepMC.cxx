@@ -109,6 +109,7 @@ PYBIND11_MODULE(pyNuHepMC, m) {
       .def("get_bin_centers", &GC7::EnergyDistribution::GetBinCenters)
       .def("is_in_GeV", &GC7::EnergyDistribution::IsInGeV)
       .def("is_in_MeV", &GC7::EnergyDistribution::IsInMeV)
+      .def("set_units", &GC7::EnergyDistribution::set_units)
       .def_readonly("content_is_per_width",
                     &GC7::EnergyDistribution::ContentIsPerWidth);
 
