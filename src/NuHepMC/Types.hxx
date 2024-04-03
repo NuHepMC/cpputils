@@ -96,8 +96,11 @@ struct EnergyDistribution {
 
     energy_unit = to_unit;
 
+    bin_content = sf * GetContentCount();
+    
     bin_edges *= sf;
-    bin_content *= sf;
+
+    ContentIsPerWidth = false;
   }
 
   Eigen::ArrayXd GetBinCenters() {
