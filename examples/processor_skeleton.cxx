@@ -13,6 +13,13 @@
 #include "HepMC3/GenParticle.h"
 #include "HepMC3/GenVertex.h"
 
+auto GetPartFromId(HepMC3::GenEvent &evt, int id){
+  for(auto &part : evt.particles()){
+    if(part->id() == id){ return part; }
+  }
+  return nullptr;
+}
+
 int main(int argc, char const *argv[]) {
 
   auto rdr = HepMC3::deduce_reader(argv[1]);
@@ -129,7 +136,7 @@ int main(int argc, char const *argv[]) {
     qvec.setE(0);
 
     // get a non-const handle to the FSLep
-    auto fslep_preFSI = evt.particles()[fslep->id()];
+    auto fslep_preFSI = GetPartFromId(evt,fslep->id());
     fslep_preFSI->set_status(
         MyFSIVertexStatus); // set a status code corresponding to underwent your
                             // FSI
