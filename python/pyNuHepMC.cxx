@@ -101,17 +101,19 @@ PYBIND11_MODULE(pyNuHepMC, m) {
       .def_readonly("rate_unit", &GC7::EnergyDistribution::rate_unit)
       .def_readonly("bin_edges", &GC7::EnergyDistribution::bin_edges)
       .def_readonly("bin_content", &GC7::EnergyDistribution::bin_content)
-      .def("get_content_per_width",
-           &GC7::EnergyDistribution::GetContentPerWidth,
-           py::arg("shape_only") = false)
-      .def("get_content_count", &GC7::EnergyDistribution::GetContentCount,
-           py::arg("shape_only") = false)
-      .def("get_bin_centers", &GC7::EnergyDistribution::GetBinCenters)
-      .def("is_in_GeV", &GC7::EnergyDistribution::IsInGeV)
-      .def("is_in_MeV", &GC7::EnergyDistribution::IsInMeV)
-      .def("set_units", &GC7::EnergyDistribution::set_units)
       .def_readonly("content_is_per_width",
-                    &GC7::EnergyDistribution::ContentIsPerWidth);
+                    &GC7::EnergyDistribution::ContentIsPerWidth)
+      .def("get_bin_widths", &GC7::EnergyDistribution::get_bin_widths)
+      .def("get_integral", &GC7::EnergyDistribution::get_integral)
+      .def("get_flux_density", &GC7::EnergyDistribution::get_flux_density)
+      .def("get_flux_shape_density",
+           &GC7::EnergyDistribution::get_flux_shape_density)
+      .def("get_flux_rate", &GC7::EnergyDistribution::get_flux_rate)
+      .def("get_flux_shape_rate", &GC7::EnergyDistribution::get_flux_shape_rate)
+      .def("set_units", &GC7::EnergyDistribution::set_units)
+      .def("get_bin_centers", &GC7::EnergyDistribution::get_bin_centers)
+      .def("is_in_GeV", &GC7::EnergyDistribution::is_in_GeV)
+      .def("is_in_MeV", &GC7::EnergyDistribution::is_in_MeV);
 
   reader_utils_gc7.def("read_all_energy_distributions",
                        &GC7::ReadAllEnergyDistributions);

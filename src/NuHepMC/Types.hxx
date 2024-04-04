@@ -34,32 +34,46 @@ struct EnergyDistribution {
 
   bool ContentIsPerWidth;
 
-  Eigen::ArrayXd GetContentPerWidth(bool shape_only = false) {
-    double num_probes = 1;
-    if (shape_only) {
-      num_probes = 1.0 / GetContentCount(false).sum();
-    }
-
-    if (!ContentIsPerWidth) {
-      return (bin_content / (bin_edges.bottomRows(bin_edges.rows() - 1) -
-                             bin_edges.topRows(bin_edges.rows() - 1))) /
-             num_probes;
-    }
-    return bin_content / num_probes;
+  Eigen::ArrayXd get_bin_widths() const {
+    return (bin_edges.bottomRows(bin_edges.rows() - 1) -
+            bin_edges.topRows(bin_edges.rows() - 1));
   }
 
-  Eigen::ArrayXd GetContentCount(bool shape_only = false) {
-    double num_probes = 1;
-    if (shape_only) {
-      num_probes = 1.0 / GetContentCount(false).sum();
+  double get_integral() const {
+    if (ContentIsPerWidth) {
+      return (bin_content * get_bin_widths()).sum();
     }
+    return bin_content.sum();
+  }
+
+  Eigen::ArrayXd get_flux_density() {
+    if (!ContentIsPerWidth) {
+      return (bin_content / get_bin_widths());
+    }
+    return bin_content;
+  }
+
+  Eigen::ArrayXd get_flux_shape_density() {
+    if (!ContentIsPerWidth) {
+      return (bin_content / get_bin_widths()) / get_integral();
+    }
+    return bin_content / get_integral();
+  }
+
+  Eigen::ArrayXd get_flux_rate() {
 
     if (ContentIsPerWidth) {
-      return (bin_content * (bin_edges.bottomRows(bin_edges.rows() - 1) -
-                             bin_edges.topRows(bin_edges.rows() - 1))) /
-             num_probes;
+      return (bin_content * get_bin_widths());
     }
-    return bin_content / num_probes;
+    return bin_content;
+  }
+
+  Eigen::ArrayXd get_flux_shape_rate() {
+
+    if (ContentIsPerWidth) {
+      return (bin_content * get_bin_widths()) / get_integral();
+    }
+    return bin_content / get_integral();
   }
 
   NEW_NuHepMC_EXCEPT(UnconvertibleEnergyUnit);
@@ -96,21 +110,21 @@ struct EnergyDistribution {
 
     energy_unit = to_unit;
 
-    bin_content = sf * GetContentCount();
-    
-    bin_edges *= sf;
+    if (ContentIsPerWidth) {
+      bin_content *= sf;
+    }
 
-    ContentIsPerWidth = false;
+    bin_edges *= sf;
   }
 
-  Eigen::ArrayXd GetBinCenters() {
+  Eigen::ArrayXd get_bin_centers() {
     return (bin_edges.bottomRows(bin_edges.rows() - 1) +
             bin_edges.topRows(bin_edges.rows() - 1)) /
            2.0;
   }
 
-  bool IsInGeV() { return energy_unit == "GEV"; }
-  bool IsInMeV() { return energy_unit == "MEV"; }
+  bool is_in_GeV() { return energy_unit == "GEV"; }
+  bool is_in_MeV() { return energy_unit == "MEV"; }
 };
 
 } // namespace GC7
