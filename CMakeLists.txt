@@ -179,7 +179,7 @@ if(TARGET HepMC3::HepMC3)
     target_link_libraries(nuhepmc_options_static INTERFACE HepMC3::HepMC3_static)
   endif()
 
-  if(Protobuf_FOUND)
+  if(Protobuf_FOUND AND PROTOBUF_INTERFACE)
     target_link_libraries(nuhepmc_options INTERFACE HepMC3::protobufIO)
     target_link_libraries(nuhepmc_options_static INTERFACE HepMC3::protobufIO_static)
     message(STATUS "PROTOBUF_INCLUDE_DIRS: ${PROTOBUF_INCLUDE_DIRS}")
