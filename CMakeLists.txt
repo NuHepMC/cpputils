@@ -39,6 +39,7 @@ SET(NuHepMC_VERSION_PATCH  0)
 set(CMAKE_CXX_STANDARD 17)
 
 option(BUILTIN_HEPMC3 "Whether to use build our own version of HepMC3" OFF)
+option(PROTOBUF_INTERFACE "Whether to build the protobuf interface" OFF)
 option(NuHepMC_BUILD_STATIC_LIBS "Whether to build static versions of the libraries" OFF)
 
 #Changes default install path to be a subdirectory of the build dir.
@@ -125,7 +126,7 @@ if(BUILTIN_HEPMC3)
   find_package(Protobuf 2.4)
 
   set(BUILTIN_HEPMC3_ENABLE_PROTOBUFIO OFF)
-  if(Protobuf_FOUND)
+  if(Protobuf_FOUND AND PROTOBUF_INTERFACE)
     set(BUILTIN_HEPMC3_ENABLE_PROTOBUFIO ON)
     SET(NuHepMC_HEPMC3_ProtobufIO_SUPPORT "#define HEPMC3_PROTOBUFIO 1")
   endif()
