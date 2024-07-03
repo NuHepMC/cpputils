@@ -150,16 +150,16 @@ CPMFindPackage(
     GIT_TAG "v2.9.2"
 )
 
+if(NuHepMC_CPPUtils_PYTHON_ENABLED)
+  find_package(Python3 REQUIRED)
+endif()
+
 if(NuHepMC_CPPUtils_BUILTIN_HEPMC3)
   find_package(Protobuf 2.4)
 
   set(NuHepMC_CPPUtils_BUILTIN_HEPMC3_ENABLE_PROTOBUFIO OFF)
   if(Protobuf_FOUND AND NuHepMC_CPPUtils_PROTOBUF_INTERFACE)
     set(NuHepMC_CPPUtils_BUILTIN_HEPMC3_ENABLE_PROTOBUFIO ON)
-  endif()
-
-  if(NuHepMC_CPPUtils_PYTHON_ENABLED)
-    find_package(Python3 REQUIRED)
   endif()
 
   CPMAddPackage(
