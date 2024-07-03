@@ -159,7 +159,7 @@ if(NuHepMC_CPPUtils_BUILTIN_HEPMC3)
   endif()
 
   if(NuHepMC_CPPUtils_PYTHON_ENABLED)
-    find_package(Python)
+    find_package(Python3 REQUIRED)
   endif()
 
   CPMAddPackage(
