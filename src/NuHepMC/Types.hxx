@@ -1,5 +1,7 @@
 #pragma once
 
+#include "NuHepMC/Exceptions.hxx"
+
 #include "Eigen/Dense"
 
 #include <map>

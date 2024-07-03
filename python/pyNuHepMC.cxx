@@ -94,15 +94,15 @@ PYBIND11_MODULE(pyNuHepMC, m) {
       .value("Histogram", GC7::EDistType::kHistogram);
 
   py::class_<GC7::EnergyDistribution>(reader_utils_gc7, "EnergyDistribution")
-      .def_readonly("dist_type", &GC7::EnergyDistribution::dist_type)
-      .def_readonly("MonoEnergeticEnergy",
-                    &GC7::EnergyDistribution::MonoEnergeticEnergy)
-      .def_readonly("energy_unit", &GC7::EnergyDistribution::energy_unit)
-      .def_readonly("rate_unit", &GC7::EnergyDistribution::rate_unit)
-      .def_readonly("bin_edges", &GC7::EnergyDistribution::bin_edges)
-      .def_readonly("bin_content", &GC7::EnergyDistribution::bin_content)
-      .def_readonly("content_is_per_width",
-                    &GC7::EnergyDistribution::ContentIsPerWidth)
+      .def_readwrite("dist_type", &GC7::EnergyDistribution::dist_type)
+      .def_readwrite("MonoEnergeticEnergy",
+                     &GC7::EnergyDistribution::MonoEnergeticEnergy)
+      .def_readwrite("energy_unit", &GC7::EnergyDistribution::energy_unit)
+      .def_readwrite("rate_unit", &GC7::EnergyDistribution::rate_unit)
+      .def_readwrite("bin_edges", &GC7::EnergyDistribution::bin_edges)
+      .def_readwrite("bin_content", &GC7::EnergyDistribution::bin_content)
+      .def_readwrite("content_is_per_width",
+                     &GC7::EnergyDistribution::ContentIsPerWidth)
       .def("get_bin_widths", &GC7::EnergyDistribution::get_bin_widths)
       .def("get_integral", &GC7::EnergyDistribution::get_integral)
       .def("get_flux_density", &GC7::EnergyDistribution::get_flux_density)
