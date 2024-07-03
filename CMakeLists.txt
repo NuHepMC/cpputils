@@ -40,6 +40,7 @@ set(CMAKE_CXX_STANDARD 17)
 
 option(NuHepMC_CPPUtils_BUILTIN_HEPMC3 "Whether to build our own version of HepMC3" OFF)
 option(NuHepMC_CPPUtils_PYTHON_ENABLED "Whether to build python bindings" OFF)
+option(NuHepMC_CPPUtils_PROTOBUF_INTERFACE "Whether to build the protobuf interface" OFF)
 option(NuHepMC_CPPUtils_ENABLE_TESTS "Whether to enable test suite" OFF)
 option(NuHepMC_CPPUtils_ENABLE_SANITIZERS_CLI "Whether to enable ASAN LSAN and UBSAN" OFF)
 option(NuHepMC_CPPUtils_ENABLE_GCOV_CLI "Whether to enable GCOV" OFF)
@@ -51,9 +52,11 @@ endif()
 
 #Changes default install path to be a subdirectory of the build dir.
 #Can set build dir at configure time with -DCMAKE_INSTALL_PREFIX=/install/path
-if (CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
-    set (CMAKE_INSTALL_PREFIX "${CMAKE_BINARY_DIR}/${CMAKE_SYSTEM_NAME}/"
-           CACHE PATH "default install path" FORCE)
+if(CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)
+  if (CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
+      set (CMAKE_INSTALL_PREFIX "${CMAKE_BINARY_DIR}/${CMAKE_SYSTEM_NAME}/"
+             CACHE PATH "default install path" FORCE)
+  endif()
 endif()
 
 if(CMAKE_BUILD_TYPE STREQUAL "")
@@ -151,8 +154,12 @@ if(NuHepMC_CPPUtils_BUILTIN_HEPMC3)
   find_package(Protobuf 2.4)
 
   set(NuHepMC_CPPUtils_BUILTIN_HEPMC3_ENABLE_PROTOBUFIO OFF)
-  if(Protobuf_FOUND)
+  if(Protobuf_FOUND AND NuHepMC_CPPUtils_PROTOBUF_INTERFACE)
     set(NuHepMC_CPPUtils_BUILTIN_HEPMC3_ENABLE_PROTOBUFIO ON)
+  endif()
+
+  if(NuHepMC_CPPUtils_PYTHON_ENABLED)
+    find_package(Python)
   endif()
 
   CPMAddPackage(
@@ -191,7 +198,7 @@ if(TARGET HepMC3::HepMC3)
   target_link_libraries(nuhepmc_options INTERFACE HepMC3::HepMC3)
 
   SET(NuHepMC_Protobuf_FOUND FALSE)
-  if(Protobuf_FOUND)
+  if(Protobuf_FOUND AND NuHepMC_CPPUtils_PROTOBUF_INTERFACE)
     target_link_libraries(nuhepmc_options INTERFACE HepMC3::protobufIO)
     message(STATUS "PROTOBUF_INCLUDE_DIRS: ${PROTOBUF_INCLUDE_DIRS}")
     message(STATUS "PROTOBUF_LIBRARIES: ${PROTOBUF_LIBRARIES}")
