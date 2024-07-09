@@ -3,6 +3,8 @@
 #include "NuHepMC/EventUtils.hxx"
 #include "NuHepMC/ReaderUtils.hxx"
 
+#include "HepMC3/Print.h"
+
 namespace NuHepMC {
 
 namespace CrossSection {
@@ -10,6 +12,7 @@ namespace CrossSection {
 namespace Units {
 
 NEW_NuHepMC_EXCEPT(NonStandardXSUnitsUsed);
+NEW_NuHepMC_EXCEPT(NoTargetParticle);
 
 double GetRescaleFactor(HepMC3::GenEvent const &evt, Units::Unit from,
                         Units::Unit const &to) {
@@ -52,7 +55,19 @@ double GetRescaleFactor(HepMC3::GenEvent const &evt, Units::Unit from,
   }
 
   if (from.tgtscale != to.tgtscale) {
-    auto tgt_part_id = NuHepMC::Event::GetTargetParticle(evt)->pid();
+    auto tgt_part = NuHepMC::Event::GetTargetParticle(evt);
+    if (!tgt_part) {
+      HepMC3::Print::listing(evt);
+      throw NoTargetParticle() << "Failed to find target particle in event.";
+    }
+    auto tgt_part_id = tgt_part->pid();
+
+    if (tgt_part_id == 2212) {
+      tgt_part_id = 1000010010;
+    } else if (tgt_part_id == 2112) {
+      tgt_part_id = 1000000010;
+    }
+
     std::map<Units::TargetScale, double> tsunit_factors = {
         {Units::TargetScale::PerTargetAtom, 1.0 / ((tgt_part_id / 10) % 1000)},
         {Units::TargetScale::PerTargetNucleon, 1.0},
