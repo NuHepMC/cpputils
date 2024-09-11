@@ -121,8 +121,10 @@ while [[ ${#} -gt 0 ]]; do
       export NuHepMC_CPPUtils_ROOT=${NuHepMC_ROOT}
       add_to_PATH ${NuHepMC_ROOT}/bin
       add_to_LD_LIBRARY_PATH ${NuHepMC_ROOT}/lib
-      add_to_LD_LIBRARY_PATH ${NuHepMC_ROOT}/lib64
-      add_to_PYTHONPATH ${NuHepMC_ROOT}/python/@Python_VERSION_MAJOR@.@Python_VERSION_MINOR@
+      if [ -e ${NuHepMC_ROOT}/lib64 ]; then
+        add_to_LD_LIBRARY_PATH ${NuHepMC_ROOT}/lib64
+      fi
+      add_to_PYTHONPATH ${NuHepMC_ROOT}/python/@Python3_VERSION_MAJOR@.@Python3_VERSION_MINOR@
 
       echo "export NuHepMC_ROOT=${NuHepMC_ROOT}"
       echo "export NuHepMC_CPPUtils_ROOT=${NuHepMC_CPPUtils_ROOT}"

@@ -13,16 +13,19 @@ namespace FATX {
 
 // ABC for FATX accumulators that can give their best estimate of the FATX after
 // being passed N events
-// Some subclasses will know the best estimate after one events and others will
+// Some subclasses will know the best estimate after one event and others will
 // continue to get better the more events you pass them
 struct Accumulator {
   // returns the cv weight for the proferred event and accumulates FATX
   // information in an input-dependent way
   virtual double process(HepMC3::GenEvent const &) = 0;
+  // retrieve the best estimate of the fatx in the desired units
   virtual double fatx(CrossSection::Units::Unit const &units =
                           CrossSection::Units::pb_PerAtom) const = 0;
   virtual double sumweights() const = 0;
   virtual size_t events() const = 0;
+
+  virtual std::string to_string() const = 0;
 
   virtual ~Accumulator() {}
 };

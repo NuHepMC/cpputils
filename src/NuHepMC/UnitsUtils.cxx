@@ -11,9 +11,6 @@ namespace CrossSection {
 
 namespace Units {
 
-NEW_NuHepMC_EXCEPT(NonStandardXSUnitsUsed);
-NEW_NuHepMC_EXCEPT(NoTargetParticle);
-
 double GetRescaleFactor(HepMC3::GenEvent const &evt, Units::Unit from,
                         Units::Unit const &to) {
 
@@ -24,19 +21,19 @@ double GetRescaleFactor(HepMC3::GenEvent const &evt, Units::Unit from,
   if ((from.scale == Units::Scale::CustomType) ||
       (from.tgtscale == Units::TargetScale::CustomType)) {
     auto units_str = NuHepMC::GC4::ReadCrossSectionUnits(evt.run_info());
-    throw NonStandardXSUnitsUsed()
+    throw NonStandardUnitsUsed()
         << units_str.first << " " << units_str.second;
   }
   if ((to.scale == Units::Scale::CustomType) ||
       (to.tgtscale == Units::TargetScale::CustomType)) {
     auto units_str = NuHepMC::GC4::ReadCrossSectionUnits(evt.run_info());
-    throw NonStandardXSUnitsUsed()
+    throw NonStandardUnitsUsed()
         << units_str.first << " " << units_str.second;
   }
 
   if ((from.tgtscale == Units::TargetScale::PerTargetMolecule) ||
       (to.tgtscale == Units::TargetScale::PerTargetMolecule)) {
-    throw NonStandardXSUnitsUsed() << "Cannot automatically convert between "
+    throw NonStandardUnitsUsed() << "Cannot automatically convert between "
                                       "units including PerTargetMolecule";
   }
 
@@ -55,18 +52,7 @@ double GetRescaleFactor(HepMC3::GenEvent const &evt, Units::Unit from,
   }
 
   if (from.tgtscale != to.tgtscale) {
-    auto tgt_part = NuHepMC::Event::GetTargetParticle(evt);
-    if (!tgt_part) {
-      HepMC3::Print::listing(evt);
-      throw NoTargetParticle() << "Failed to find target particle in event.";
-    }
-    auto tgt_part_id = tgt_part->pid();
-
-    if (tgt_part_id == 2212) {
-      tgt_part_id = 1000010010;
-    } else if (tgt_part_id == 2112) {
-      tgt_part_id = 1000000010;
-    }
+    auto tgt_part_id = Event::GetTargetPDG(evt);
 
     std::map<Units::TargetScale, double> tsunit_factors = {
         {Units::TargetScale::PerTargetAtom, 1.0 / ((tgt_part_id / 10) % 1000)},

@@ -137,8 +137,7 @@ ReadCrossSectionUnits(std::shared_ptr<HepMC3::GenRunInfo const> run_info) {
 }
 
 CrossSection::Units::Unit
-ParseCrossSectionUnits(std::shared_ptr<HepMC3::GenRunInfo const> run_info) {
-  auto csu = ReadCrossSectionUnits(run_info);
+ParseCrossSectionUnits(std::pair<std::string, std::string> const &csu) {
 
   CrossSection::Units::Scale xs = CrossSection::Units::Scale::CustomType;
 
@@ -165,6 +164,11 @@ ParseCrossSectionUnits(std::shared_ptr<HepMC3::GenRunInfo const> run_info) {
 
   return {xs, ts};
 }
+
+CrossSection::Units::Unit
+ParseCrossSectionUnits(std::shared_ptr<HepMC3::GenRunInfo const> run_info) {
+  return ParseCrossSectionUnits(ReadCrossSectionUnits(run_info));
+}
 } // namespace GC4
 
 namespace GC5 {
@@ -181,8 +185,7 @@ ReadAllCitations(std::shared_ptr<HepMC3::GenRunInfo const> run_info) {
 
   CitationData all_citations;
 
-  static std::regex const key_re(
-      R"(NuHepMC\.Citations\.([^\.]+)\.([^\.\s]+))");
+  static std::regex const key_re(R"(NuHepMC\.Citations\.([^\.]+)\.([^\.\s]+))");
 
   for (auto attn : run_info->attribute_names()) {
 

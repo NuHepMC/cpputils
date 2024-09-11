@@ -73,6 +73,9 @@ std::pair<std::string, std::string>
 ReadCrossSectionUnits(std::shared_ptr<HepMC3::GenRunInfo const> run_info);
 
 CrossSection::Units::Unit
+ParseCrossSectionUnits(std::pair<std::string, std::string> const &csu);
+
+CrossSection::Units::Unit
 ParseCrossSectionUnits(std::shared_ptr<HepMC3::GenRunInfo const> run_info);
 } // namespace GC4
 

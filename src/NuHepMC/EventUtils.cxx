@@ -3,12 +3,15 @@
 #include "NuHepMC/Exceptions.hxx"
 
 #include "HepMC3/GenParticle.h"
+#include "HepMC3/Print.h"
 
 #include <vector>
 
 namespace NuHepMC {
 
 namespace Event {
+
+NEW_NuHepMC_EXCEPT(NoTargetParticle);
 
 HepMC3::ConstGenVertexPtr GetVertex_First(HepMC3::GenEvent const &evt,
                                           int vtx_status) {
@@ -29,12 +32,27 @@ HepMC3::ConstGenParticlePtr GetBeamParticle(HepMC3::GenEvent const &evt) {
 }
 
 HepMC3::ConstGenParticlePtr GetTargetParticle(HepMC3::GenEvent const &evt) {
-  auto pt_nhmctgt = GetParticle_First(evt, ParticleStatus::Target);
-  if (pt_nhmctgt) {
-    return pt_nhmctgt;
+  return GetParticle_First(evt, ParticleStatus::Target);
+}
+
+int GetTargetPDG(HepMC3::GenEvent const &evt) {
+  auto tgt_part = NuHepMC::Event::GetTargetParticle(evt);
+  if (!tgt_part) {
+    HepMC3::Print::listing(evt);
+    throw NoTargetParticle()
+        << "Failed to find target particle (status = " << ParticleStatus::Target
+        << ") in event.";
   }
-  // for legacy apps
-  return GetParticle_First(evt, 11);
+  auto tgt_part_id = tgt_part->pid();
+
+  //convert nucleon targets to nuclear target codes
+  if (tgt_part_id == 2212) {
+    tgt_part_id = 1000010010;
+  } else if (tgt_part_id == 2112) {
+    tgt_part_id = 1000000010;
+  }
+
+  return tgt_part_id;
 }
 
 std::vector<HepMC3::ConstGenParticlePtr>

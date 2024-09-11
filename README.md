@@ -828,15 +828,14 @@ struct Unit {
 };
 
 const Unit pb_PerAtom{Scale::pb, TargetScale::PerTargetAtom};
+const Unit cm2ten38_PerAtom{Scale::cm2_ten38, TargetScale::PerTargetAtom};
 const Unit pb_PerNucleon{Scale::pb, TargetScale::PerTargetNucleon};
+const Unit cm2ten38_PerNucleon{Scale::cm2_ten38, TargetScale::PerTargetNucleon};
 
 // automatic is used to signal that the input scale should be read from the 
 //   evt.run_info() according to G.C.4
 const Unit automatic{Scale::Automatic, TargetScale::Automatic};
 
-double GetRescaleFactor(HepMC3::GenEvent const &evt,
-                        Unit from = automatic,
-                        Unit const &to = pb_PerAtom);
 }
 }
 }

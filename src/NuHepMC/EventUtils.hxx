@@ -19,6 +19,7 @@ HepMC3::ConstGenVertexPtr GetPrimaryVertex(HepMC3::GenEvent const &evt);
 HepMC3::ConstGenParticlePtr GetBeamParticle(HepMC3::GenEvent const &evt);
 
 HepMC3::ConstGenParticlePtr GetTargetParticle(HepMC3::GenEvent const &evt);
+int GetTargetPDG(HepMC3::GenEvent const &evt);
 
 std::vector<HepMC3::ConstGenParticlePtr>
 GetParticles_All(HepMC3::GenEvent const &evt, int part_status,
