@@ -93,11 +93,33 @@ struct BaseAccumulator : public Accumulator {
       }
     }
     ss << "input_unit: " << input_unit << std::endl;
-    ss << "fatx: " << fatx(CrossSection::Units::pb_PerAtom)
-       << " pb/TargetAtom, " << fatx(CrossSection::Units::cm2ten38_PerNucleon)
+    ss << "fatx: " << fatx(CrossSection::Units::pb_PerTarget) << " pb/Target, "
+       << fatx(CrossSection::Units::cm2ten38_PerNucleon)
        << " cm^2 * 10^-38/Nucleon" << std::endl;
 
     return ss.str();
+  }
+
+  int TargetA() const {
+    int TotNucleons = 0;
+    for (auto const &[tgt_pid, tgt_sumw] : targets_sumw) {
+      TotNucleons += CrossSection::Units::NuclearPDGToA(tgt_pid);
+    }
+    return TotNucleons;
+  }
+  int TargetZ() const {
+    int TotProtons = 0;
+    for (auto const &[tgt_pid, tgt_sumw] : targets_sumw) {
+      TotProtons += CrossSection::Units::NuclearPDGToZ(tgt_pid);
+    }
+    return TotProtons;
+  }
+  int TargetN() const {
+    int TotNeutrons = 0;
+    for (auto const &[tgt_pid, tgt_sumw] : targets_sumw) {
+      TotNeutrons += CrossSection::Units::NuclearPDGToN(tgt_pid);
+    }
+    return TotNeutrons;
   }
 
   double sumweights() const { return sumw(); }
@@ -116,6 +138,9 @@ struct DummyAccumulator : public Accumulator {
   double sumweights() const { return nevt; }
   size_t events() const { return nevt; }
   std::string to_string() const { return "DummyAccumulator"; }
+  int TargetA() const { return 0; }
+  int TargetZ() const { return 0; }
+  int TargetN() const { return 0; }
 };
 
 // This just reads the FATX from the run_info
@@ -142,21 +167,11 @@ struct GC5Accumulator : public BaseAccumulator {
 
     double sf = units_scale_factor(units);
 
-    // for GC5 /Nucleon or /MolecularNucleon are equivalent
-    if ((units.tgtscale == input_unit.tgtscale) ||
-        ((input_unit.tgtscale ==
-          CrossSection::Units::TargetScale::PerTargetMolecularNucleon) &&
-         (units.tgtscale ==
-          CrossSection::Units::TargetScale::PerTargetNucleon)) ||
-        ((units.tgtscale ==
-          CrossSection::Units::TargetScale::PerTargetMolecularNucleon) &&
-         (input_unit.tgtscale ==
-          CrossSection::Units::TargetScale::PerTargetNucleon))) {
+    if (units.tgtscale == input_unit.tgtscale) {
       return GC5FATX * sf;
     }
 
-    if ((input_unit.tgtscale ==
-         CrossSection::Units::TargetScale::PerTargetAtom) &&
+    if ((input_unit.tgtscale == CrossSection::Units::TargetScale::PerTarget) &&
         (units.tgtscale ==
          CrossSection::Units::TargetScale::PerTargetNucleon)) {
 
@@ -173,13 +188,10 @@ struct GC5Accumulator : public BaseAccumulator {
 
       return RescaledFATX;
 
-      // for GC5 /Nucleon or /MolecularNucleon are equivalent
-    } else if (((input_unit.tgtscale ==
-                 CrossSection::Units::TargetScale::PerTargetNucleon) ||
-                (input_unit.tgtscale == CrossSection::Units::TargetScale::
-                                            PerTargetMolecularNucleon)) &&
+    } else if ((input_unit.tgtscale ==
+                CrossSection::Units::TargetScale::PerTargetNucleon) &&
                (units.tgtscale ==
-                CrossSection::Units::TargetScale::PerTargetAtom)) {
+                CrossSection::Units::TargetScale::PerTarget)) {
 
       double RescaledFATX = 0;
 
@@ -188,19 +200,19 @@ struct GC5Accumulator : public BaseAccumulator {
       //   SumWeightsA/SumWeightsAll
       // as events are generated according to their cross section
 
-      int NTot = 0;
+      int TotNucleons = 0;
       for (auto const &[tgt_pid, tgt_sumw] : targets_sumw) {
-        NTot += CrossSection::Units::NuclearPDGToA(tgt_pid);
+        TotNucleons += CrossSection::Units::NuclearPDGToA(tgt_pid);
       }
       for (auto const &[tgt_pid, tgt_sumw] : targets_sumw) {
-        RescaledFATX += (GC5FATX * sf * NTot) * (tgt_sumw() / sumw());
+        RescaledFATX += (GC5FATX * sf * TotNucleons) * (tgt_sumw() / sumw());
       }
 
       return RescaledFATX;
     }
 
     throw CrossSection::Units::InvalidUnits()
-        << "GC5Accumulator can only provide FATX in /TargetAtom or "
+        << "GC5Accumulator can only provide FATX in /Target or "
            "/TargetNucleon currently for inputs in the same two. If you "
            "require other units you may have to convert them yourself. The "
            "input unit for this file was: "
@@ -249,8 +261,7 @@ struct EC2Accumulator : public BaseAccumulator {
       return (sumw() / ReciprocalTotXS()) * sf;
     }
 
-    if ((input_unit.tgtscale ==
-         CrossSection::Units::TargetScale::PerTargetAtom) &&
+    if ((input_unit.tgtscale == CrossSection::Units::TargetScale::PerTarget) &&
         (units.tgtscale ==
          CrossSection::Units::TargetScale::PerTargetNucleon)) {
 
@@ -269,9 +280,9 @@ struct EC2Accumulator : public BaseAccumulator {
       return RescaledFATX;
 
     } else if ((input_unit.tgtscale ==
-                CrossSection::Units::TargetScale::PerTargetMolecularNucleon) &&
+                CrossSection::Units::TargetScale::PerTargetNucleon) &&
                (units.tgtscale ==
-                CrossSection::Units::TargetScale::PerTargetAtom)) {
+                CrossSection::Units::TargetScale::PerTarget)) {
 
       double RescaledFATX = 0;
 
@@ -280,13 +291,13 @@ struct EC2Accumulator : public BaseAccumulator {
       //   SumWeightsA/SumWeightsAll
       // as events are generated according to their cross section
 
-      int NTot = 0;
+      int TotNucleons = 0;
       for (auto const &[tgt_pid, tgt_rtxs] : targets_ReciprocalTotXS) {
-        NTot += CrossSection::Units::NuclearPDGToA(tgt_pid);
+        TotNucleons += CrossSection::Units::NuclearPDGToA(tgt_pid);
       }
       for (auto const &[tgt_pid, tgt_rtxs] : targets_ReciprocalTotXS) {
         RescaledFATX +=
-            ((targets_sumw.at(tgt_pid)() / tgt_rtxs()) * sf * NTot) *
+            ((targets_sumw.at(tgt_pid)() / tgt_rtxs()) * sf * TotNucleons) *
             (targets_sumw.at(tgt_pid)() / sumw());
       }
 
@@ -294,7 +305,7 @@ struct EC2Accumulator : public BaseAccumulator {
     }
 
     throw CrossSection::Units::InvalidUnits()
-        << "GC5Accumulator can only provide FATX in /TargetAtom or "
+        << "GC5Accumulator can only provide FATX in /Target or "
            "/TargetNucleon currently for inputs in the same two. If you "
            "require other units you may have to convert them yourself. The "
            "input unit for this file was: "
@@ -340,21 +351,11 @@ struct EC4Accumulator : public BaseAccumulator {
 
     double sf = units_scale_factor(units);
 
-    // for EC4 /Nucleon or /MolecularNucleon are equivalent
-    if ((units.tgtscale == input_unit.tgtscale) ||
-        ((input_unit.tgtscale ==
-          CrossSection::Units::TargetScale::PerTargetMolecularNucleon) &&
-         (units.tgtscale ==
-          CrossSection::Units::TargetScale::PerTargetNucleon)) ||
-        ((units.tgtscale ==
-          CrossSection::Units::TargetScale::PerTargetMolecularNucleon) &&
-         (input_unit.tgtscale ==
-          CrossSection::Units::TargetScale::PerTargetNucleon))) {
+    if (units.tgtscale == input_unit.tgtscale) {
       return EC4BestEstimate * sf;
     }
 
-    if ((input_unit.tgtscale ==
-         CrossSection::Units::TargetScale::PerTargetAtom) &&
+    if ((input_unit.tgtscale == CrossSection::Units::TargetScale::PerTarget) &&
         (units.tgtscale ==
          CrossSection::Units::TargetScale::PerTargetNucleon)) {
 
@@ -372,12 +373,10 @@ struct EC4Accumulator : public BaseAccumulator {
       return RescaledFATX;
 
       // for EC4 /Nucleon or /MolecularNucleon are equivalent
-    } else if (((input_unit.tgtscale ==
-                 CrossSection::Units::TargetScale::PerTargetNucleon) ||
-                (input_unit.tgtscale == CrossSection::Units::TargetScale::
-                                            PerTargetMolecularNucleon)) &&
+    } else if ((input_unit.tgtscale ==
+                CrossSection::Units::TargetScale::PerTargetNucleon) &&
                (units.tgtscale ==
-                CrossSection::Units::TargetScale::PerTargetAtom)) {
+                CrossSection::Units::TargetScale::PerTarget)) {
 
       double RescaledFATX = 0;
 
@@ -386,19 +385,20 @@ struct EC4Accumulator : public BaseAccumulator {
       //   SumWeightsA/SumWeightsAll
       // as events are generated according to their cross section
 
-      int NTot = 0;
+      int TotNucleons = 0;
       for (auto const &[tgt_pid, tgt_sumw] : targets_sumw) {
-        NTot += CrossSection::Units::NuclearPDGToA(tgt_pid);
+        TotNucleons += CrossSection::Units::NuclearPDGToA(tgt_pid);
       }
       for (auto const &[tgt_pid, tgt_sumw] : targets_sumw) {
-        RescaledFATX += (EC4BestEstimate * sf * NTot) * (tgt_sumw() / sumw());
+        RescaledFATX +=
+            (EC4BestEstimate * sf * TotNucleons) * (tgt_sumw() / sumw());
       }
 
       return RescaledFATX;
     }
 
     throw CrossSection::Units::InvalidUnits()
-        << "GC5Accumulator can only provide FATX in /TargetAtom or "
+        << "GC5Accumulator can only provide FATX in /Target or "
            "/TargetNucleon currently for inputs in the same two. If you "
            "require other units you may have to convert them yourself. The "
            "input unit for this file was: "

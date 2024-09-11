@@ -21,7 +21,7 @@ public:
   pyFATXAccumulator(std::shared_ptr<FATX::Accumulator> a) : acc(a) {}
   double process(HepMC3::GenEvent const &ev) { return acc->process(ev); }
   double fatx(CrossSection::Units::Unit const &units =
-                  CrossSection::Units::pb_PerAtom) const {
+                  CrossSection::Units::pb_PerTarget) const {
     return acc->fatx(units);
   }
   double sumweights() const { return acc->sumweights(); }
@@ -89,13 +89,9 @@ PYBIND11_MODULE(pyNuHepMC, m) {
 
   py::enum_<CrossSection::Units::TargetScale>(units_utils, "TargetScale")
       .value("CustomType", CrossSection::Units::TargetScale::CustomType)
-      .value("PerTargetMolecule",
-             CrossSection::Units::TargetScale::PerTargetMolecule)
-      .value("PerTargetAtom", CrossSection::Units::TargetScale::PerTargetAtom)
+      .value("PerTarget", CrossSection::Units::TargetScale::PerTarget)
       .value("PerTargetNucleon",
              CrossSection::Units::TargetScale::PerTargetNucleon)
-      .value("PerTargetMolecularNucleon",
-             CrossSection::Units::TargetScale::PerTargetMolecularNucleon)
       .value("Automatic", CrossSection::Units::TargetScale::Automatic);
 
   py::class_<CrossSection::Units::Unit>(units_utils, "Unit")
@@ -111,7 +107,7 @@ PYBIND11_MODULE(pyNuHepMC, m) {
   py::class_<pyFATXAccumulator>(fatx_utils, "FATXAccumulator")
       .def("process", &pyFATXAccumulator::process)
       .def("fatx", &pyFATXAccumulator::fatx,
-           py::arg("fatx") = NuHepMC::CrossSection::Units::pb_PerAtom)
+           py::arg("fatx") = NuHepMC::CrossSection::Units::pb_PerTarget)
       .def(
           "fatx",
           [](pyFATXAccumulator const &fatxacc, std::string const &units_scale,
@@ -119,14 +115,14 @@ PYBIND11_MODULE(pyNuHepMC, m) {
             return fatxacc.fatx(
                 NuHepMC::GC4::ParseCrossSectionUnits({units_scale, tgt_scale}));
           },
-          py::arg("units_scale") = "pb", py::arg("tgt_scale") = "PerTargetAtom")
+          py::arg("units_scale") = "pb", py::arg("tgt_scale") = "PerTarget")
       .def("sumweights", &pyFATXAccumulator::sumweights)
       .def("events", &pyFATXAccumulator::events)
       .def("__str__", &pyFATXAccumulator::to_string);
   fatx_utils.def("make_accumulator", &pyMakeAccumulator, "");
-  fatx_utils.attr("pb_PerAtom") = NuHepMC::CrossSection::Units::pb_PerAtom;
-  fatx_utils.attr("cm2ten38_PerAtom") =
-      NuHepMC::CrossSection::Units::cm2ten38_PerAtom;
+  fatx_utils.attr("pb_PerTarget") = NuHepMC::CrossSection::Units::pb_PerTarget;
+  fatx_utils.attr("cm2ten38_PerTarget") =
+      NuHepMC::CrossSection::Units::cm2ten38_PerTarget;
   fatx_utils.attr("pb_PerNucleon") =
       NuHepMC::CrossSection::Units::pb_PerNucleon;
   fatx_utils.attr("cm2ten38_PerNucleon") =

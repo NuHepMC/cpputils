@@ -133,7 +133,7 @@ ReadCrossSectionUnits(std::shared_ptr<HepMC3::GenRunInfo const> run_info) {
       CheckedAttributeValue<std::string>(
           run_info, "NuHepMC.Units.CrossSection.Unit", "pb"),
       CheckedAttributeValue<std::string>(
-          run_info, "NuHepMC.Units.CrossSection.TargetScale", "PerTargetAtom"));
+          run_info, "NuHepMC.Units.CrossSection.TargetScale", "PerTarget"));
 }
 
 CrossSection::Units::Unit
@@ -143,6 +143,8 @@ ParseCrossSectionUnits(std::pair<std::string, std::string> const &csu) {
 
   if (csu.first == "pb") {
     xs = CrossSection::Units::Scale::pb;
+  } else if (csu.first == "nb") {
+    xs = CrossSection::Units::Scale::nb;
   } else if (csu.first == "cm2") {
     xs = CrossSection::Units::Scale::cm2;
   } else if (csu.first == "1e-38 cm2") {
@@ -152,14 +154,10 @@ ParseCrossSectionUnits(std::pair<std::string, std::string> const &csu) {
   CrossSection::Units::TargetScale ts =
       CrossSection::Units::TargetScale::CustomType;
 
-  if (csu.second == "PerTargetMolecule") {
-    ts = CrossSection::Units::TargetScale::PerTargetMolecule;
-  } else if (csu.second == "PerTargetAtom") {
-    ts = CrossSection::Units::TargetScale::PerTargetAtom;
+  if (csu.second == "PerTarget") {
+    ts = CrossSection::Units::TargetScale::PerTarget;
   } else if (csu.second == "PerTargetNucleon") {
     ts = CrossSection::Units::TargetScale::PerTargetNucleon;
-  } else if (csu.second == "PerTargetMolecularNucleon") {
-    ts = CrossSection::Units::TargetScale::PerTargetMolecularNucleon;
   }
 
   return {xs, ts};

@@ -16,16 +16,9 @@ NEW_NuHepMC_EXCEPT(NonStandardUnitsUsed);
 NEW_NuHepMC_EXCEPT(InvalidUnitType);
 NEW_NuHepMC_EXCEPT(InvalidUnits);
 
-enum class Scale { CustomType, pb, cm2, cm2_ten38, Automatic };
+enum class Scale { CustomType, pb, nb, cm2, cm2_ten38, Automatic };
 
-enum class TargetScale {
-  CustomType,
-  PerTargetMolecule,
-  PerTargetAtom,
-  PerTargetNucleon,
-  PerTargetMolecularNucleon,
-  Automatic
-};
+enum class TargetScale { CustomType, PerTarget, PerTargetNucleon, Automatic };
 
 struct Unit {
   Scale scale;
@@ -37,13 +30,14 @@ struct Unit {
   bool operator!=(Unit const &other) const { return !(*this == other); }
 };
 
-const Unit pb_PerAtom{Scale::pb, TargetScale::PerTargetAtom};
-const Unit cm2ten38_PerAtom{Scale::cm2_ten38, TargetScale::PerTargetAtom};
+const Unit pb_PerTarget{Scale::pb, TargetScale::PerTarget};
+const Unit cm2ten38_PerTarget{Scale::cm2_ten38, TargetScale::PerTarget};
 const Unit pb_PerNucleon{Scale::pb, TargetScale::PerTargetNucleon};
 const Unit cm2ten38_PerNucleon{Scale::cm2_ten38, TargetScale::PerTargetNucleon};
 const Unit automatic{Scale::Automatic, TargetScale::Automatic};
 
 const double pb = 1;
+const double nb = 1E3;
 const double cm2 = 1E36;
 const double cm2_ten38 = 1E-2;
 
@@ -60,6 +54,10 @@ inline int NuclearPDGToZ(int pid) {
 inline int NuclearPDGToA(int pid) {
   // ±10LZZZAAAI
   return (pid / 1) % 1000;
+}
+
+inline int NuclearPDGToN(int pid) {
+  return NuclearPDGToA(pid) - NuclearPDGToZ(pid);
 }
 
 } // namespace Units
