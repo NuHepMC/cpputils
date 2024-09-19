@@ -48,6 +48,13 @@ option(NuHepMC_CPPUtils_ENABLE_GCOV_CLI "Whether to enable GCOV" OFF)
 if(NuHepMC_CPPUtils_ENABLE_TESTS)
     SET(NuHepMC_CPPUtils_ENABLE_SANITIZERS ON)
     SET(NuHepMC_CPPUtils_ENABLE_GCOV ON)
+else()
+  if(NuHepMC_CPPUtils_ENABLE_SANITIZERS_CLI)
+    SET(NuHepMC_CPPUtils_ENABLE_SANITIZERS ON)
+  endif()
+  if(NuHepMC_CPPUtils_ENABLE_GCOV_CLI)
+    SET(NuHepMC_CPPUtils_ENABLE_GCOV ON)
+  endif()
 endif()
 
 #Changes default install path to be a subdirectory of the build dir.
@@ -98,17 +105,18 @@ if(NOT CMAKE_CXX_COMPILER_ID MATCHES "^(Apple)?Clang$")
     target_compile_options(nuhepmc_private_compile_options INTERFACE -Wno-class-memaccess)
 endif()
 
+add_library(nuhepmc_options INTERFACE)
+
 if(NuHepMC_CPPUtils_ENABLE_SANITIZERS)
-  target_compile_options(nuhepmc_private_compile_options INTERFACE -fno-omit-frame-pointer -fsanitize=address -fsanitize=leak -fsanitize=undefined)
-  target_link_options(nuhepmc_private_compile_options INTERFACE -fsanitize=address -fsanitize=leak -fsanitize=undefined)
+  target_compile_options(nuhepmc_options BEFORE INTERFACE -fno-omit-frame-pointer -fsanitize=address -fsanitize=leak -fsanitize=undefined)
+  target_link_options(nuhepmc_options BEFORE INTERFACE -fsanitize=address -fsanitize=leak -fsanitize=undefined)
 endif()
 
 if(NuHepMC_CPPUtils_ENABLE_GCOV)
-  target_compile_options(nuhepmc_private_compile_options INTERFACE -fprofile-arcs -ftest-coverage)
-  target_link_options(nuhepmc_private_compile_options INTERFACE -fprofile-arcs -ftest-coverage)
+  target_compile_options(nuhepmc_options BEFORE INTERFACE -fprofile-arcs -ftest-coverage)
+  target_link_options(nuhepmc_options BEFORE INTERFACE -fprofile-arcs -ftest-coverage)
 endif()
 
-add_library(nuhepmc_options INTERFACE)
 target_include_directories(nuhepmc_options INTERFACE 
   $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/src>
   $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/include> 

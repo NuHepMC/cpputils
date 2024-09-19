@@ -60,22 +60,19 @@ inline int NuclearPDGToN(int pid) {
   return NuclearPDGToA(pid) - NuclearPDGToZ(pid);
 }
 
-} // namespace Units
-
-} // namespace CrossSection
-
-} // namespace NuHepMC
+std::ostream &operator<<(std::ostream &os,
+                         NuHepMC::CrossSection::Units::Scale const &us);
 
 std::ostream &operator<<(std::ostream &os,
-                         NuHepMC::CrossSection::Units::Scale us);
-
-std::ostream &operator<<(std::ostream &os,
-                         NuHepMC::CrossSection::Units::TargetScale ts);
+                         NuHepMC::CrossSection::Units::TargetScale const &ts);
 
 std::ostream &operator<<(std::ostream &os,
                          NuHepMC::CrossSection::Units::Unit const &u);
 
-namespace NuHepMC {
+} // namespace Units
+
+} // namespace CrossSection
+
 std::string to_string(NuHepMC::CrossSection::Units::Scale us);
 std::string to_string(NuHepMC::CrossSection::Units::TargetScale ts);
 std::string to_string(NuHepMC::CrossSection::Units::Unit const &u);

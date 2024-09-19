@@ -5,8 +5,13 @@
 
 #include "HepMC3/Print.h"
 
+namespace NuHepMC {
+
+namespace CrossSection {
+
+namespace Units {
 std::ostream &operator<<(std::ostream &os,
-                         NuHepMC::CrossSection::Units::Scale us) {
+                         NuHepMC::CrossSection::Units::Scale const &us) {
   switch (us) {
   case NuHepMC::CrossSection::Units::Scale::CustomType: {
     return os << "CustomXSUnit";
@@ -30,7 +35,7 @@ std::ostream &operator<<(std::ostream &os,
 }
 
 std::ostream &operator<<(std::ostream &os,
-                         NuHepMC::CrossSection::Units::TargetScale ts) {
+                         NuHepMC::CrossSection::Units::TargetScale const &ts) {
   switch (ts) {
   case NuHepMC::CrossSection::Units::TargetScale::CustomType: {
     return os << "CustomTargetScale";
@@ -52,7 +57,9 @@ std::ostream &operator<<(std::ostream &os,
   return os << "[" << u.scale << ", " << u.tgtscale << "]";
 }
 
-namespace NuHepMC {
+} // namespace Units
+} // namespace CrossSection
+
 std::string to_string(NuHepMC::CrossSection::Units::Scale us) {
   std::stringstream ss("");
   ss << us;
