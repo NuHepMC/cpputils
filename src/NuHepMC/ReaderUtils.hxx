@@ -69,9 +69,13 @@ double ReadExposureLivetime(std::shared_ptr<HepMC3::GenRunInfo const> run_info);
 } // namespace GC3
 
 namespace GC4 {
+
 std::pair<std::string, std::string>
 ReadCrossSectionUnits(std::shared_ptr<HepMC3::GenRunInfo const> run_info);
 
+CrossSection::Units::Scale ParseCrossSectionScaleUnits(std::string const &su);
+CrossSection::Units::TargetScale
+ParseCrossSectionTargetScaleUnits(std::string const &tsu);
 CrossSection::Units::Unit
 ParseCrossSectionUnits(std::pair<std::string, std::string> const &csu);
 

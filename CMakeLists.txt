@@ -136,7 +136,7 @@ SET(NuHepMC_HEPMC3_MIN_VERSION 3.2.6)
 set(NuHepMC_EIGEN3_MIN_VERSION 3.4.0)
 include(CPM)
 
-CPMFindPackage(
+CPMAddPackage(
     NAME fmt
     GIT_TAG 8.1.1
     GITHUB_REPOSITORY fmtlib/fmt

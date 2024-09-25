@@ -136,31 +136,41 @@ ReadCrossSectionUnits(std::shared_ptr<HepMC3::GenRunInfo const> run_info) {
           run_info, "NuHepMC.Units.CrossSection.TargetScale", "PerTarget"));
 }
 
-CrossSection::Units::Unit
-ParseCrossSectionUnits(std::pair<std::string, std::string> const &csu) {
-
+CrossSection::Units::Scale ParseCrossSectionScaleUnits(std::string const &su) {
   CrossSection::Units::Scale xs = CrossSection::Units::Scale::CustomType;
 
-  if (csu.first == "pb") {
+  if (su == "pb") {
     xs = CrossSection::Units::Scale::pb;
-  } else if (csu.first == "nb") {
+  } else if (su == "nb") {
     xs = CrossSection::Units::Scale::nb;
-  } else if (csu.first == "cm2") {
+  } else if (su == "cm2") {
     xs = CrossSection::Units::Scale::cm2;
-  } else if (csu.first == "1e-38 cm2") {
+  } else if (su == "1e-38 cm2") {
     xs = CrossSection::Units::Scale::cm2_ten38;
   }
 
+  return xs;
+}
+
+CrossSection::Units::TargetScale
+ParseCrossSectionTargetScaleUnits(std::string const &tsu) {
   CrossSection::Units::TargetScale ts =
       CrossSection::Units::TargetScale::CustomType;
 
-  if (csu.second == "PerTarget") {
+  if (tsu == "PerTarget") {
     ts = CrossSection::Units::TargetScale::PerTarget;
-  } else if (csu.second == "PerTargetNucleon") {
+  } else if (tsu == "PerTargetNucleon") {
     ts = CrossSection::Units::TargetScale::PerTargetNucleon;
   }
 
-  return {xs, ts};
+  return ts;
+}
+
+CrossSection::Units::Unit
+ParseCrossSectionUnits(std::pair<std::string, std::string> const &csu) {
+
+  return {ParseCrossSectionScaleUnits(csu.first),
+          ParseCrossSectionTargetScaleUnits(csu.second)};
 }
 
 CrossSection::Units::Unit
