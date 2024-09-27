@@ -53,7 +53,7 @@ inline int NuclearPDGToZ(int pid) {
 
 inline int NuclearPDGToA(int pid) {
   // ±10LZZZAAAI
-  return (pid / 1) % 1000;
+  return (pid / 10) % 1000;
 }
 
 inline int NuclearPDGToN(int pid) {

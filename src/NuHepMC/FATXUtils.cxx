@@ -6,6 +6,8 @@
 #include "HepMC3/GenEvent.h"
 #include "HepMC3/GenRunInfo.h"
 
+#include "fmt/core.h"
+
 namespace NuHepMC {
 
 namespace FATX {
@@ -165,6 +167,14 @@ struct GC5Accumulator : public BaseAccumulator {
       return GC5FATX;
     }
 
+    if ((units.tgtscale == CrossSection::Units::TargetScale::CustomType) ||
+        (units.scale == CrossSection::Units::Scale::CustomType)) {
+      std::stringstream ss;
+      ss << units;
+      throw std::runtime_error(
+          fmt::format("fatx called with invalid units type: {}", ss.str()));
+    }
+
     double sf = units_scale_factor(units);
 
     if (units.tgtscale == input_unit.tgtscale) {
@@ -182,6 +192,7 @@ struct GC5Accumulator : public BaseAccumulator {
       // as events are generated according to their cross section
 
       for (auto const &[tgt_pid, tgt_sumw] : targets_sumw) {
+
         RescaledFATX += (GC5FATX * sf) * (tgt_sumw() / sumw()) /
                         CrossSection::Units::NuclearPDGToA(tgt_pid);
       }
@@ -253,6 +264,14 @@ struct EC2Accumulator : public BaseAccumulator {
 
     if (units == input_unit) {
       return sumw() / ReciprocalTotXS();
+    }
+
+    if ((units.tgtscale == CrossSection::Units::TargetScale::CustomType) ||
+        (units.scale == CrossSection::Units::Scale::CustomType)) {
+      std::stringstream ss;
+      ss << units;
+      throw std::runtime_error(
+          fmt::format("fatx called with invalid units type: {}", ss.str()));
     }
 
     double sf = units_scale_factor(units);
@@ -347,6 +366,14 @@ struct EC4Accumulator : public BaseAccumulator {
   double fatx(CrossSection::Units::Unit const &units) const {
     if (units == input_unit) {
       return EC4BestEstimate;
+    }
+
+    if ((units.tgtscale == CrossSection::Units::TargetScale::CustomType) ||
+        (units.scale == CrossSection::Units::Scale::CustomType)) {
+      std::stringstream ss;
+      ss << units;
+      throw std::runtime_error(
+          fmt::format("fatx called with invalid units type: {}", ss.str()));
     }
 
     double sf = units_scale_factor(units);

@@ -145,7 +145,7 @@ CrossSection::Units::Scale ParseCrossSectionScaleUnits(std::string const &su) {
     xs = CrossSection::Units::Scale::nb;
   } else if (su == "cm2") {
     xs = CrossSection::Units::Scale::cm2;
-  } else if (su == "1e-38 cm2") {
+  } else if ((su == "1e-38 cm2") || (su == "1E-38 cm2")) {
     xs = CrossSection::Units::Scale::cm2_ten38;
   }
 
