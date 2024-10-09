@@ -136,7 +136,7 @@ SET(NuHepMC_HEPMC3_MIN_VERSION 3.2.6)
 set(NuHepMC_EIGEN3_MIN_VERSION 3.4.0)
 include(CPM)
 
-CPMAddPackage(
+CPMFindPackage(
     NAME fmt
     GIT_TAG 8.1.1
     GITHUB_REPOSITORY fmtlib/fmt
@@ -314,7 +314,11 @@ install(FILES
 
 if(NuHepMC_CPPUtils_ENABLE_TESTS)
 
-  CPMAddPackage("gh:catchorg/Catch2@3.3.2")
+  CPMFindPackage(
+      NAME Catch2
+      GITHUB_REPOSITORY catchorg/Catch2
+      VERSION 3.3.2
+  )
 
   LIST(APPEND CMAKE_MODULE_PATH ${Catch2_SOURCE_DIR}/extras)
 
