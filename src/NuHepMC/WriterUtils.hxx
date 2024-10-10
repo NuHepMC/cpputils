@@ -6,8 +6,6 @@
 
 #include "HepMC3/GenRunInfo.h"
 
-#include "Eigen/Dense"
-
 #include <map>
 #include <memory>
 #include <string>
@@ -100,12 +98,6 @@ void WriteBeamUnits(std::shared_ptr<HepMC3::GenRunInfo> run_info,
 void SetHistogramBeamType(std::shared_ptr<HepMC3::GenRunInfo> run_info);
 
 void SetMonoEnergeticBeamType(std::shared_ptr<HepMC3::GenRunInfo> run_info);
-
-void WriteBeamEnergyHistogram(std::shared_ptr<HepMC3::GenRunInfo> run_info,
-                              int BeamParticleNumber,
-                              Eigen::ArrayXd const &bin_edges,
-                              Eigen::ArrayXd const &bin_content,
-                              bool ContentIsPerWidth = false);
 
 void WriteBeamEnergyHistogram(std::shared_ptr<HepMC3::GenRunInfo> run_info,
                               int BeamParticleNumber,

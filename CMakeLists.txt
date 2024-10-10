@@ -74,29 +74,6 @@ endif()
 
 LIST(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/cmake/Modules)
 
-#### RPATH handling #####
-
-set(CMAKE_MACOSX_RPATH 1)
-
-# use, i.e. don't skip the full RPATH for the build tree
-SET(CMAKE_SKIP_BUILD_RPATH  FALSE)
-
-# when building, don't use the install RPATH already
-# (but later on when installing)
-SET(CMAKE_BUILD_WITH_INSTALL_RPATH FALSE)
-
-SET(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}")
-
-# add the automatically determined parts of the RPATH
-# which point to directories outside the build tree to the install RPATH
-SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
-
-# the RPATH to be used when installing, but only if it's not a system directory
-LIST(FIND CMAKE_PLATFORM_IMPLICIT_LINK_DIRECTORIES "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}" isSystemDir)
-IF("${isSystemDir}" STREQUAL "-1")
-   SET(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}")
-ENDIF("${isSystemDir}" STREQUAL "-1")
-
 ######################### Dependencies
 
 add_library(nuhepmc_private_compile_options INTERFACE)
@@ -133,34 +110,24 @@ SET(NuHepMC_HEPMC3_Z_SUPPORT)
 SET(NuHepMC_HEPMC3_ProtobufIO_SUPPORT)
 
 SET(NuHepMC_HEPMC3_MIN_VERSION 3.2.6)
-set(NuHepMC_EIGEN3_MIN_VERSION 3.4.0)
-include(CPM)
+
+include(get_cpm)
 
 CPMFindPackage(
     NAME fmt
-    GIT_TAG 8.1.1
+    GIT_TAG 10.2.1
     GITHUB_REPOSITORY fmtlib/fmt
-    OPTIONS "FMT_INSTALL ON"
-            "BUILD_SHARED_LIBS ON"
-)
-
-CPMFindPackage(
-  NAME Eigen3
-  VERSION ${NuHepMC_EIGEN3_MIN_VERSION}
-  GITLAB_REPOSITORY "libeigen/eigen"
-  GIT_TAG "${NuHepMC_EIGEN3_MIN_VERSION}"
-  OPTIONS "EIGEN_BUILD_DOC no" "BUILD_TESTING no"
-)
-
-CPMFindPackage(
-    NAME pybind11
-    VERSION 2.9.2
-    GITHUB_REPOSITORY pybind/pybind11
-    GIT_TAG "v2.9.2"
 )
 
 if(NuHepMC_CPPUtils_PYTHON_ENABLED)
   find_package(Python3 REQUIRED)
+
+  CPMFindPackage(
+    NAME pybind11
+    VERSION 2.13.6
+    GITHUB_REPOSITORY pybind/pybind11
+    GIT_TAG "v2.13.6"
+  )
 endif()
 
 if(NuHepMC_CPPUtils_BUILTIN_HEPMC3)

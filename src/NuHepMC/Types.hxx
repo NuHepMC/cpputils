@@ -2,8 +2,6 @@
 
 #include "NuHepMC/Exceptions.hxx"
 
-#include "Eigen/Dense"
-
 #include <map>
 #include <string>
 
@@ -31,51 +29,72 @@ struct EnergyDistribution {
   std::string energy_unit;
   std::string rate_unit;
 
-  Eigen::ArrayXd bin_edges;
-  Eigen::ArrayXd bin_content;
+  std::vector<double> bin_edges;
+  std::vector<double> bin_content;
 
   bool ContentIsPerWidth;
 
-  Eigen::ArrayXd get_bin_widths() const {
-    return (bin_edges.bottomRows(bin_edges.rows() - 1) -
-            bin_edges.topRows(bin_edges.rows() - 1));
+  std::vector<double> get_bin_widths() const {
+
+    std::vector<double> widths = bin_content;
+    for (size_t i = 0; i < widths.size(); ++i) {
+      widths[i] = bin_edges[i + 1] - bin_edges[i];
+    }
+
+    return widths;
   }
 
   double get_integral() const {
-    if (ContentIsPerWidth) {
-      return (bin_content * get_bin_widths()).sum();
+    auto const &widths = get_bin_widths();
+    double integral = 0;
+    for (size_t i = 0; i < bin_content.size(); ++i) {
+      if (ContentIsPerWidth) {
+        integral += bin_content[i] * widths[i];
+      } else {
+        integral += bin_content[i];
+      }
     }
-    return bin_content.sum();
+    return integral;
   }
 
-  Eigen::ArrayXd get_flux_density() {
+  std::vector<double> get_flux_density() {
+    std::vector<double> flux_density = bin_content;
+    auto const &widths = get_bin_widths();
     if (!ContentIsPerWidth) {
-      return (bin_content / get_bin_widths());
+      for (size_t i = 0; i < bin_content.size(); ++i) {
+        flux_density[i] /= widths[i];
+      }
     }
-    return bin_content;
+    return flux_density;
   }
 
-  Eigen::ArrayXd get_flux_shape_density() {
-    if (!ContentIsPerWidth) {
-      return (bin_content / get_bin_widths()) / get_integral();
+  std::vector<double> get_flux_shape_density() {
+    auto flux_density = get_flux_density();
+    auto const &integral = get_integral();
+    for (size_t i = 0; i < flux_density.size(); ++i) {
+      flux_density[i] /= integral;
     }
-    return bin_content / get_integral();
+    return flux_density;
   }
 
-  Eigen::ArrayXd get_flux_rate() {
-
+  std::vector<double> get_flux_rate() {
+    std::vector<double> flux_rate = bin_content;
+    auto const &widths = get_bin_widths();
     if (ContentIsPerWidth) {
-      return (bin_content * get_bin_widths());
+      for (size_t i = 0; i < bin_content.size(); ++i) {
+        flux_rate[i] *= widths[i];
+      }
     }
-    return bin_content;
+    return flux_rate;
   }
 
-  Eigen::ArrayXd get_flux_shape_rate() {
-
-    if (ContentIsPerWidth) {
-      return (bin_content * get_bin_widths()) / get_integral();
+  std::vector<double> get_flux_shape_rate() {
+    auto flux_rate = get_flux_rate();
+    auto const &integral = get_integral();
+    for (size_t i = 0; i < flux_rate.size(); ++i) {
+      flux_rate[i] /= integral;
     }
-    return bin_content / get_integral();
+    return flux_rate;
   }
 
   NEW_NuHepMC_EXCEPT(UnconvertibleEnergyUnit);
@@ -113,16 +132,23 @@ struct EnergyDistribution {
     energy_unit = to_unit;
 
     if (ContentIsPerWidth) {
-      bin_content *= sf;
+      for (size_t i = 0; i < bin_content.size(); ++i) {
+        bin_content[i] *= sf;
+      }
     }
-
-    bin_edges *= sf;
+    for (size_t i = 0; i < bin_edges.size(); ++i) {
+      bin_edges[i] *= sf;
+    }
   }
 
-  Eigen::ArrayXd get_bin_centers() {
-    return (bin_edges.bottomRows(bin_edges.rows() - 1) +
-            bin_edges.topRows(bin_edges.rows() - 1)) /
-           2.0;
+  std::vector<double> get_bin_centers() {
+    std::vector<double> centers = bin_content;
+
+    for (size_t i = 0; i < centers.size(); ++i) {
+      centers[i] = (bin_edges[i + 1] + bin_edges[i]) / 2.0;
+    }
+
+    return centers;
   }
 
   bool is_in_GeV() { return energy_unit == "GEV"; }

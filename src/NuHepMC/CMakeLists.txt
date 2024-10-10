@@ -20,7 +20,7 @@ set(IMPLEMENTATION
   FATXUtils.cxx)
 
 add_library(nuhepmc_cpputils SHARED ${IMPLEMENTATION})
-target_link_libraries(nuhepmc_cpputils PUBLIC NuHepMC::Options Eigen3::Eigen)
+target_link_libraries(nuhepmc_cpputils PUBLIC NuHepMC::Options)
 target_link_libraries(nuhepmc_cpputils PRIVATE fmt::fmt-header-only nuhepmc_private_compile_options)
 set_target_properties(nuhepmc_cpputils PROPERTIES 
   PUBLIC_HEADER "${HEADERS}"

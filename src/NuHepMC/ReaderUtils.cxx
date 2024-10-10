@@ -262,11 +262,11 @@ ReadHistogramDistribution(std::shared_ptr<HepMC3::GenRunInfo const> run_info,
 
   EnergyDistribution dist;
 
-  dist.bin_edges = CheckedAttributeValue<Eigen::ArrayXd>(
+  dist.bin_edges = CheckedAttributeValue<std::vector<double>>(
       run_info, std::string("NuHepMC.Beam[") + std::to_string(pdg_number) +
                     "].Histogram.BinEdges");
 
-  dist.bin_content = CheckedAttributeValue<Eigen::ArrayXd>(
+  dist.bin_content = CheckedAttributeValue<std::vector<double>>(
       run_info, std::string("NuHepMC.Beam[") + std::to_string(pdg_number) +
                     "].Histogram.BinContent");
 
