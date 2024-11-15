@@ -27,9 +27,13 @@ struct Accumulator {
 
   virtual std::string to_string() const = 0;
 
-  virtual int TargetA() const = 0;
-  virtual int TargetZ() const = 0;
-  virtual int TargetN() const = 0;
+  virtual int TargetTotalNucleons() const = 0;
+  virtual int TargetTotalProtons() const = 0;
+  virtual int TargetTotalNeutrons() const = 0;
+
+  virtual double TargetAverageA() const = 0;
+  virtual double TargetAverageZ() const = 0;
+  virtual double TargetAverageN() const = 0;
 
   virtual ~Accumulator() {}
 };

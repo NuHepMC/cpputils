@@ -102,26 +102,48 @@ struct BaseAccumulator : public Accumulator {
     return ss.str();
   }
 
-  int TargetA() const {
+  int TargetTotalNucleons() const {
     int TotNucleons = 0;
     for (auto const &[tgt_pid, tgt_sumw] : targets_sumw) {
       TotNucleons += CrossSection::Units::NuclearPDGToA(tgt_pid);
     }
     return TotNucleons;
   }
-  int TargetZ() const {
+  int TargetTotalProtons() const {
     int TotProtons = 0;
     for (auto const &[tgt_pid, tgt_sumw] : targets_sumw) {
       TotProtons += CrossSection::Units::NuclearPDGToZ(tgt_pid);
     }
     return TotProtons;
   }
-  int TargetN() const {
+  int TargetTotalNeutrons() const {
     int TotNeutrons = 0;
     for (auto const &[tgt_pid, tgt_sumw] : targets_sumw) {
       TotNeutrons += CrossSection::Units::NuclearPDGToN(tgt_pid);
     }
     return TotNeutrons;
+  }
+
+  double TargetAverageA() const {
+    double TotNucleons = 0;
+    for (auto const &[tgt_pid, tgt_sumw] : targets_sumw) {
+      TotNucleons += CrossSection::Units::NuclearPDGToA(tgt_pid) * tgt_sumw();
+    }
+    return TotNucleons / sumw();
+  }
+  double TargetAverageZ() const {
+    double TotProtons = 0;
+    for (auto const &[tgt_pid, tgt_sumw] : targets_sumw) {
+      TotProtons += CrossSection::Units::NuclearPDGToZ(tgt_pid) * tgt_sumw();
+    }
+    return TotProtons / sumw();
+  }
+  double TargetAverageN() const {
+    double TotNeutrons = 0;
+    for (auto const &[tgt_pid, tgt_sumw] : targets_sumw) {
+      TotNeutrons += CrossSection::Units::NuclearPDGToN(tgt_pid) * tgt_sumw();
+    }
+    return TotNeutrons / sumw();
   }
 
   double sumweights() const { return sumw(); }
@@ -130,9 +152,11 @@ struct BaseAccumulator : public Accumulator {
 
 struct DummyAccumulator : public Accumulator {
   size_t nevt;
+  std::map<int, size_t> targets_nevt;
   DummyAccumulator() : nevt{0} {}
-  double process(HepMC3::GenEvent const &) {
+  double process(HepMC3::GenEvent const &ev) {
     nevt++;
+    targets_nevt[Event::GetTargetPDG(ev)]++;
     return 1;
   }
   double fatx(CrossSection::Units::Unit const &) const { return 1; }
@@ -140,9 +164,49 @@ struct DummyAccumulator : public Accumulator {
   double sumweights() const { return nevt; }
   size_t events() const { return nevt; }
   std::string to_string() const { return "DummyAccumulator"; }
-  int TargetA() const { return 0; }
-  int TargetZ() const { return 0; }
-  int TargetN() const { return 0; }
+  int TargetTotalNucleons() const {
+    int TotNucleons = 0;
+    for (auto const &[tgt_pid, tgt_nevt] : targets_nevt) {
+      TotNucleons += CrossSection::Units::NuclearPDGToA(tgt_pid);
+    }
+    return TotNucleons;
+  }
+  int TargetTotalProtons() const {
+    int TotProtons = 0;
+    for (auto const &[tgt_pid, tgt_nevt] : targets_nevt) {
+      TotProtons += CrossSection::Units::NuclearPDGToZ(tgt_pid);
+    }
+    return TotProtons;
+  }
+  int TargetTotalNeutrons() const {
+    int TotNeutrons = 0;
+    for (auto const &[tgt_pid, tgt_nevt] : targets_nevt) {
+      TotNeutrons += CrossSection::Units::NuclearPDGToN(tgt_pid);
+    }
+    return TotNeutrons;
+  }
+
+  double TargetAverageA() const {
+    double TotNucleons = 0;
+    for (auto const &[tgt_pid, tgt_nevt] : targets_nevt) {
+      TotNucleons += CrossSection::Units::NuclearPDGToA(tgt_pid) * tgt_nevt;
+    }
+    return TotNucleons / double(nevt);
+  }
+  double TargetAverageZ() const {
+    double TotProtons = 0;
+    for (auto const &[tgt_pid, tgt_nevt] : targets_nevt) {
+      TotProtons += CrossSection::Units::NuclearPDGToZ(tgt_pid) * tgt_nevt;
+    }
+    return TotProtons / double(nevt);
+  }
+  double TargetAverageN() const {
+    double TotNeutrons = 0;
+    for (auto const &[tgt_pid, tgt_nevt] : targets_nevt) {
+      TotNeutrons += CrossSection::Units::NuclearPDGToN(tgt_pid) * tgt_nevt;
+    }
+    return TotNeutrons / double(nevt);
+  }
 };
 
 // This just reads the FATX from the run_info
