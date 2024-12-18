@@ -316,7 +316,13 @@ struct EC2Accumulator : public BaseAccumulator {
 
     auto tgt_pdg = Event::GetTargetPDG(ev);
 
-    auto totxs_recip = w / EC2::ReadTotalCrossSection(ev);
+    auto xs = EC2::ReadTotalCrossSection(ev)
+
+    if(!xs){ //skip events with 0 cross section
+      return w;
+    }
+
+    auto totxs_recip = w / xs;
 
     ReciprocalTotXS(totxs_recip);
     targets_ReciprocalTotXS[tgt_pdg](totxs_recip);
