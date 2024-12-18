@@ -316,7 +316,7 @@ struct EC2Accumulator : public BaseAccumulator {
 
     auto tgt_pdg = Event::GetTargetPDG(ev);
 
-    auto xs = EC2::ReadTotalCrossSection(ev)
+    auto xs = EC2::ReadTotalCrossSection(ev);
 
     if(!xs){ //skip events with 0 cross section
       return w;
