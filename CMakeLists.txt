@@ -44,6 +44,7 @@ option(NuHepMC_CPPUtils_PROTOBUF_INTERFACE "Whether to build the protobuf interf
 option(NuHepMC_CPPUtils_ENABLE_TESTS "Whether to enable test suite" OFF)
 option(NuHepMC_CPPUtils_ENABLE_SANITIZERS_CLI "Whether to enable ASAN LSAN and UBSAN" OFF)
 option(NuHepMC_CPPUtils_ENABLE_GCOV_CLI "Whether to enable GCOV" OFF)
+option(NuHepMC_CPPUtils_EXTERNAL_FMT "Whether to use an external fmt library" OFF)
 
 if(NuHepMC_CPPUtils_ENABLE_TESTS)
     SET(NuHepMC_CPPUtils_ENABLE_SANITIZERS ON)
@@ -122,6 +123,7 @@ CPMFindPackage(
         "SPDLOG_COMPILED_LIB ON"
         "SPDLOG_BUILD_SHARED ON"
         "SPDLOG_INSTALL ON"
+        "SPDLOG_EXTERNAL_FMT ${NuHepMC_CPPUtils_EXTERNAL_FMT}"
 )
 
 if(NuHepMC_CPPUtils_PYTHON_ENABLED)
