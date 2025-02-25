@@ -95,6 +95,10 @@ if(NuHepMC_CPPUtils_ENABLE_GCOV)
   target_link_options(nuhepmc_options BEFORE INTERFACE -fprofile-arcs -ftest-coverage)
 endif()
 
+if(NuHepMC_CPPUtils_EXTERNAL_FMT)
+  target_compile_options(nuhepmc_options INTERFACE SPDLOG_FMT_EXTERNAL)
+endif()
+
 target_include_directories(nuhepmc_options INTERFACE 
   $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/src>
   $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/include> 
@@ -123,7 +127,7 @@ CPMFindPackage(
         "SPDLOG_COMPILED_LIB ON"
         "SPDLOG_BUILD_SHARED ON"
         "SPDLOG_INSTALL ON"
-        "SPDLOG_EXTERNAL_FMT ${NuHepMC_CPPUtils_EXTERNAL_FMT}"
+        "SPDLOG_FMT_EXTERNAL ${NuHepMC_CPPUtils_EXTERNAL_FMT}"
 )
 
 if(NuHepMC_CPPUtils_PYTHON_ENABLED)
