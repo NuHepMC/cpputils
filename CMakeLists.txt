@@ -28,13 +28,13 @@ cmake_minimum_required (VERSION 3.17 FATAL_ERROR)
 find_program(CMAKE_C_COMPILER NAMES $ENV{CC} gcc PATHS ENV PATH NO_DEFAULT_PATH)
 find_program(CMAKE_CXX_COMPILER NAMES $ENV{CXX} g++ PATHS ENV PATH NO_DEFAULT_PATH)
 
-SET(NuHepMC_CPPUtils_VERSION 0.9.4)
+SET(NuHepMC_CPPUtils_VERSION 0.9.5)
 project(NuHepMC_CPPUtils VERSION ${NuHepMC_CPPUtils_VERSION} LANGUAGES CXX)
 
 # The specification version used in this repo
 SET(NuHepMC_VERSION_MAJOR  0)
 SET(NuHepMC_VERSION_MINOR  9)
-SET(NuHepMC_VERSION_PATCH  4)
+SET(NuHepMC_VERSION_PATCH  5)
 
 set(CMAKE_CXX_STANDARD 17)
 
@@ -118,17 +118,40 @@ SET(NuHepMC_HEPMC3_MIN_VERSION 3.2.6)
 
 include(get_cpm)
 
-CPMFindPackage(
-    NAME spdlog
-    VERSION 1.14.1
-    GIT_TAG v1.14.1
-    GITHUB_REPOSITORY gabime/spdlog
-    OPTIONS 
-        "SPDLOG_COMPILED_LIB ON"
-        "SPDLOG_BUILD_SHARED ON"
-        "SPDLOG_INSTALL ON"
-        "SPDLOG_FMT_EXTERNAL ${NuHepMC_CPPUtils_EXTERNAL_FMT}"
-)
+set(NuHepMC_HEPMC3_FMT_VERSION "10.2.1")
+set(NuHepMC_HEPMC3_FMT_VERSION_RANGE "10...<11")
+find_package(fmt ${NuHepMC_HEPMC3_FMT_VERSION_RANGE} QUIET NO_DEFAULT_PATH)
+
+set(NuHepMC_HEPMC3_SPDLOG_VERSION "1.14.1")
+set(NuHepMC_HEPMC3_SPDLOG_VERSION_RANGE "1.14...<1.15")
+find_package(spdlog ${NuHepMC_HEPMC3_SPDLOG_VERSION_RANGE} QUIET NO_DEFAULT_PATH)
+
+if(NOT spdlog_FOUND OR NOT fmt_FOUND)
+  CPMAddPackage(
+      NAME fmt
+      VERSION "${NuHepMC_HEPMC3_FMT_VERSION}"
+      GIT_TAG "${NuHepMC_HEPMC3_FMT_VERSION}"
+      GITHUB_REPOSITORY fmtlib/fmt
+      OPTIONS 
+          "FMT_INSTALL ON"
+          "BUILD_SHARED_LIBS ON"
+  )
+
+  CPMAddPackage(
+      NAME spdlog
+      VERSION "${NuHepMC_HEPMC3_SPDLOG_VERSION}"
+      GIT_TAG "v${NuHepMC_HEPMC3_SPDLOG_VERSION}"
+      GITHUB_REPOSITORY gabime/spdlog
+      OPTIONS 
+          "SPDLOG_COMPILED_LIB ON"
+          "SPDLOG_BUILD_SHARED ON"
+          "SPDLOG_FMT_EXTERNAL ON"
+          "SPDLOG_INSTALL ON"
+  )
+else()
+  message(STATUS "Found system fmt: ${fmt_DIR}")
+  message(STATUS "Found system spdlog: ${spdlog_DIR}")
+endif()
 
 if(NuHepMC_CPPUtils_PYTHON_ENABLED)
   find_package(Python3 REQUIRED)
