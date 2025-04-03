@@ -6,11 +6,7 @@
 #include "HepMC3/GenEvent.h"
 #include "HepMC3/GenRunInfo.h"
 
-#ifdef SPDLOG_FMT_EXTERNAL
 #include "fmt/core.h"
-#else
-#include "spdlog/fmt/bundled/core.h"
-#endif
 
 namespace NuHepMC {
 

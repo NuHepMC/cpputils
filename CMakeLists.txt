@@ -44,7 +44,6 @@ option(NuHepMC_CPPUtils_PROTOBUF_INTERFACE "Whether to build the protobuf interf
 option(NuHepMC_CPPUtils_ENABLE_TESTS "Whether to enable test suite" OFF)
 option(NuHepMC_CPPUtils_ENABLE_SANITIZERS_CLI "Whether to enable ASAN LSAN and UBSAN" OFF)
 option(NuHepMC_CPPUtils_ENABLE_GCOV_CLI "Whether to enable GCOV" OFF)
-option(NuHepMC_CPPUtils_EXTERNAL_FMT "Whether to use an external fmt library" OFF)
 
 if(NuHepMC_CPPUtils_ENABLE_TESTS)
     SET(NuHepMC_CPPUtils_ENABLE_SANITIZERS ON)
@@ -93,10 +92,6 @@ endif()
 if(NuHepMC_CPPUtils_ENABLE_GCOV)
   target_compile_options(nuhepmc_options BEFORE INTERFACE -fprofile-arcs -ftest-coverage)
   target_link_options(nuhepmc_options BEFORE INTERFACE -fprofile-arcs -ftest-coverage)
-endif()
-
-if(NuHepMC_CPPUtils_EXTERNAL_FMT)
-  target_compile_options(nuhepmc_options INTERFACE SPDLOG_FMT_EXTERNAL)
 endif()
 
 target_include_directories(nuhepmc_options INTERFACE 
