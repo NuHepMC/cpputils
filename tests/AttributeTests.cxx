@@ -71,10 +71,6 @@ std::vector<double> myvectordouble = {
 TYPE_TEST_MACRO_VECTOR("add_attribute<std::vector<double>>",
                        VectorDoubleAttribute, myvectordouble);
 
-Eigen::ArrayXd myearr = (Eigen::ArrayXd(5) << 1, 2, 3, 4, 5).finished();
-TYPE_TEST_MACRO_ARRAYXD("add_attribute<Eigen::ArrayXd>", VectorDoubleAttribute,
-                        myearr);
-
 std::string mystdstring = "abcdef";
 TYPE_TEST_MACRO("add_attribute<std::string>", StringAttribute, mystdstring);
 

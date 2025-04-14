@@ -109,7 +109,7 @@ SET(NuHepMC_HEPMC3_USE_COMPRESSION)
 SET(NuHepMC_HEPMC3_Z_SUPPORT)
 SET(NuHepMC_HEPMC3_ProtobufIO_SUPPORT)
 
-SET(NuHepMC_HEPMC3_MIN_VERSION 3.2.6)
+SET(NuHepMC_HEPMC3_MIN_VERSION 3.3.2)
 
 include(get_cpm)
 
@@ -170,8 +170,8 @@ if(NuHepMC_CPPUtils_BUILTIN_HEPMC3)
   CPMAddPackage(
       NAME HepMC3
       VERSION ${NuHepMC_HEPMC3_MIN_VERSION}
-      GIT_REPOSITORY "https://github.com/NuHepMC/HepMC3.git"
-      GIT_TAG patches/NuHepMC
+      GIT_REPOSITORY https://gitlab.cern.ch/hepmc/HepMC3.git
+      GIT_TAG master
       OPTIONS
         "HEPMC3_CXX_STANDARD ${CMAKE_CXX_STANDARD}"
         "HEPMC3_ENABLE_SEARCH OFF"
@@ -316,7 +316,11 @@ if(NuHepMC_CPPUtils_ENABLE_TESTS)
       VERSION 3.3.2
   )
 
-  LIST(APPEND CMAKE_MODULE_PATH ${Catch2_SOURCE_DIR}/extras)
+  if(NOT "${Catch2_SOURCE_DIR}" STREQUAL "")
+    LIST(APPEND CMAKE_MODULE_PATH ${Catch2_SOURCE_DIR}/extras)
+  elseif(NOT "${Catch2_DIR}" STREQUAL "")
+    LIST(APPEND CMAKE_MODULE_PATH ${Catch2_DIR})
+  endif()
 
   include(CTest)
   include(Catch)

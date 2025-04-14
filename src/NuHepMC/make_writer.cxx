@@ -6,7 +6,10 @@
 
 #include "HepMC3/WriterAscii.h"
 #ifdef HEPMC3_USE_COMPRESSION
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+#pragma GCC diagnostic push
 #include "HepMC3/WriterGZ.h"
+#pragma GCC diagnostic pop
 #endif
 #ifdef HEPMC3_ProtobufIO_SUPPORT
 #include "HepMC3/Writerprotobuf.h"

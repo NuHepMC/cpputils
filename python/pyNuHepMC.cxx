@@ -3,6 +3,7 @@
 #include "NuHepMC/FATXUtils.hxx"
 #include "NuHepMC/ReaderUtils.hxx"
 #include "NuHepMC/Types.hxx"
+#include "NuHepMC/make_writer.hxx"
 
 #include "pybind11/pybind11.h"
 #include "pybind11/stl.h"
@@ -162,4 +163,14 @@ PYBIND11_MODULE(pyNuHepMC, m) {
   reader_utils_gc7.def("read_energy_distribution",
                        &GC7::ReadEnergyDistribution);
   reader_utils_gc7.def("has_energy_distribution", &GC7::HasEnergyDistribution);
+
+  auto writer_utils = m.def_submodule("WriterUtils", "");
+  writer_utils.def(
+      "make_writer",
+      [](std::string const &name,
+         std::shared_ptr<HepMC3::GenRunInfo> run_info) {
+        return std::unique_ptr<HepMC3::Writer>(
+            Writer::make_writer(name, run_info));
+      },
+      py::arg("name"), py::arg("run_info") = nullptr);
 }
