@@ -34,7 +34,7 @@ project(NuHepMC_CPPUtils VERSION ${NuHepMC_CPPUtils_VERSION} LANGUAGES CXX)
 # The specification version used in this repo
 SET(NuHepMC_VERSION_MAJOR  0)
 SET(NuHepMC_VERSION_MINOR  9)
-SET(NuHepMC_VERSION_PATCH  7)
+SET(NuHepMC_VERSION_PATCH  0)
 
 set(CMAKE_CXX_STANDARD 17)
 
