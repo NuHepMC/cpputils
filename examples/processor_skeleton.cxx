@@ -13,9 +13,11 @@
 #include "HepMC3/GenParticle.h"
 #include "HepMC3/GenVertex.h"
 
-auto GetPartFromId(HepMC3::GenEvent &evt, int id){
-  for(auto &part : evt.particles()){
-    if(part->id() == id){ return part; }
+auto GetPartFromId(HepMC3::GenEvent &evt, int id) {
+  for (auto &part : evt.particles()) {
+    if (part->id() == id) {
+      return part;
+    }
   }
   return nullptr;
 }
@@ -42,9 +44,9 @@ int main(int argc, char const *argv[]) {
 
   auto in_gen_run_info = evt.run_info();
   auto vtx_statuses =
-      NuHepMC::GR5::ReadVertexStatusIdDefinitions(in_gen_run_info);
+      NuHepMC::GR8::ReadVertexStatusIdDefinitions(in_gen_run_info);
   auto part_statuses =
-      NuHepMC::GR6::ReadParticleStatusIdDefinitions(in_gen_run_info);
+      NuHepMC::GR9::ReadParticleStatusIdDefinitions(in_gen_run_info);
 
   // modify gen_run_info here to add to the file provenance that your code has
   // run on the file
@@ -62,8 +64,8 @@ int main(int argc, char const *argv[]) {
       "MyToolName", "My.Tool.Version",
       "a longer form description of this event processor"});
 
-  NuHepMC::GR5::WriteVertexStatusIDDefinitions(out_gen_run_info, vtx_statuses);
-  NuHepMC::GR6::WriteParticleStatusIDDefinitions(out_gen_run_info,
+  NuHepMC::GR8::WriteVertexStatusIDDefinitions(out_gen_run_info, vtx_statuses);
+  NuHepMC::GR9::WriteParticleStatusIDDefinitions(out_gen_run_info,
                                                  part_statuses);
 
   // add link to your paper describing this model to the citation metadata
@@ -136,7 +138,7 @@ int main(int argc, char const *argv[]) {
     qvec.setE(0);
 
     // get a non-const handle to the FSLep
-    auto fslep_preFSI = GetPartFromId(evt,fslep->id());
+    auto fslep_preFSI = GetPartFromId(evt, fslep->id());
     fslep_preFSI->set_status(
         MyFSIVertexStatus); // set a status code corresponding to underwent your
                             // FSI

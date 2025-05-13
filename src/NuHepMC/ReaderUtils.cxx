@@ -7,6 +7,7 @@
 namespace NuHepMC {
 
 namespace GR2 {
+
 std::tuple<int, int, int>
 ReadVersion(std::shared_ptr<HepMC3::GenRunInfo const> run_info) {
   return std::make_tuple(
@@ -21,7 +22,35 @@ ReadVersionString(std::shared_ptr<HepMC3::GenRunInfo const> run_info) {
          std::to_string(std::get<1>(vt)) + "." +
          std::to_string(std::get<2>(vt));
 }
+
 } // namespace GR2
+
+namespace GR4 {
+
+std::set<std::string>
+ReadConventions(std::shared_ptr<HepMC3::GenRunInfo const> run_info) {
+  std::set<std::string> conventions;
+  for (auto &c : CheckedAttributeValue<std::vector<std::string>>(
+           run_info, "NuHepMC.Conventions", std::vector<std::string>{})) {
+    conventions.insert(c);
+  }
+  return conventions;
+}
+bool SignalsConvention(std::shared_ptr<HepMC3::GenRunInfo const> run_info,
+                       std::string const &Convention) {
+  return ReadConventions(run_info).count(Convention);
+}
+bool SignalsConventions(std::shared_ptr<HepMC3::GenRunInfo const> run_info,
+                        std::vector<std::string> Conventions) {
+  bool all = true;
+  auto convs = ReadConventions(run_info);
+  for (auto const &c : Conventions) {
+    all = all && convs.count(c);
+  }
+  return all;
+}
+
+} // namespace GR4
 
 StatusCodeDescriptors
 ReadIdDefinitions(std::shared_ptr<HepMC3::GenRunInfo const> run_info,
@@ -55,85 +84,14 @@ ReadIdDefinitions(std::shared_ptr<HepMC3::GenRunInfo const> run_info,
   return status_codes;
 }
 
-namespace GR4 {
-StatusCodeDescriptors
-ReadProcessIdDefinitions(std::shared_ptr<HepMC3::GenRunInfo const> run_info) {
-  return ReadIdDefinitions(run_info, {"ProcessIDs", "ProcessInfo"});
-}
-} // namespace GR4
-
-namespace GR5 {
-StatusCodeDescriptors ReadVertexStatusIdDefinitions(
-    std::shared_ptr<HepMC3::GenRunInfo const> run_info) {
-  return ReadIdDefinitions(run_info, {"VertexStatusIDs", "VertexStatusInfo"});
-}
-} // namespace GR5
-
 namespace GR6 {
-StatusCodeDescriptors ReadParticleStatusIdDefinitions(
-    std::shared_ptr<HepMC3::GenRunInfo const> run_info) {
-  return ReadIdDefinitions(run_info,
-                           {"ParticleStatusIDs", "ParticleStatusInfo"});
-}
-} // namespace GR6
-
-namespace GR8 {
-StatusCodeDescriptors ReadNonStandardParticleNumbers(
-    std::shared_ptr<HepMC3::GenRunInfo const> run_info) {
-  return ReadIdDefinitions(
-      run_info, {"AdditionalParticleNumbers", "AdditionalParticleInfo"});
-}
-} // namespace GR8
-
-namespace GC1 {
-std::set<std::string>
-ReadConventions(std::shared_ptr<HepMC3::GenRunInfo const> run_info) {
-  std::set<std::string> conventions;
-  for (auto &c : CheckedAttributeValue<std::vector<std::string>>(
-           run_info, "NuHepMC.Conventions", std::vector<std::string>{})) {
-    conventions.insert(c);
-  }
-  return conventions;
-}
-bool SignalsConvention(std::shared_ptr<HepMC3::GenRunInfo const> run_info,
-                       std::string const &Convention) {
-  return ReadConventions(run_info).count(Convention);
-}
-bool SignalsConventions(std::shared_ptr<HepMC3::GenRunInfo const> run_info,
-                        std::vector<std::string> Conventions) {
-  bool all = true;
-  auto convs = ReadConventions(run_info);
-  for (auto const &c : Conventions) {
-    all = all && convs.count(c);
-  }
-  return all;
-}
-} // namespace GC1
-
-namespace GC2 {
-long ReadExposureNEvents(std::shared_ptr<HepMC3::GenRunInfo const> run_info) {
-  return CheckedAttributeValue<long>(run_info, "NuHepMC.Exposure.NEvents");
-}
-} // namespace GC2
-
-namespace GC3 {
-double ReadExposurePOT(std::shared_ptr<HepMC3::GenRunInfo const> run_info) {
-  return CheckedAttributeValue<double>(run_info, "NuHepMC.Exposure.POT");
-}
-double
-ReadExposureLivetime(std::shared_ptr<HepMC3::GenRunInfo const> run_info) {
-  return CheckedAttributeValue<double>(run_info, "NuHepMC.Exposure.Livetime");
-}
-} // namespace GC3
-
-namespace GC4 {
 std::pair<std::string, std::string>
 ReadCrossSectionUnits(std::shared_ptr<HepMC3::GenRunInfo const> run_info) {
   return std::make_pair(
       CheckedAttributeValue<std::string>(
           run_info, "NuHepMC.Units.CrossSection.Unit", "pb"),
       CheckedAttributeValue<std::string>(
-          run_info, "NuHepMC.Units.CrossSection.TargetScale", "PerTarget"));
+          run_info, "NuHepMC.Units.CrossSection.TargetScale", "PerAtom"));
 }
 
 CrossSection::Units::Scale ParseCrossSectionScaleUnits(std::string const &su) {
@@ -157,10 +115,10 @@ ParseCrossSectionTargetScaleUnits(std::string const &tsu) {
   CrossSection::Units::TargetScale ts =
       CrossSection::Units::TargetScale::CustomType;
 
-  if (tsu == "PerTarget") {
-    ts = CrossSection::Units::TargetScale::PerTarget;
-  } else if (tsu == "PerTargetNucleon") {
-    ts = CrossSection::Units::TargetScale::PerTargetNucleon;
+  if (tsu == "PerAtom") {
+    ts = CrossSection::Units::TargetScale::PerAtom;
+  } else if (tsu == "PerNucleon") {
+    ts = CrossSection::Units::TargetScale::PerNucleon;
   }
 
   return ts;
@@ -177,17 +135,57 @@ CrossSection::Units::Unit
 ParseCrossSectionUnits(std::shared_ptr<HepMC3::GenRunInfo const> run_info) {
   return ParseCrossSectionUnits(ReadCrossSectionUnits(run_info));
 }
-} // namespace GC4
+} // namespace GR6
 
-namespace GC5 {
+namespace GR8 {
+StatusCodeDescriptors
+ReadProcessIdDefinitions(std::shared_ptr<HepMC3::GenRunInfo const> run_info) {
+  return ReadIdDefinitions(run_info, {"ProcessIDs", "ProcessInfo"});
+}
+} // namespace GR8
+
+namespace GR9 {
+StatusCodeDescriptors ReadVertexStatusIdDefinitions(
+    std::shared_ptr<HepMC3::GenRunInfo const> run_info) {
+  return ReadIdDefinitions(run_info, {"VertexStatusIDs", "VertexStatusInfo"});
+}
+} // namespace GR9
+
+namespace GR10 {
+StatusCodeDescriptors ReadParticleStatusIdDefinitions(
+    std::shared_ptr<HepMC3::GenRunInfo const> run_info) {
+  return ReadIdDefinitions(run_info,
+                           {"ParticleStatusIDs", "ParticleStatusInfo"});
+}
+} // namespace GR10
+
+namespace GR11 {
+StatusCodeDescriptors ReadNonStandardParticleNumbers(
+    std::shared_ptr<HepMC3::GenRunInfo const> run_info) {
+  return ReadIdDefinitions(
+      run_info, {"AdditionalParticleNumbers", "AdditionalParticleInfo"});
+}
+} // namespace GR11
+
+namespace GC1 {
+double ReadExposurePOT(std::shared_ptr<HepMC3::GenRunInfo const> run_info) {
+  return CheckedAttributeValue<double>(run_info, "NuHepMC.Exposure.POT");
+}
+double
+ReadExposureLivetime(std::shared_ptr<HepMC3::GenRunInfo const> run_info) {
+  return CheckedAttributeValue<double>(run_info, "NuHepMC.Exposure.Livetime");
+}
+} // namespace GC1
+
+namespace GC2 {
 double
 ReadFluxAveragedTotalXSec(std::shared_ptr<HepMC3::GenRunInfo const> run_info) {
   return CheckedAttributeValue<double>(run_info,
                                        "NuHepMC.FluxAveragedTotalCrossSection");
 }
-} // namespace GC5
+} // namespace GC2
 
-namespace GC6 {
+namespace GC3 {
 CitationData
 ReadAllCitations(std::shared_ptr<HepMC3::GenRunInfo const> run_info) {
 
@@ -217,9 +215,9 @@ ReadAllCitations(std::shared_ptr<HepMC3::GenRunInfo const> run_info) {
 
   return all_citations;
 }
-} // namespace GC6
+} // namespace GC3
 
-namespace GC7 {
+namespace GC4 {
 
 EnergyDistribution ReadMonoEnergeticDistribution(
     std::shared_ptr<HepMC3::GenRunInfo const> run_info, int pdg_number) {
@@ -399,34 +397,29 @@ bool HasEnergyDistribution(std::shared_ptr<HepMC3::GenRunInfo const> run_info,
   return true;
 }
 
-} // namespace GC7
+} // namespace GC4
 
 namespace ER3 {
 int ReadProcessID(HepMC3::GenEvent const &evt) {
-
-  // for compat
-  if (HasAttribute(&evt, "ProcID")) {
-    return CheckedAttributeValue<int>(&evt, "ProcID");
-  }
   return CheckedAttributeValue<int>(&evt, "signal_process_id");
 }
 } // namespace ER3
 
 namespace ER5 {
 std::vector<double> ReadLabPosition(HepMC3::GenEvent const &evt) {
-  return CheckedAttributeValue<std::vector<double>>(&evt, "LabPos");
+  return CheckedAttributeValue<std::vector<double>>(&evt, "lab_pos");
 }
 } // namespace ER5
 
 namespace EC2 {
 double ReadTotalCrossSection(HepMC3::GenEvent const &evt) {
-  return CheckedAttributeValue<double>(&evt, "TotXS");
+  return CheckedAttributeValue<double>(&evt, "tot_xs");
 }
 } // namespace EC2
 
 namespace EC3 {
 double ReadProcessCrossSection(HepMC3::GenEvent const &evt) {
-  return CheckedAttributeValue<double>(&evt, "ProcXS");
+  return CheckedAttributeValue<double>(&evt, "proc_xs");
 }
 } // namespace EC3
 

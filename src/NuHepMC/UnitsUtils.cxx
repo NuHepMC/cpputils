@@ -40,11 +40,11 @@ std::ostream &operator<<(std::ostream &os,
   case NuHepMC::CrossSection::Units::TargetScale::CustomType: {
     return os << "CustomTargetScale";
   }
-  case NuHepMC::CrossSection::Units::TargetScale::PerTarget: {
-    return os << "PerTarget";
+  case NuHepMC::CrossSection::Units::TargetScale::PerAtom: {
+    return os << "PerAtom";
   }
-  case NuHepMC::CrossSection::Units::TargetScale::PerTargetNucleon: {
-    return os << "PerTargetNucleon";
+  case NuHepMC::CrossSection::Units::TargetScale::PerNucleon: {
+    return os << "PerNucleon";
   }
   default: {
     throw NuHepMC::CrossSection::Units::InvalidUnitType();

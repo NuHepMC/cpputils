@@ -49,12 +49,12 @@ struct BaseAccumulator : public Accumulator {
     nevt++;
 
     if (input_unit == CrossSection::Units::automatic) {
-      input_unit = NuHepMC::GC4::ParseCrossSectionUnits(ev.run_info());
+      input_unit = NuHepMC::GR6::ParseCrossSectionUnits(ev.run_info());
 
       if ((input_unit.scale == CrossSection::Units::Scale::CustomType) ||
           (input_unit.tgtscale ==
            CrossSection::Units::TargetScale::CustomType)) {
-        auto units_str = NuHepMC::GC4::ReadCrossSectionUnits(ev.run_info());
+        auto units_str = NuHepMC::GR6::ReadCrossSectionUnits(ev.run_info());
         throw CrossSection::Units::NonStandardUnitsUsed()
             << units_str.first << " " << units_str.second;
       }
@@ -95,7 +95,7 @@ struct BaseAccumulator : public Accumulator {
       }
     }
     ss << "input_unit: " << input_unit << std::endl;
-    ss << "fatx: " << fatx(CrossSection::Units::pb_PerTarget) << " pb/Target, "
+    ss << "fatx: " << fatx(CrossSection::Units::pb_PerAtom) << " pb/Atom, "
        << fatx(CrossSection::Units::cm2ten38_PerNucleon)
        << " cm^2 * 10^-38/Nucleon" << std::endl;
 
@@ -211,24 +211,24 @@ struct DummyAccumulator : public Accumulator {
 
 // This just reads the FATX from the run_info
 // Need to accumulate target fractions as we go to allow unit conversion later
-struct GC5Accumulator : public BaseAccumulator {
+struct GC2Accumulator : public BaseAccumulator {
 
-  double GC5FATX;
+  double GC2FATX;
 
-  GC5Accumulator(int cvwi = -1) : BaseAccumulator(cvwi), GC5FATX{0xdeadbeef} {}
+  GC2Accumulator(int cvwi = -1) : BaseAccumulator(cvwi), GC2FATX{0xdeadbeef} {}
 
   double process(HepMC3::GenEvent const &ev) {
     double w = BaseAccumulator::process(ev);
 
-    if (GC5FATX == 0xdeadbeef) {
-      GC5FATX = GC5::ReadFluxAveragedTotalXSec(ev.run_info());
+    if (GC2FATX == 0xdeadbeef) {
+      GC2FATX = GC2::ReadFluxAveragedTotalXSec(ev.run_info());
     }
     return w;
   }
 
   double fatx(CrossSection::Units::Unit const &units) const {
     if (units == input_unit) {
-      return GC5FATX;
+      return GC2FATX;
     }
 
     if ((units.tgtscale == CrossSection::Units::TargetScale::CustomType) ||
@@ -242,12 +242,12 @@ struct GC5Accumulator : public BaseAccumulator {
     double sf = units_scale_factor(units);
 
     if (units.tgtscale == input_unit.tgtscale) {
-      return GC5FATX * sf;
+      return GC2FATX * sf;
     }
 
-    if ((input_unit.tgtscale == CrossSection::Units::TargetScale::PerTarget) &&
+    if ((input_unit.tgtscale == CrossSection::Units::TargetScale::PerAtom) &&
         (units.tgtscale ==
-         CrossSection::Units::TargetScale::PerTargetNucleon)) {
+         CrossSection::Units::TargetScale::PerNucleon)) {
 
       double RescaledFATX = 0;
 
@@ -257,16 +257,16 @@ struct GC5Accumulator : public BaseAccumulator {
 
       for (auto const &[tgt_pid, tgt_sumw] : targets_sumw) {
 
-        RescaledFATX += (GC5FATX * sf) * (tgt_sumw() / sumw()) /
+        RescaledFATX += (GC2FATX * sf) * (tgt_sumw() / sumw()) /
                         CrossSection::Units::NuclearPDGToA(tgt_pid);
       }
 
       return RescaledFATX;
 
     } else if ((input_unit.tgtscale ==
-                CrossSection::Units::TargetScale::PerTargetNucleon) &&
+                CrossSection::Units::TargetScale::PerNucleon) &&
                (units.tgtscale ==
-                CrossSection::Units::TargetScale::PerTarget)) {
+                CrossSection::Units::TargetScale::PerAtom)) {
 
       double RescaledFATX = 0;
 
@@ -280,15 +280,15 @@ struct GC5Accumulator : public BaseAccumulator {
         TotNucleons += CrossSection::Units::NuclearPDGToA(tgt_pid);
       }
       for (auto const &[tgt_pid, tgt_sumw] : targets_sumw) {
-        RescaledFATX += (GC5FATX * sf * TotNucleons) * (tgt_sumw() / sumw());
+        RescaledFATX += (GC2FATX * sf * TotNucleons) * (tgt_sumw() / sumw());
       }
 
       return RescaledFATX;
     }
 
     throw CrossSection::Units::InvalidUnits()
-        << "GC5Accumulator can only provide FATX in /Target or "
-           "/TargetNucleon currently for inputs in the same two. If you "
+        << "GC2Accumulator can only provide FATX in /Atom or "
+           "/Nucleon currently for inputs in the same two. If you "
            "require other units you may have to convert them yourself. The "
            "input unit for this file was: "
         << input_unit << ", and the requested output unit was: " << units;
@@ -297,7 +297,7 @@ struct GC5Accumulator : public BaseAccumulator {
   std::string to_string() const {
     std::stringstream ss;
     ss << BaseAccumulator::to_string();
-    ss << "GC5FATX: " << GC5FATX << std::endl;
+    ss << "GC2FATX: " << GC2FATX << std::endl;
     return ss.str();
   }
 };
@@ -350,9 +350,9 @@ struct EC2Accumulator : public BaseAccumulator {
       return (sumw() / ReciprocalTotXS()) * sf;
     }
 
-    if ((input_unit.tgtscale == CrossSection::Units::TargetScale::PerTarget) &&
+    if ((input_unit.tgtscale == CrossSection::Units::TargetScale::PerAtom) &&
         (units.tgtscale ==
-         CrossSection::Units::TargetScale::PerTargetNucleon)) {
+         CrossSection::Units::TargetScale::PerNucleon)) {
 
       double RescaledFATX = 0;
 
@@ -369,9 +369,9 @@ struct EC2Accumulator : public BaseAccumulator {
       return RescaledFATX;
 
     } else if ((input_unit.tgtscale ==
-                CrossSection::Units::TargetScale::PerTargetNucleon) &&
+                CrossSection::Units::TargetScale::PerNucleon) &&
                (units.tgtscale ==
-                CrossSection::Units::TargetScale::PerTarget)) {
+                CrossSection::Units::TargetScale::PerAtom)) {
 
       double RescaledFATX = 0;
 
@@ -394,8 +394,8 @@ struct EC2Accumulator : public BaseAccumulator {
     }
 
     throw CrossSection::Units::InvalidUnits()
-        << "GC5Accumulator can only provide FATX in /Target or "
-           "/TargetNucleon currently for inputs in the same two. If you "
+        << "GC2Accumulator can only provide FATX in /Atom or "
+           "/Nucleon currently for inputs in the same two. If you "
            "require other units you may have to convert them yourself. The "
            "input unit for this file was: "
         << input_unit << ", and the requested output unit was: " << units;
@@ -452,9 +452,9 @@ struct EC4Accumulator : public BaseAccumulator {
       return EC4BestEstimate * sf;
     }
 
-    if ((input_unit.tgtscale == CrossSection::Units::TargetScale::PerTarget) &&
+    if ((input_unit.tgtscale == CrossSection::Units::TargetScale::PerAtom) &&
         (units.tgtscale ==
-         CrossSection::Units::TargetScale::PerTargetNucleon)) {
+         CrossSection::Units::TargetScale::PerNucleon)) {
 
       double RescaledFATX = 0;
 
@@ -471,9 +471,9 @@ struct EC4Accumulator : public BaseAccumulator {
 
       // for EC4 /Nucleon or /MolecularNucleon are equivalent
     } else if ((input_unit.tgtscale ==
-                CrossSection::Units::TargetScale::PerTargetNucleon) &&
+                CrossSection::Units::TargetScale::PerNucleon) &&
                (units.tgtscale ==
-                CrossSection::Units::TargetScale::PerTarget)) {
+                CrossSection::Units::TargetScale::PerAtom)) {
 
       double RescaledFATX = 0;
 
@@ -495,8 +495,8 @@ struct EC4Accumulator : public BaseAccumulator {
     }
 
     throw CrossSection::Units::InvalidUnits()
-        << "GC5Accumulator can only provide FATX in /Target or "
-           "/TargetNucleon currently for inputs in the same two. If you "
+        << "GC2Accumulator can only provide FATX in /Atom or "
+           "/Nucleon currently for inputs in the same two. If you "
            "require other units you may have to convert them yourself. The "
            "input unit for this file was: "
         << input_unit << ", and the requested output unit was: " << units;
@@ -514,26 +514,26 @@ NEW_NuHepMC_EXCEPT(NoMethodToCalculateFATX);
 
 std::shared_ptr<Accumulator>
 MakeAccumulator(std::shared_ptr<HepMC3::GenRunInfo> gri) {
-  if (GC1::SignalsConvention(gri, "G.C.5")) {
+  if (GR4::SignalsConvention(gri, "G.C.2")) {
     return std::shared_ptr<Accumulator>(
-        new GC5Accumulator(gri->weight_index("CV")));
-  } else if (GC1::SignalsConvention(gri, "E.C.4")) {
+        new GC2Accumulator(gri->weight_index("CV")));
+  } else if (GR4::SignalsConvention(gri, "E.C.4")) {
     return std::shared_ptr<Accumulator>(
         new EC4Accumulator(gri->weight_index("CV")));
-  } else if (GC1::SignalsConvention(gri, "E.C.2")) {
+  } else if (GR4::SignalsConvention(gri, "E.C.2")) {
     return std::shared_ptr<Accumulator>(
         new EC2Accumulator(gri->weight_index("CV")));
   }
 
   throw NoMethodToCalculateFATX()
       << "GenRunInfo did not signal any of the possible FATX accumulator "
-         "conventions. Can only use G.C.5, E.C.4.\nConventions signalled: "
+         "conventions. Can only use G.C.2, E.C.4.\nConventions signalled: "
       << CheckedAttributeValue<std::string>(gri, "NuHepMC.Conventions", "");
 }
 
 std::shared_ptr<Accumulator> MakeAccumulator(std::string const &Convention) {
-  if (Convention == "G.C.5") {
-    return std::shared_ptr<Accumulator>(new GC5Accumulator());
+  if (Convention == "G.C.2") {
+    return std::shared_ptr<Accumulator>(new GC2Accumulator());
   } else if (Convention == "E.C.4") {
     return std::shared_ptr<Accumulator>(new EC4Accumulator());
   } else if (Convention == "E.C.2") {
@@ -543,7 +543,7 @@ std::shared_ptr<Accumulator> MakeAccumulator(std::string const &Convention) {
   }
 
   throw NoMethodToCalculateFATX() << "Convention: " << Convention
-                                  << " passed. Can only use G.C.5, E.C.4, or "
+                                  << " passed. Can only use G.C.2, E.C.4, or "
                                      "E.C.2 to build a FATX accumulator.";
 }
 

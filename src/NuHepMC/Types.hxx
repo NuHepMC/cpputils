@@ -12,7 +12,7 @@ using ParticleNumberDescriptors = StatusCodeDescriptors;
 
 using CitationData = std::map<std::string, std::map<std::string, std::string>>;
 
-namespace GC7 {
+namespace GC4 {
 
 enum class EDistType {
   kInvalid = 0,
@@ -155,5 +155,5 @@ struct EnergyDistribution {
   bool is_in_MeV() { return energy_unit == "MEV"; }
 };
 
-} // namespace GC7
+} // namespace GC4
 } // namespace NuHepMC

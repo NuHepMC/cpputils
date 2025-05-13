@@ -21,7 +21,7 @@ struct Accumulator {
   virtual double process(HepMC3::GenEvent const &) = 0;
   // retrieve the best estimate of the fatx in the desired units
   virtual double fatx(CrossSection::Units::Unit const &units =
-                          CrossSection::Units::pb_PerTarget) const = 0;
+                          CrossSection::Units::pb_PerAtom) const = 0;
   virtual double sumweights() const = 0;
   virtual size_t events() const = 0;
 

@@ -21,7 +21,7 @@ public:
   pyFATXAccumulator(std::shared_ptr<FATX::Accumulator> a) : acc(a) {}
   double process(HepMC3::GenEvent const &ev) { return acc->process(ev); }
   double fatx(CrossSection::Units::Unit const &units =
-                  CrossSection::Units::pb_PerTarget) const {
+                  CrossSection::Units::pb_PerAtom) const {
     return acc->fatx(units);
   }
   double sumweights() const { return acc->sumweights(); }
@@ -89,9 +89,9 @@ PYBIND11_MODULE(pyNuHepMC, m) {
 
   py::enum_<CrossSection::Units::TargetScale>(units_utils, "TargetScale")
       .value("CustomType", CrossSection::Units::TargetScale::CustomType)
-      .value("PerTarget", CrossSection::Units::TargetScale::PerTarget)
-      .value("PerTargetNucleon",
-             CrossSection::Units::TargetScale::PerTargetNucleon)
+      .value("PerAtom", CrossSection::Units::TargetScale::PerAtom)
+      .value("PerNucleon",
+             CrossSection::Units::TargetScale::PerNucleon)
       .value("Automatic", CrossSection::Units::TargetScale::Automatic);
 
   py::class_<CrossSection::Units::Unit>(units_utils, "Unit")
@@ -107,7 +107,7 @@ PYBIND11_MODULE(pyNuHepMC, m) {
   py::class_<pyFATXAccumulator>(fatx_utils, "FATXAccumulator")
       .def("process", &pyFATXAccumulator::process)
       .def("fatx", &pyFATXAccumulator::fatx,
-           py::arg("fatx") = NuHepMC::CrossSection::Units::pb_PerTarget)
+           py::arg("fatx") = NuHepMC::CrossSection::Units::pb_PerAtom)
       .def(
           "fatx",
           [](pyFATXAccumulator const &fatxacc, std::string const &units_scale,
@@ -115,54 +115,54 @@ PYBIND11_MODULE(pyNuHepMC, m) {
             return fatxacc.fatx(
                 NuHepMC::GC4::ParseCrossSectionUnits({units_scale, tgt_scale}));
           },
-          py::arg("units_scale") = "pb", py::arg("tgt_scale") = "PerTarget")
+          py::arg("units_scale") = "pb", py::arg("tgt_scale") = "PerAtom")
       .def("sumweights", &pyFATXAccumulator::sumweights)
       .def("events", &pyFATXAccumulator::events)
       .def("__str__", &pyFATXAccumulator::to_string);
   fatx_utils.def("make_accumulator", &pyMakeAccumulator, "");
-  fatx_utils.attr("pb_PerTarget") = NuHepMC::CrossSection::Units::pb_PerTarget;
-  fatx_utils.attr("cm2ten38_PerTarget") =
-      NuHepMC::CrossSection::Units::cm2ten38_PerTarget;
+  fatx_utils.attr("pb_PerAtom") = NuHepMC::CrossSection::Units::pb_PerAtom;
+  fatx_utils.attr("cm2ten38_PerAtom") =
+      NuHepMC::CrossSection::Units::cm2ten38_PerAtom;
   fatx_utils.attr("pb_PerNucleon") =
       NuHepMC::CrossSection::Units::pb_PerNucleon;
   fatx_utils.attr("cm2ten38_PerNucleon") =
       NuHepMC::CrossSection::Units::cm2ten38_PerNucleon;
 
   auto reader_utils = m.def_submodule("ReaderUtils", "");
-  auto reader_utils_gc7 = reader_utils.def_submodule("GC7", "");
+  auto reader_utils_gc4 = reader_utils.def_submodule("GC4", "");
 
-  py::enum_<GC7::EDistType>(reader_utils_gc7, "EDistType")
-      .value("Invalid", GC7::EDistType::kInvalid)
-      .value("MonoEnergetic", GC7::EDistType::kMonoEnergetic)
-      .value("Histogram", GC7::EDistType::kHistogram);
+  py::enum_<GC4::EDistType>(reader_utils_gc4, "EDistType")
+      .value("Invalid", GC4::EDistType::kInvalid)
+      .value("MonoEnergetic", GC4::EDistType::kMonoEnergetic)
+      .value("Histogram", GC4::EDistType::kHistogram);
 
-  py::class_<GC7::EnergyDistribution>(reader_utils_gc7, "EnergyDistribution")
-      .def_readwrite("dist_type", &GC7::EnergyDistribution::dist_type)
+  py::class_<GC4::EnergyDistribution>(reader_utils_gc4, "EnergyDistribution")
+      .def_readwrite("dist_type", &GC4::EnergyDistribution::dist_type)
       .def_readwrite("MonoEnergeticEnergy",
-                     &GC7::EnergyDistribution::MonoEnergeticEnergy)
-      .def_readwrite("energy_unit", &GC7::EnergyDistribution::energy_unit)
-      .def_readwrite("rate_unit", &GC7::EnergyDistribution::rate_unit)
-      .def_readwrite("bin_edges", &GC7::EnergyDistribution::bin_edges)
-      .def_readwrite("bin_content", &GC7::EnergyDistribution::bin_content)
+                     &GC4::EnergyDistribution::MonoEnergeticEnergy)
+      .def_readwrite("energy_unit", &GC4::EnergyDistribution::energy_unit)
+      .def_readwrite("rate_unit", &GC4::EnergyDistribution::rate_unit)
+      .def_readwrite("bin_edges", &GC4::EnergyDistribution::bin_edges)
+      .def_readwrite("bin_content", &GC4::EnergyDistribution::bin_content)
       .def_readwrite("content_is_per_width",
-                     &GC7::EnergyDistribution::ContentIsPerWidth)
-      .def("get_bin_widths", &GC7::EnergyDistribution::get_bin_widths)
-      .def("get_integral", &GC7::EnergyDistribution::get_integral)
-      .def("get_flux_density", &GC7::EnergyDistribution::get_flux_density)
+                     &GC4::EnergyDistribution::ContentIsPerWidth)
+      .def("get_bin_widths", &GC4::EnergyDistribution::get_bin_widths)
+      .def("get_integral", &GC4::EnergyDistribution::get_integral)
+      .def("get_flux_density", &GC4::EnergyDistribution::get_flux_density)
       .def("get_flux_shape_density",
-           &GC7::EnergyDistribution::get_flux_shape_density)
-      .def("get_flux_rate", &GC7::EnergyDistribution::get_flux_rate)
-      .def("get_flux_shape_rate", &GC7::EnergyDistribution::get_flux_shape_rate)
-      .def("set_units", &GC7::EnergyDistribution::set_units)
-      .def("get_bin_centers", &GC7::EnergyDistribution::get_bin_centers)
-      .def("is_in_GeV", &GC7::EnergyDistribution::is_in_GeV)
-      .def("is_in_MeV", &GC7::EnergyDistribution::is_in_MeV);
+           &GC4::EnergyDistribution::get_flux_shape_density)
+      .def("get_flux_rate", &GC4::EnergyDistribution::get_flux_rate)
+      .def("get_flux_shape_rate", &GC4::EnergyDistribution::get_flux_shape_rate)
+      .def("set_units", &GC4::EnergyDistribution::set_units)
+      .def("get_bin_centers", &GC4::EnergyDistribution::get_bin_centers)
+      .def("is_in_GeV", &GC4::EnergyDistribution::is_in_GeV)
+      .def("is_in_MeV", &GC4::EnergyDistribution::is_in_MeV);
 
-  reader_utils_gc7.def("read_all_energy_distributions",
-                       &GC7::ReadAllEnergyDistributions);
-  reader_utils_gc7.def("read_energy_distribution",
-                       &GC7::ReadEnergyDistribution);
-  reader_utils_gc7.def("has_energy_distribution", &GC7::HasEnergyDistribution);
+  reader_utils_gc4.def("read_all_energy_distributions",
+                       &GC4::ReadAllEnergyDistributions);
+  reader_utils_gc4.def("read_energy_distribution",
+                       &GC4::ReadEnergyDistribution);
+  reader_utils_gc4.def("has_energy_distribution", &GC4::HasEnergyDistribution);
 
   auto writer_utils = m.def_submodule("WriterUtils", "");
   writer_utils.def(

@@ -18,7 +18,7 @@ NEW_NuHepMC_EXCEPT(InvalidUnits);
 
 enum class Scale { CustomType, pb, nb, cm2, cm2_ten38, Automatic };
 
-enum class TargetScale { CustomType, PerTarget, PerTargetNucleon, Automatic };
+enum class TargetScale { CustomType, PerAtom, PerNucleon, Automatic };
 
 struct Unit {
   Scale scale;
@@ -30,10 +30,10 @@ struct Unit {
   bool operator!=(Unit const &other) const { return !(*this == other); }
 };
 
-const Unit pb_PerTarget{Scale::pb, TargetScale::PerTarget};
-const Unit cm2ten38_PerTarget{Scale::cm2_ten38, TargetScale::PerTarget};
-const Unit pb_PerNucleon{Scale::pb, TargetScale::PerTargetNucleon};
-const Unit cm2ten38_PerNucleon{Scale::cm2_ten38, TargetScale::PerTargetNucleon};
+const Unit pb_PerAtom{Scale::pb, TargetScale::PerAtom};
+const Unit cm2ten38_PerAtom{Scale::cm2_ten38, TargetScale::PerAtom};
+const Unit pb_PerNucleon{Scale::pb, TargetScale::PerNucleon};
+const Unit cm2ten38_PerNucleon{Scale::cm2_ten38, TargetScale::PerNucleon};
 const Unit automatic{Scale::Automatic, TargetScale::Automatic};
 
 const double pb = 1;

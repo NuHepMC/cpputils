@@ -18,20 +18,14 @@ void WriteVersion(std::shared_ptr<HepMC3::GenRunInfo> run_info);
 } // namespace GR2
 
 namespace GR4 {
-void WriteProcessIDDefinitions(std::shared_ptr<HepMC3::GenRunInfo> run_info,
-                               StatusCodeDescriptors const &Definitions);
+void SetConventions(std::shared_ptr<HepMC3::GenRunInfo> run_info,
+                    std::vector<std::string> const &conventions);
 } // namespace GR4
 
-namespace GR5 {
-void WriteVertexStatusIDDefinitions(
-    std::shared_ptr<HepMC3::GenRunInfo> run_info,
-    StatusCodeDescriptors const &Definitions);
-} // namespace GR5
-
 namespace GR6 {
-void WriteParticleStatusIDDefinitions(
-    std::shared_ptr<HepMC3::GenRunInfo> run_info,
-    StatusCodeDescriptors const &Definitions);
+void SetCrossSectionUnits(std::shared_ptr<HepMC3::GenRunInfo> run_info,
+                          std::string const &xs_units,
+                          std::string const &target_scale);
 } // namespace GR6
 
 namespace GR7 {
@@ -40,42 +34,43 @@ void SetWeightNames(std::shared_ptr<HepMC3::GenRunInfo> run_info,
 } // namespace GR7
 
 namespace GR8 {
+void WriteProcessIDDefinitions(std::shared_ptr<HepMC3::GenRunInfo> run_info,
+                               StatusCodeDescriptors const &Definitions);
+} // namespace GR8
+
+namespace GR9 {
+void WriteVertexStatusIDDefinitions(
+    std::shared_ptr<HepMC3::GenRunInfo> run_info,
+    StatusCodeDescriptors const &Definitions);
+} // namespace GR9
+
+namespace GR10 {
+void WriteParticleStatusIDDefinitions(
+    std::shared_ptr<HepMC3::GenRunInfo> run_info,
+    StatusCodeDescriptors const &Definitions);
+} // namespace GR10
+
+namespace GR11 {
 void WriteNonStandardParticleNumbers(
     std::shared_ptr<HepMC3::GenRunInfo> run_info,
     std::map<int, std::string> const &nonstandard_pdg_definitions);
 void WriteNonStandardParticleNumbers(
     std::shared_ptr<HepMC3::GenRunInfo> run_info,
     ParticleNumberDescriptors const &nonstandard_pdg_definitions);
-} // namespace GR8
+} // namespace GR11
 
 namespace GC1 {
-void SetConventions(std::shared_ptr<HepMC3::GenRunInfo> run_info,
-                    std::vector<std::string> const &conventions);
-} // namespace GC1
-
-namespace GC2 {
-void SetExposureNEvents(std::shared_ptr<HepMC3::GenRunInfo> run_info,
-                        long NEvents);
-} // namespace GC2
-
-namespace GC3 {
 void SetExposurePOT(std::shared_ptr<HepMC3::GenRunInfo> run_info, double POT);
 void SetExposureLivetime(std::shared_ptr<HepMC3::GenRunInfo> run_info,
                          double Livetime);
-} // namespace GC3
+} // namespace GC1
 
-namespace GC4 {
-void SetCrossSectionUnits(std::shared_ptr<HepMC3::GenRunInfo> run_info,
-                          std::string const &xs_units,
-                          std::string const &target_scale);
-} // namespace GC4
-
-namespace GC5 {
+namespace GC2 {
 void SetFluxAveragedTotalXSec(std::shared_ptr<HepMC3::GenRunInfo> run_info,
                               double fatx);
-} // namespace GC5
+} // namespace GC2
 
-namespace GC6 {
+namespace GC3 {
 void AddCitationMetadata(std::shared_ptr<HepMC3::GenRunInfo> run_info,
                          std::string const &component, std::string const &type,
                          std::vector<std::string> const &values);
@@ -87,9 +82,9 @@ void AddGeneratorCitation(std::shared_ptr<HepMC3::GenRunInfo> run_info,
 void AddProcessCitation(std::shared_ptr<HepMC3::GenRunInfo> run_info,
                         int const &ProcID, std::string const &type,
                         std::vector<std::string> const &values);
-} // namespace GC6
+} // namespace GC3
 
-namespace GC7 {
+namespace GC4 {
 
 void WriteBeamUnits(std::shared_ptr<HepMC3::GenRunInfo> run_info,
                     std::string const &EnergyUnit,
@@ -115,7 +110,7 @@ void WriteBeamEnergyDistribution(std::shared_ptr<HepMC3::GenRunInfo> run_info,
 void WriteBeamEnergyDistributions(
     std::shared_ptr<HepMC3::GenRunInfo> run_info,
     std::map<int, EnergyDistribution> const &distributions);
-} // namespace GC7
+} // namespace GC4
 
 namespace ER3 {
 void SetProcessID(HepMC3::GenEvent &evt, int ProcID);
@@ -134,7 +129,7 @@ void SetProcessCrossSection(HepMC3::GenEvent &evt, double CrossSec);
 } // namespace EC3
 
 namespace PC2 {
-void SetRemnantParticleNumber(HepMC3::GenParticlePtr &ptr, int particle_number);
+void SetRemnantNucleusParticleNumber(HepMC3::GenParticlePtr &ptr, int Z, int A);
 } // namespace PC2
 
 } // namespace NuHepMC
