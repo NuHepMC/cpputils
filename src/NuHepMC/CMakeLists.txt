@@ -3,6 +3,7 @@ set(HEADERS
   Constants.hxx
   EventUtils.hxx
   make_writer.hxx
+  Reader.hxx
   ReaderUtils.hxx
   Traits.hxx
   Types.hxx
@@ -14,6 +15,7 @@ set(HEADERS
 set(IMPLEMENTATION 
   EventUtils.cxx
   make_writer.cxx
+  Reader.cxx
   ReaderUtils.cxx
   WriterUtils.cxx
   UnitsUtils.cxx

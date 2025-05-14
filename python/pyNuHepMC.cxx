@@ -1,6 +1,7 @@
 #include "NuHepMC/Constants.hxx"
 #include "NuHepMC/EventUtils.hxx"
 #include "NuHepMC/FATXUtils.hxx"
+#include "NuHepMC/Reader.hxx"
 #include "NuHepMC/ReaderUtils.hxx"
 #include "NuHepMC/Types.hxx"
 #include "NuHepMC/make_writer.hxx"
@@ -90,8 +91,7 @@ PYBIND11_MODULE(pyNuHepMC, m) {
   py::enum_<CrossSection::Units::TargetScale>(units_utils, "TargetScale")
       .value("CustomType", CrossSection::Units::TargetScale::CustomType)
       .value("PerAtom", CrossSection::Units::TargetScale::PerAtom)
-      .value("PerNucleon",
-             CrossSection::Units::TargetScale::PerNucleon)
+      .value("PerNucleon", CrossSection::Units::TargetScale::PerNucleon)
       .value("Automatic", CrossSection::Units::TargetScale::Automatic);
 
   py::class_<CrossSection::Units::Unit>(units_utils, "Unit")
@@ -113,7 +113,7 @@ PYBIND11_MODULE(pyNuHepMC, m) {
           [](pyFATXAccumulator const &fatxacc, std::string const &units_scale,
              std::string const &tgt_scale) {
             return fatxacc.fatx(
-                NuHepMC::GC4::ParseCrossSectionUnits({units_scale, tgt_scale}));
+                NuHepMC::GR6::ParseCrossSectionUnits({units_scale, tgt_scale}));
           },
           py::arg("units_scale") = "pb", py::arg("tgt_scale") = "PerAtom")
       .def("sumweights", &pyFATXAccumulator::sumweights)
@@ -127,6 +127,15 @@ PYBIND11_MODULE(pyNuHepMC, m) {
       NuHepMC::CrossSection::Units::pb_PerNucleon;
   fatx_utils.attr("cm2ten38_PerNucleon") =
       NuHepMC::CrossSection::Units::cm2ten38_PerNucleon;
+
+  py::class_<Reader>(m, "Reader")
+      .def(py::init<std::string const &>())
+      .def("skip", &Reader::skip)
+      .def("read_event", &Reader::read_event)
+      .def("failed", &Reader::failed)
+      .def("close", &Reader::close)
+      .def("set_options", &Reader::set_options)
+      .def("get_options", &Reader::get_options);
 
   auto reader_utils = m.def_submodule("ReaderUtils", "");
   auto reader_utils_gc4 = reader_utils.def_submodule("GC4", "");
