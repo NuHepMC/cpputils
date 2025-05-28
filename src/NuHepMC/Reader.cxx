@@ -9,6 +9,19 @@ int get_in_version(std::shared_ptr<HepMC3::GenRunInfo> gri) {
          CheckedAttributeValue<int>(gri, "NuHepMC.Version.Patch");
 }
 
+template <typename AT>
+void UpdateRunInfoAttributeName(std::shared_ptr<HepMC3::GenRunInfo> gri,
+                                std::string const &old_name,
+                                std::string const &new_name) {
+
+  if (HasAttributeOfType<AT>(gri, old_name)) {
+    gri->add_attribute(
+        new_name,
+        gri->attribute<typename NuHepMC::attr_traits<AT>::type>(old_name));
+    gri->remove_attribute(old_name);
+  }
+}
+
 void update_runinfo_090_to_100(std::shared_ptr<HepMC3::GenRunInfo> gri) {
   if (HasAttributeOfType<std::vector<std::string>>(gri,
                                                    "NuHepMC.Conventions")) {
@@ -33,6 +46,9 @@ void update_runinfo_090_to_100(std::shared_ptr<HepMC3::GenRunInfo> gri) {
     }
     add_attribute(gri, "NuHepMC.Conventions", ncnvs);
   }
+
+  UpdateRunInfoAttributeName<std::string>(gri, "NuHepMC.Beam.RateUnit",
+                                          "NuHepMC.Beam.FluxUnit");
 
   if (HasAttributeOfType<std::string>(
           gri, "NuHepMC.Units.CrossSection.TargetScale")) {
