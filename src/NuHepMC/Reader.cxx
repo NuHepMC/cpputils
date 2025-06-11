@@ -93,6 +93,7 @@ void update_event_090_to_100(HepMC3::GenEvent &evt) {
   UpdateEventAttributeName<std::vector<double>>(evt, "LabPos", "lab_pos");
   UpdateEventAttributeName<double>(evt, "TotXS", "tot_xs");
   UpdateEventAttributeName<double>(evt, "ProcXS", "proc_xs");
+  UpdateEventAttributeName<int>(evt, "ProcID", "signal_process_id");
 }
 
 void update_event(HepMC3::GenEvent &evt, int in_version) {
