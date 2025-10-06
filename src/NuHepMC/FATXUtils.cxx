@@ -246,8 +246,7 @@ struct GC2Accumulator : public BaseAccumulator {
     }
 
     if ((input_unit.tgtscale == CrossSection::Units::TargetScale::PerAtom) &&
-        (units.tgtscale ==
-         CrossSection::Units::TargetScale::PerNucleon)) {
+        (units.tgtscale == CrossSection::Units::TargetScale::PerNucleon)) {
 
       double RescaledFATX = 0;
 
@@ -265,8 +264,7 @@ struct GC2Accumulator : public BaseAccumulator {
 
     } else if ((input_unit.tgtscale ==
                 CrossSection::Units::TargetScale::PerNucleon) &&
-               (units.tgtscale ==
-                CrossSection::Units::TargetScale::PerAtom)) {
+               (units.tgtscale == CrossSection::Units::TargetScale::PerAtom)) {
 
       double RescaledFATX = 0;
 
@@ -318,7 +316,7 @@ struct EC2Accumulator : public BaseAccumulator {
 
     auto xs = EC2::ReadTotalCrossSection(ev);
 
-    if(!xs){ //skip events with 0 cross section
+    if (!xs) { // skip events with 0 cross section
       return w;
     }
 
@@ -351,8 +349,7 @@ struct EC2Accumulator : public BaseAccumulator {
     }
 
     if ((input_unit.tgtscale == CrossSection::Units::TargetScale::PerAtom) &&
-        (units.tgtscale ==
-         CrossSection::Units::TargetScale::PerNucleon)) {
+        (units.tgtscale == CrossSection::Units::TargetScale::PerNucleon)) {
 
       double RescaledFATX = 0;
 
@@ -370,8 +367,7 @@ struct EC2Accumulator : public BaseAccumulator {
 
     } else if ((input_unit.tgtscale ==
                 CrossSection::Units::TargetScale::PerNucleon) &&
-               (units.tgtscale ==
-                CrossSection::Units::TargetScale::PerAtom)) {
+               (units.tgtscale == CrossSection::Units::TargetScale::PerAtom)) {
 
       double RescaledFATX = 0;
 
@@ -453,8 +449,7 @@ struct EC4Accumulator : public BaseAccumulator {
     }
 
     if ((input_unit.tgtscale == CrossSection::Units::TargetScale::PerAtom) &&
-        (units.tgtscale ==
-         CrossSection::Units::TargetScale::PerNucleon)) {
+        (units.tgtscale == CrossSection::Units::TargetScale::PerNucleon)) {
 
       double RescaledFATX = 0;
 
@@ -472,8 +467,7 @@ struct EC4Accumulator : public BaseAccumulator {
       // for EC4 /Nucleon or /MolecularNucleon are equivalent
     } else if ((input_unit.tgtscale ==
                 CrossSection::Units::TargetScale::PerNucleon) &&
-               (units.tgtscale ==
-                CrossSection::Units::TargetScale::PerAtom)) {
+               (units.tgtscale == CrossSection::Units::TargetScale::PerAtom)) {
 
       double RescaledFATX = 0;
 
@@ -514,6 +508,11 @@ NEW_NuHepMC_EXCEPT(NoMethodToCalculateFATX);
 
 std::shared_ptr<Accumulator>
 MakeAccumulator(std::shared_ptr<HepMC3::GenRunInfo> gri) {
+  if (!gri) {
+    throw NoMethodToCalculateFATX()
+        << "MakeAccumulator passed a null pointer for HepMC3::GenRunInfo";
+  }
+
   if (GR4::SignalsConvention(gri, "G.C.2")) {
     return std::shared_ptr<Accumulator>(
         new GC2Accumulator(gri->weight_index("CV")));

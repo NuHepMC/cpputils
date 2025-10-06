@@ -107,10 +107,11 @@ bool Reader::read_event(HepMC3::GenEvent &evt) {
 
   if (!run_info()) {
     update_runinfo(rdr->run_info(), get_in_version(rdr->run_info()));
+    set_run_info(rdr->run_info());
   }
 
   update_event(evt, in_version);
-  evt.set_run_info(rdr->run_info());
+  evt.set_run_info(run_info());
 
   return rdr_rval;
 }

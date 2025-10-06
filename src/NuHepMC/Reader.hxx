@@ -1,6 +1,10 @@
 #pragma once
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+
 #include "HepMC3/ReaderFactory.h"
+#pragma GCC diagnostic pop
 
 #include "NuHepMC/Exceptions.hxx"
 
