@@ -47,6 +47,16 @@ template <> struct attr_traits<std::vector<double>> {
   constexpr static char const typestr[] = "HepMC3::VectorDoubleAttribute";
 };
 
+template <> struct attr_traits<float> {
+  typedef HepMC3::FloatAttribute type;
+  constexpr static char const typestr[] = "HepMC3::FloatAttribute";
+};
+
+template <> struct attr_traits<std::vector<float>> {
+  typedef HepMC3::VectorFloatAttribute type;
+  constexpr static char const typestr[] = "HepMC3::VectorFloatAttribute";
+};
+
 template <> struct attr_traits<std::string> {
   typedef HepMC3::StringAttribute type;
   constexpr static char const typestr[] = "HepMC3::StringAttribute";

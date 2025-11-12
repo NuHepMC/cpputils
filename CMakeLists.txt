@@ -94,9 +94,9 @@ if(NuHepMC_CPPUtils_ENABLE_GCOV)
   target_link_options(nuhepmc_options BEFORE INTERFACE -fprofile-arcs -ftest-coverage)
 endif()
 
-target_include_directories(nuhepmc_options INTERFACE 
+target_include_directories(nuhepmc_options INTERFACE
   $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/src>
-  $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/include> 
+  $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/include>
   $<INSTALL_INTERFACE:include>)
 
 set_target_properties(nuhepmc_options PROPERTIES EXPORT_NAME Options)
@@ -113,31 +113,31 @@ SET(NuHepMC_HEPMC3_MIN_VERSION 3.3.1)
 
 include(get_cpm)
 
-set(NUISANCEHEPData_FMT_VERSION "10.2.1")
-set(NUISANCEHEPData_FMT_VERSION_RANGE "10...<11")
-find_package(fmt ${NUISANCEHEPData_FMT_VERSION} QUIET NO_CMAKE_ENVIRONMENT_PATH)
+set(NuHepMC_FMT_VERSION "10.2.1")
+set(NuHepMC_FMT_VERSION_RANGE "10...<11")
+find_package(fmt ${NuHepMC_FMT_VERSION} QUIET NO_CMAKE_ENVIRONMENT_PATH)
 
-set(NUISANCEHEPData_SPDLOG_VERSION "1.14.1")
-set(NUISANCEHEPData_SPDLOG_VERSION_RANGE "1.14...<1.15")
-find_package(spdlog ${NUISANCEHEPData_SPDLOG_VERSION} QUIET NO_CMAKE_ENVIRONMENT_PATH)
+set(NuHepMC_SPDLOG_VERSION "1.14.1")
+set(NuHepMC_SPDLOG_VERSION_RANGE "1.14...<1.15")
+find_package(spdlog ${NuHepMC_SPDLOG_VERSION} QUIET NO_CMAKE_ENVIRONMENT_PATH)
 
 if(NOT spdlog_FOUND OR NOT fmt_FOUND)
   CPMAddPackage(
       NAME fmt
-      VERSION "${NUISANCEHEPData_FMT_VERSION}"
-      GIT_TAG "${NUISANCEHEPData_FMT_VERSION}"
+      VERSION "${NuHepMC_FMT_VERSION}"
+      GIT_TAG "${NuHepMC_FMT_VERSION}"
       GITHUB_REPOSITORY fmtlib/fmt
-      OPTIONS 
+      OPTIONS
           "FMT_INSTALL ON"
           "BUILD_SHARED_LIBS ON"
   )
 
   CPMAddPackage(
       NAME spdlog
-      VERSION "${NUISANCEHEPData_SPDLOG_VERSION}"
-      GIT_TAG "v${NUISANCEHEPData_SPDLOG_VERSION}"
+      VERSION "${NuHepMC_SPDLOG_VERSION}"
+      GIT_TAG "v${NuHepMC_SPDLOG_VERSION}"
       GITHUB_REPOSITORY gabime/spdlog
-      OPTIONS 
+      OPTIONS
           "SPDLOG_COMPILED_LIB ON"
           "SPDLOG_BUILD_SHARED ON"
           "SPDLOG_FMT_EXTERNAL ON"
@@ -172,7 +172,7 @@ if(NuHepMC_CPPUtils_BUILTIN_HEPMC3)
   CPMAddPackage(
       NAME HepMC3
       VERSION ${NuHepMC_HEPMC3_MIN_VERSION}
-      GIT_REPOSITORY 
+      GIT_REPOSITORY
         https://gitlab.cern.ch/hepmc/HepMC3.git
         https://github.com/hep-mirrors/hepmc3.git
       GIT_TAG master
@@ -295,9 +295,9 @@ install(EXPORT nuhepmc_cpputils-targets
 
 include(CMakePackageConfigHelpers)
 configure_package_config_file(
-  ${CMAKE_CURRENT_LIST_DIR}/cmake/Templates/NuHepMC_CPPUtilsConfig.cmake.in 
+  ${CMAKE_CURRENT_LIST_DIR}/cmake/Templates/NuHepMC_CPPUtilsConfig.cmake.in
   ${CMAKE_BINARY_DIR}/NuHepMC_CPPUtilsConfig.cmake
-  INSTALL_DESTINATION 
+  INSTALL_DESTINATION
     /this/is/ignored/for/some/reason/thanks/kitware
   NO_SET_AND_CHECK_MACRO
   NO_CHECK_REQUIRED_COMPONENTS_MACRO)
@@ -307,9 +307,9 @@ write_basic_package_version_file(
   VERSION ${NuHepMC_CPPUtils_VERSION}
   COMPATIBILITY AnyNewerVersion)
 
-install(FILES 
-    ${CMAKE_BINARY_DIR}/NuHepMC_CPPUtilsConfig.cmake 
-    ${CMAKE_BINARY_DIR}/NuHepMC_CPPUtilsConfigVersion.cmake 
+install(FILES
+    ${CMAKE_BINARY_DIR}/NuHepMC_CPPUtilsConfig.cmake
+    ${CMAKE_BINARY_DIR}/NuHepMC_CPPUtilsConfigVersion.cmake
   DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/cmake/NuHepMC_CPPUtils)
 
 if(NuHepMC_CPPUtils_ENABLE_TESTS)

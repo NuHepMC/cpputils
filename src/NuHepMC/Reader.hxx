@@ -37,7 +37,7 @@ public:
   void set_options(const std::map<std::string, std::string> &options) {
     rdr->set_options(options);
   }
-  std::map<std::string, std::string> get_options() {
+  std::map<std::string, std::string> get_options() const {
     return rdr->get_options();
   }
 };
