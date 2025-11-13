@@ -174,7 +174,6 @@ if(NuHepMC_CPPUtils_BUILTIN_HEPMC3)
       VERSION ${NuHepMC_HEPMC3_MIN_VERSION}
       GIT_REPOSITORY
         https://gitlab.cern.ch/hepmc/HepMC3.git
-        https://github.com/hep-mirrors/hepmc3.git
       GIT_TAG master
       OPTIONS
         "HEPMC3_CXX_STANDARD ${CMAKE_CXX_STANDARD}"
@@ -200,6 +199,7 @@ else() #using a prebuilt HepMC3
   if(TARGET HepMC3::protobufIO)
     find_package(Protobuf 2.4 REQUIRED)
     target_link_libraries(nuhepmc_options INTERFACE HepMC3::protobufIO)
+    SET(NuHepMC_CPPUtils_PROTOBUF_INTERFACE ON)
   endif()
 endif()
 
