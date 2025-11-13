@@ -16,21 +16,27 @@ C++ Helper functions for working with
 
 This is the recommended way to use NuHepMC::CPPUtils.
 
-Firstly, use [CPM.cmake](https://github.com/cpm-cmake/CPM.cmake) in your
-project.
+In your CMakeLists.txt, either use the CMake `FetchContent` module:
 
-Then include the following your CMakeLists.txt
+```cmake
+  FetchContent_Declare(
+    NuHepMC_CPPUtils
+    GIT_REPOSITORY "https://github.com/NuHepMC/cpputils.git"
+    GIT_TAG        v1-RC17
+  )
+  FetchContent_MakeAvailable(NuHepMC_CPPUtils)
+```
+
+or, use [CPM.cmake](https://github.com/cpm-cmake/CPM.cmake), which wraps
+`FetchContent` and adds additional useful features:
+
 ```cmake
 CPMAddPackage(
   NAME NuHepMC_CPPUtils
-  GIT_TAG main
   GIT_REPOSITORY "https://github.com/NuHepMC/cpputils.git"
-  OPTIONS "NuHepMC_CPPUtils_BUILTIN_HEPMC3 ON"
+  GIT_TAG main
 )
 ```
-
-If you already have a compatible copy of `HepMC3` that is visible to CMake,
-then you can omit the `OPTIONS` argument.
 
 Then link your targets like so:
 ```cmake
