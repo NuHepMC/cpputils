@@ -1,5 +1,7 @@
 #pragma once
 
+#include "NuHepMC/HepMC3Features.hxx"
+
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-parameter"
 
