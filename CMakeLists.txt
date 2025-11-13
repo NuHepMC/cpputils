@@ -28,7 +28,7 @@ cmake_minimum_required (VERSION 3.17 FATAL_ERROR)
 find_program(CMAKE_C_COMPILER NAMES $ENV{CC} gcc PATHS ENV PATH NO_DEFAULT_PATH)
 find_program(CMAKE_CXX_COMPILER NAMES $ENV{CXX} g++ PATHS ENV PATH NO_DEFAULT_PATH)
 
-SET(NuHepMC_CPPUtils_VERSION 0.9.9)
+SET(NuHepMC_CPPUtils_VERSION 0.9.10)
 project(NuHepMC_CPPUtils VERSION ${NuHepMC_CPPUtils_VERSION} LANGUAGES CXX)
 
 # The specification version used in this repo
