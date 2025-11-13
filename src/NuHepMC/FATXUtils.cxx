@@ -526,7 +526,8 @@ MakeAccumulator(std::shared_ptr<HepMC3::GenRunInfo> gri) {
 
   throw NoMethodToCalculateFATX()
       << "GenRunInfo did not signal any of the possible FATX accumulator "
-         "conventions. Can only use G.C.2, E.C.4.\nConventions signalled: "
+         "conventions. Can only use G.C.2, E.C.2, or E.C.4.\nConventions "
+         "signalled: "
       << CheckedAttributeValue<std::string>(gri, "NuHepMC.Conventions", "");
 }
 

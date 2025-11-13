@@ -19,7 +19,7 @@ auto GetPartFromId(HepMC3::GenEvent &evt, int id) {
       return part;
     }
   }
-  return nullptr;
+  return HepMC3::GenParticlePtr{nullptr};
 }
 
 int main(int argc, char const *argv[]) {
@@ -44,9 +44,9 @@ int main(int argc, char const *argv[]) {
 
   auto in_gen_run_info = evt.run_info();
   auto vtx_statuses =
-      NuHepMC::GR8::ReadVertexStatusIdDefinitions(in_gen_run_info);
+      NuHepMC::GR9::ReadVertexStatusIdDefinitions(in_gen_run_info);
   auto part_statuses =
-      NuHepMC::GR9::ReadParticleStatusIdDefinitions(in_gen_run_info);
+      NuHepMC::GR10::ReadParticleStatusIdDefinitions(in_gen_run_info);
 
   // modify gen_run_info here to add to the file provenance that your code has
   // run on the file
@@ -64,12 +64,12 @@ int main(int argc, char const *argv[]) {
       "MyToolName", "My.Tool.Version",
       "a longer form description of this event processor"});
 
-  NuHepMC::GR8::WriteVertexStatusIDDefinitions(out_gen_run_info, vtx_statuses);
-  NuHepMC::GR9::WriteParticleStatusIDDefinitions(out_gen_run_info,
-                                                 part_statuses);
+  NuHepMC::GR9::WriteVertexStatusIDDefinitions(out_gen_run_info, vtx_statuses);
+  NuHepMC::GR10::WriteParticleStatusIDDefinitions(out_gen_run_info,
+                                                  part_statuses);
 
   // add link to your paper describing this model to the citation metadata
-  NuHepMC::GC6::AddGeneratorCitation(out_gen_run_info, "arxiv",
+  NuHepMC::GC3::AddGeneratorCitation(out_gen_run_info, "arxiv",
                                      {
                                          "2404.12345v3",
                                      });

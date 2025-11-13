@@ -2,8 +2,6 @@
 // HepMC3
 #include "NuHepMC/HepMC3Features.hxx"
 
-#include "HepMC3/ReaderFactory.h"
-
 #include "HepMC3/GenEvent.h"
 #include "HepMC3/GenParticle.h"
 #include "HepMC3/GenVertex.h"
@@ -11,6 +9,7 @@
 #include "NuHepMC/EventUtils.hxx"
 #include "NuHepMC/FATXUtils.hxx"
 #include "NuHepMC/ReaderUtils.hxx"
+#include "NuHepMC/Reader.hxx"
 
 #include <iostream>
 #include <sstream>
@@ -83,7 +82,7 @@ int main(int argc, char const *argv[]) {
 
   std::string inf = argv[1];
 
-  auto rdr = HepMC3::deduce_reader(inf);
+  auto rdr = std::make_unique<NuHepMC::Reader>(inf);
   if (!rdr) {
     std::cout << "Failed to instantiate HepMC3::Reader from " << inf
               << std::endl;
@@ -109,15 +108,15 @@ int main(int argc, char const *argv[]) {
 
   auto FATXAcc = FATX::MakeAccumulator(run_info);
   // read the various status code definitions
-  proc_ids = GR4::ReadProcessIdDefinitions(run_info);
-  vtxstatus = GR5::ReadVertexStatusIdDefinitions(run_info);
-  partstatus = GR6::ReadParticleStatusIdDefinitions(run_info);
+  proc_ids = GR8::ReadProcessIdDefinitions(run_info);
+  vtxstatus = GR9::ReadVertexStatusIdDefinitions(run_info);
+  partstatus = GR10::ReadParticleStatusIdDefinitions(run_info);
 
   // determine the units scale
   ToGeV = Event::ToMeVFactor(evt) * 1E-3;
 
   // re-open the file to start from the first event
-  rdr = HepMC3::deduce_reader(inf);
+  rdr = std::make_unique<NuHepMC::Reader>(inf);
   while (true) {
 
     // read an event and check that you haven't finished the file.
