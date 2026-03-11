@@ -23,6 +23,8 @@ enum class TargetScale { CustomType, PerAtom, PerNucleon, Automatic };
 struct Unit {
   Scale scale;
   TargetScale tgtscale;
+  std::string scale_parsed_from = "";
+  std::string tgtscale_parsed_from = "";
   bool operator==(Unit const &other) const {
     return (scale == other.scale) && (tgtscale == other.tgtscale);
   }

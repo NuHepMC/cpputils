@@ -128,7 +128,7 @@ CrossSection::Units::Unit
 ParseCrossSectionUnits(std::pair<std::string, std::string> const &csu) {
 
   return {ParseCrossSectionScaleUnits(csu.first),
-          ParseCrossSectionTargetScaleUnits(csu.second)};
+          ParseCrossSectionTargetScaleUnits(csu.second), csu.first, csu.second};
 }
 
 CrossSection::Units::Unit
