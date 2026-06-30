@@ -61,9 +61,9 @@ int ParseExtension(std::string const &name) {
     return kBZip2;
   }
   throw NuHepMC::UnknownFilenameExtension()
-      << "Parsed extension: \"" << ext << "\" from filename: \"" << name
-      << "\", could not automatically determine HepMC3::Writer concrete "
-         "type";
+  << "Parsed extension: \"" << ext << "\" from filename: \"" << name
+  << "\"\nSupported extensions: hepmc3, hepmc, proto, pb, gz, lzma, bz2\n"
+  << "Could not automatically determine HepMC3::Writer type";
 }
 
 template <bxz::Compression C>
